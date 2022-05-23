@@ -1,30 +1,18 @@
 import './App.css';
+import React from 'react';
+import SignLogin from './components/signlogin.js';
+import Chat from './components/chat.js';
+import {Route, Routes } from 'react-router-dom';
 
 function App() {
   return (
     <div className="App">
-      <div className="title"><h1>Astrea</h1></div>
-      <div className='prompt'>
-        <form className='register-form'>
-        <div className="userBox" id="email">
-        <input type="text" placeholder=' '/>
-        <label>Email</label>
-        </div>
-        <div className="userBox" id="username">
-        <input type="text" placeholder=' ' required/>
-        <label>Username</label>
-        </div>
-        <div className="userBox" id="password">
-        <input type="password" placeholder=' ' required/>
-        <label>Password</label>
-        </div>
-        <div className="buttonBox">
-          <input type="submit" className="button" value="Register"/>
-        </div>
-        </form>
-        <form className='signin-form'>
-        </form>
-      </div>
+      <Routes>
+      <Route path="/" element={<SignLogin login={true}/>}/>
+      <Route path="login" element={<SignLogin login={true}/>}/>
+      <Route path="register" element={<SignLogin login={false}/>}/>
+      <Route path="chat" element={<Chat/>}/>
+      </Routes>
     </div>
   );
 }

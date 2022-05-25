@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500&family=Open+Sans:wght@700&display=swap');
+
+.loading-container {
+    left:0%;
+    top:0%;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.25);
+    transition: 2s;
+    opacity: 1.0;
+    font-weight: 'IBM Plex Sans';
+}
+
+.modal {
+ left: 50%;
+ top: 50%;
+ width: 350px;
+ height: 150px;
+ transform: translate(-50%, -50%);
+ background: #FEFFFE;
+ border-radius: 25px;
+ position: absolute;
+ box-shadow: 5px 4px 25px 5px;
+ animation: coolmove 2s;
+}
+
+
+@keyframes coolmove {
+    from {
+        left: 50%;
+        top: 0%;
+        transform: translate(-50%,0%);
+    }
+    to {
+        top:50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+    }
+}
+
+.hidden {
+    transition: .5s;
+    opacity: 0.0;
+}
+
+.content {
+    left: 50%;
+    top: 75%;
+    transform: translate(-50%, -75%);
+    position: absolute;
+    overflow: hidden;
+    text-align: center;
+    align-items: center;
+    height: 75%;
+    width: 100%;
+    font-size: 22px;
+    pointer-events: none;
+}
+
+
+input[type="button"] ~ .content {   
+    height: 55%;
+    width: 100%;
+    text-align: center;
+    padding-bottom: 45px;
+}
+
+.modal>input[type="button"] {
+    left: 50%;
+    top: 85%;
+    position: absolute;
+    transform: translate(-50%, -75%);
+    background: #6096BA;
+    color: white;
+    border: none;
+    font-weight: bold;
+    width: 100px;
+    height: 25px;
+    transition: 1s;
+    border-radius: 2px;
+}
+
+.modal>input[type="button"]:hover {
+    background: #4AB7FF;
+    color: black;
+}

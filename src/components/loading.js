@@ -1,8 +1,8 @@
 import React from 'react';
 import './loading.css';
 function Loading(props) {
-    return (<div className={props.show ? "loading-container"  : "hidden"}>
-        <div className={props.show ? "modal" : ""}>
+    return (<div className={props.show ? "loading-container"  : "loading-container hidden"}>
+        <div className={props.show ? "modal" : "hidden"}>
             { props.button && <input type="button" value="continue" onClick={props.function}/>}
             <div className="content">
             {props.children}

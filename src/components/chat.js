@@ -4,6 +4,8 @@ import './chat.css'
 function Chat() {
     return (
         <div className="chat-container">
+                <div className="menu">
+                    </div>
                 <div className="chat">
                     <div className="chat-content">
                         <div className="msg">
@@ -13,8 +15,6 @@ function Chat() {
                     <div className="chat-control">
                         </div>
                 </div>
-                <div className="menu">
-                    </div>
         </div>
     );
 }

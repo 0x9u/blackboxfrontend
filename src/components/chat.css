@@ -1,24 +1,25 @@
 .chat-container {
     position: absolute;
+    display: flex;
     width: 100%;
     height: 100%;
     left: 0%;
     top: 0%;
 }
 .chat {
-    position: absolute;
-    width: 75vmax;
-    height: 100vh;
-    left: 100%;
-    transform: translateX(-100%);
+    height:100%;
+    width: calc(100% - 250px);
     background: rgba(0,0,0,0.5);
+}
+.chat-control {
+    height: 70px;
+    width: 100%;
+    background: red;
 }
 
 .menu {
-    position: absolute;
-    width: 25vmax;
-    height: 100vh;
-    left: 0%;
+    width: 250px;
+    height: 100%;
     background: blue;
 }
 
@@ -27,7 +28,7 @@
     flex-direction: column;
     background:green;
     width: 100%;
-    height: 85%;
+    height: calc(100% - 70px);
 }
 .msg {
     margin: 15px 35px;

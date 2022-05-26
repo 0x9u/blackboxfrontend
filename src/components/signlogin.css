@@ -46,6 +46,9 @@
 color: #FFFFFF;
 text-align: center;
 text-shadow: #000000 0 0 10px;
+position: absolute;
+left: 50%;
+transform: translateX(-50%);
 }
 
 .title>h1{

@@ -12,7 +12,7 @@
     font-weight: 'IBM Plex Sans';
 }
 
-.modal {
+.modal, .loading-container.hidden > div[class='hidden'] {
  left: 50%;
  top: 50%;
  width: 350px;
@@ -22,7 +22,10 @@
  border-radius: 25px;
  position: absolute;
  box-shadow: 5px 4px 25px 5px;
- animation: coolmove 2s;
+}
+
+.modal {
+    animation: coolmove 1s;
 }
 
 
@@ -39,9 +42,15 @@
     }
 }
 
-.hidden {
-    transition: .5s;
+.loading-container.hidden {
     opacity: 0.0;
+    left: 0%;
+    top: 0%;
+    pointer-events: none;
+    position: absolute;
+    transition: 1s;
+    width: 100%;
+    height: 100%;
 }
 
 .content {
@@ -66,7 +75,7 @@ input[type="button"] ~ .content {
     padding-bottom: 45px;
 }
 
-.modal>input[type="button"] {
+.modal>input[type="button"], .hidden>input[type="button"] {
     left: 50%;
     top: 85%;
     position: absolute;

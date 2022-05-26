@@ -30,13 +30,17 @@ function SignLogin(props) {
   function foo(event) {
     console.log("activated");
     setLoad(false);
+    navigate("../chat", {"replace" : true});
   }
   function SignUpSubmit(event) {
       event.preventDefault();
     //post request back to backend server
     //obtain token
     //change route to chatapp
-    setLoad(true);
+    setLoad(true); //possible promise
+    //create promise for post request
+    // then make it run a function from here when finished
+    // or another function on fail
     //navigate("../chat", {"replace" : true});
   }
   function LoginSubmit(event) {
@@ -50,7 +54,7 @@ function SignLogin(props) {
   }
   return (
     <div className="signlogin">
-      <div className="title"><h1>Astrea</h1></div>
+      <div className="title"><h1>BlackBox ;)</h1></div>
       <div className='prompt'>
         <form className={login ? "register-form hidden" : "register-form"} onSubmit={SignUpSubmit}>
         <div className="userBox" id="email">

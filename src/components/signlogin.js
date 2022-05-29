@@ -1,7 +1,7 @@
 import './signlogin.css';
 import React from 'react';
 import { useNavigate } from 'react-router';
-import Loading from './loading.js';
+import {Modal} from './loading.js';
 /*
 Current bugs:
 when switching to register button has a delay
@@ -17,6 +17,7 @@ a quick pointer events fixes it
 function SignLogin(props) {
   const [login, setLogin] = React.useState(props.login);
   const [load, setLoad] = React.useState(false);
+  const [changePage, setChangePage] = React.useState(false);
   const navigate = useNavigate();
   function Change() {
     if (login) { //fixed 2 second lag delay by leaving out arrow function
@@ -27,10 +28,14 @@ function SignLogin(props) {
         navigate("../login", {"replace": true});
     }
   }
+  async function WaitAnim() {
+    await setTimeout(() => navigate("../chat", {"replace" : false}), 1000); //replace: replaces the history (didnt find anything about it in documentation bruh)
+  }
   function foo(event) {
     console.log("activated");
     setLoad(false);
-    navigate("../chat", {"replace" : true});
+    setChangePage(true);
+    WaitAnim();
   }
   function SignUpSubmit(event) {
       event.preventDefault();
@@ -95,7 +100,8 @@ function SignLogin(props) {
           </div>
         </form>
       </div>
-      <Loading button function={foo} show={load}><p>Loading</p></Loading>
+      <div className={ changePage ? "changePage" : "changePage hidden"}></div>
+      <Modal button function={foo} show={load}><p>Loading</p></Modal>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-.chat-container {
+.chat-container { /* Note to self the display doesnt actually feel fully when the user has a phone or a small display*/
     position: absolute;
     display: flex;
     width: 100%;
@@ -8,6 +8,29 @@
     min-height:400px;
     min-width:500px;
 }
+
+@keyframes changePage {
+    0%, 25% {
+        opacity: 1.0;
+    }
+
+    100% {
+        opacity: 0.0;
+        pointer-events: none;
+    }
+}
+
+.pageChange {
+    animation: changePage 1s;
+    animation-fill-mode: forwards;
+    width: 100%;
+    height: 100%;
+    background: #2B2D42;
+    position: absolute;
+    left: 0%;
+    top: 0%;
+}
+
 .chat {
     height:100%;
     width: calc(100% - 250px);
@@ -16,7 +39,7 @@
 .chat-control {
     height: 95px;
     width: 100%;
-    background: red;
+    background: #8896AB;
 }
 .user-input {
     position:relative;
@@ -28,7 +51,7 @@
 }
 
 .user-input textarea {
-    width: calc(100% - 150px);
+    width: calc(100% - 115px);
     border: none;
     outline: none;
     height: 100%;
@@ -39,60 +62,161 @@
     text-align:left;
     resize: none;
     vertical-align: bottom;
+    background: #AEC3B0;
 }
 
 .user-input input[type="button"] {
     border: none;
     outline: none;
-    background: gray;
+    background: #598392;
+    color:white;
+    font-weight: 700;
     border-radius: 5px;
     width: 75px;
     height: 40px;
+    margin-right: 15px;
     transition: 1s;
     margin-bottom: 7.5px;
 }
 
-.user-input input[type="button"]:hover {
-    background: aqua;
+.user-input input[type="button"]:hover, .menu-option:hover, .guild-container:hover > .guild-option {
+    background: #124559;
 }
 
 .menu {
     width: 250px;
     height: 100%;
-    background: blue;
+    background: #474A48;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-option{
+    flex-shrink: 0;
+    width: 100%;
+    height: 50px;
+    background: #598392;
+    border-radius: 15px;
+    width: calc(100% - 20px);
+    transition: 0.5s;
+}
+
+.menu-option:first-child {
+    margin: 10px !important;
 }
 
 .menu-option {
-    width: 100%;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.menu-option, .guild-container {
+    font-weight: 500;
+    color:white;
+}
+
+.guild-container {
+    /*flex-shrink: 0;*/
     height: 75px;
-    background: yellow;
-    border-bottom: red solid 5px;
-}
-
-.menu-option p {
-    margin: 0;
-    top: 25%;
-    left: 25%;  
-}
-
-.chat-content {
     display: flex;
+    flex-direction: row;
+    width: calc(100% - 20px);
+    margin-left: 10px;
+    margin-bottom: 10px;
+    border-radius: 15px;
+}
+
+.guild-container:hover > img{
+    opacity: 0.5;
+}
+
+.guild-container img {
+    height: 75px;
+    width: 35%;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    transition: 0.5s;
+}
+
+.guild-option {
+    width: 65%;
+    height: 75px;
+    background: #598392;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    transition: 0.5s;
+}
+
+.guild-option p {
+    text-align:center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.menu-option p, .guild-option p{
+    text-align: center;
+    top: 50%;
+    position:relative;
+    transform: translate(0,-50%);
+    margin: 0;
+    user-select: none;
+}
+
+/* Change this later */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #488286;
+    border-radius: 5px;
+    transition: 1s;
+}
+
+::-webkit-scrollbar-track {
+    background: #373E40;
+}
+.chat-content {
+    display:flex;
     flex-direction: column;
-    background:green;
+    background:#666370;
     width: 100%;
     height: calc(100% - 95px);
+    overflow-y: auto;
 }
 .msg {
-    margin: 15px 35px;
+    position: relative;
+    display:block;
+    margin: 15px 20px 0px;
 }
 .msg p, .msg img {
     display: inline-block;
 }
-.msg p {
-    margin-left: 15px;
-    vertical-align: bottom;
+
+.msg img {
+    border-radius: 5px;
 }
 
-.msg span {
-    margin-right: 5px;
+.msg p {
+    user-select: none;
+    margin-left: 15px;
+    position: absolute;
+    font-weight:500;
+    color:white;
+    top: 15%;
+    transform: translateY(-15%);
+    word-wrap: break-word;
+}
+
+.msg label {
+    vertical-align: top;
+    top: 0%;
+    margin-left: 15px;
+    position: absolute;
+    color: #9FB1BC;
+    font-weight: bolder;
+    user-select: none;
 }

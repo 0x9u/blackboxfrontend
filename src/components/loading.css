@@ -194,9 +194,10 @@ input[type="button"] ~ .content {
 }
 
 .options {
-    background: green;
-    width: 650px;
+    width: 600px;
     height: 100%;
+    overflow: auto;
+    flex-shrink:0;
 }
 
 
@@ -209,9 +210,11 @@ input[type="button"] ~ .content {
 }
 
 .exit-button > label {
-    margin-left: 7.5px;
+    margin-left: 6.5px;
+    margin-top: 1px;
     font-weight: bolder;
-    font-size: 32px;
+    font-size: 12px !important;
+    color: white !important;
 }
 
 .exit-button > input {
@@ -219,10 +222,170 @@ input[type="button"] ~ .content {
     width: 35px;
     height: 35px;
     transition: 0.5s;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    line-height: 32px;
 }
 
 
 .exit-button > input:hover {
     background: gray;
     transition: 0.5s;
+}
+
+.profile-settings {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.profile-container {
+    position: relative;
+    display:flex;
+    flex-direction: row;
+    border: black solid 5px;
+    border-radius: 15px;
+    margin: 15px 50px;
+    gap: 15px;
+    padding: 30px;
+    background: yellow;
+}
+
+.profile-container > img {
+    width: 100px;
+    height: 100px;
+    margin-top: 15px;
+    display: inline-block;
+    border-radius: 10px;
+    box-shadow: 1px 1px 5px black;
+}
+
+.profile-container > .profile-settings-information {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: calc(100% - 100px - 15px);
+    background: gray;
+    box-shadow: 1px 1px 5px black;
+    border-radius: 10px;
+    padding: 5px;
+    margin-top: -5px;
+}
+
+.profile-details {
+    margin-left: 15px;
+    margin-top: 5.5px;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-details > div > p {
+    margin: 0px;
+    margin-left: 15px;
+    color: white;
+    display:inline;
+}
+
+.profile-details > label {
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 0px;
+}
+
+.profile-details > div > input {
+    display: inline;
+    margin-left: 50px;
+    float:right;
+    margin-right: 10px;
+    background: silver;
+    outline: none;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 14px;
+    border: none;
+    transition: 0.25s;
+    /*
+    position: absolute;
+    right: 40%;
+    transform: translateX(40%);
+    */
+}
+
+.profile-details > div > input:hover {
+    background: sandybrown;
+}
+
+.profile-details > div > input:active {
+    background: white;
+}   
+
+input[type='button']#logout {
+    background: rgba(255,0,0,0.25);
+    border: 2px solid red;
+}
+
+input[type='button']#logout:hover {
+    background: red;
+}
+
+.option-box {
+    border-top: 2px solid black;
+    margin: 5px 50px;
+    display: flex;
+    flex-direction:column;
+}
+
+.option-box > div {
+    width: 100%;
+    margin: 10px 5px;
+    align-items: center;
+}
+
+.option-box > div > label {
+    margin-left: 25px;
+}
+
+.checkBox {
+    float: right;
+    margin-right: 25px;
+}
+
+.checkBox > input[type='checkbox'] {
+    opacity: 0; /* temp fix I hate css I want to die*/
+    position: absolute;
+    width: 45px;
+    height: 20px;
+}
+
+.checkBox > div {
+    margin-left: 5px;
+    width: 45px;
+    height: 20px;
+    background: gray;
+    border-radius: 15px;
+    position: relative;
+    display: inline-block;
+    pointer-events: none;
+}
+
+.checkBox > div::after {
+    width: 15px;
+    height: 15px;
+    background: red;
+    position: absolute;
+    line-height: 0;
+    content: "";
+    border-radius: 25px;
+    top: 2.5px;
+    left: 2.5px;
+    transition: 0.5s;
+    pointer-events: none;
+}
+
+.checkBox > input[type='checkbox']:checked + div::after {
+    transform: translateX(25px);
+    background: green;
 }

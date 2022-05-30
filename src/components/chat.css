@@ -138,6 +138,7 @@
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     transition: 0.5s;
+    user-select: none;
 }
 
 .guild-option {
@@ -199,10 +200,10 @@
 
 .msg img {
     border-radius: 5px;
+    user-select: none;
 }
 
 .msg p {
-    user-select: none;
     margin-left: 15px;
     position: absolute;
     font-weight:500;
@@ -219,5 +220,4 @@
     position: absolute;
     color: #9FB1BC;
     font-weight: bolder;
-    user-select: none;
 }

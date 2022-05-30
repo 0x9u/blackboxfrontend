@@ -37,7 +37,7 @@ function Chat() { //might turn into class
     return (
         <div className="chat-container">
                 <div className="menu">
-                    <MenuOption name="Menu" function={() => setShow(true)}/>
+                    <MenuOption name="Settings" function={() => setShow(true)}/>
                     <MenuOption name="Games (Not Working yet)" function={() => 1}/>
                     <MenuOption name="Create/Add Chat" function={() => 1}/>
                     <Guild img="https://image.shutterstock.com/z/stock-vector-illustration-of-simple-house-isolated-on-white-background-1937900650.jpg" name="Gods plan"/>

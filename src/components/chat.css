@@ -5,7 +5,7 @@
     height: 100%;
     left: 0%;
     top: 0%;
-    min-height:400px;
+    min-height: 300px;
     min-width:500px;
 }
 
@@ -63,6 +63,7 @@
     resize: none;
     vertical-align: bottom;
     background: #AEC3B0;
+    font-size: 16px;
 }
 
 .user-input input[type="button"] {

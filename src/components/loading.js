@@ -28,6 +28,13 @@ function Menu(props) { //pass set states function to be able change options thro
             <div className="options-menu">
                 <div className="option-heading"><p>Profile</p></div>
                 <div className="option-button"><input type="button" value="Appearance"/></div>
+                <div className="option-button"><input type="button" value="Appearance"/></div>
+                <div className="option-button"><input type="button" value="Appearance"/></div>
+                <div className="option-heading"><p>Profile</p></div>
+                <div className="option-button"><input type="button" value="Appearance"/></div>
+                <div className="option-button"><input type="button" value="Appearance"/></div>
+                <div className="option-heading"><p>Profile</p></div>
+                <div className="option-button"><input type="button" value="Appearance"/></div>
             </div>
                 <div className="options-container">
                     <div className="options"></div>

@@ -221,3 +221,91 @@
     color: #9FB1BC;
     font-weight: bolder;
 }
+
+.add-chat-options {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    /*background: rgba(0,0,0,0.5);*/
+    flex-grow: 1;
+
+}
+
+.add-chat-options > p {
+    text-align: center;
+    width: 100%;
+    font-weight: bold;
+    font-size: 20px;
+    flex: 0 1;
+}
+
+.chat-options-container, .chat-create-container, .chat-join-container {
+    display: flex;
+    transition: 0.25;
+}
+
+.chat-options-container {
+    flex: 1 0;
+    padding: 25px 15px;
+} 
+
+.chat-options-container > button {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: none;
+    margin: 0px 2px;
+    justify-content: center;
+    transition: 0.25s;
+    background: gold;
+}
+
+.chat-options-container > button:hover {
+    background: blue;
+}
+
+.chat-options-container > button:active {
+    transition: 0s;
+    background: yellow;
+}
+
+.chat-options-container > button > img {
+    width: 125px;
+    height: 50px;
+    flex: 1 0;
+    border-radius: 5px;
+    margin: 2px;
+    align-self: center;
+}
+
+.chat-options-container > button > label {
+    font-size: 25px;
+    left: 15px;
+    flex: 0 0;
+    align-self: center;
+}
+
+.hidden {
+    opacity: 0.0;
+    transition: 0.25s;
+}
+
+.chat-create-container.hidden, .chat-join-container.hidden, .chat-options-container.hidden {
+    display: none
+}
+
+.chat-create-container {
+    flex: 1 0;
+    flex-direction: row;
+}
+
+.chat-create-container > .create-information {
+    background: red;
+    width: 50%;
+    height: 100%;
+}

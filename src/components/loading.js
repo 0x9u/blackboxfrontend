@@ -1,11 +1,11 @@
 import React from 'react';
 import './loading.css';
 
-function Modal (props) {
+function Modal (props) { //manual transition fix for now
     return (<div className={props.show ? "modal-container"  : "modal-container hidden"}>
-        <div className={props.show ? "modal" : "hidden"} style={{width: (props.width || "350")+"px", height: (props.height || "150")+"px"}}>
-            { props.button && <input type="button" value="continue" onClick={props.function}/>}
-            <div className="content">
+        <div className={props.show ? "modal" : "hidden"} style={{width: (props.width || "350")+"px", height: (props.height || "150")+"px", transition: props.transition || "0s"}}>
+            { props.button && <input type="button" value={props.buttonVal} onClick={props.function}/>}
+            <div className={props.show ? "content":"content hidden"}>
             {props.children}
             </div>
         </div>
@@ -48,10 +48,11 @@ function ProfileSettings() {
         </div>
         <div className="option-box">
             <div id="option1"><label>Turn off user</label><CheckBox/></div>
-            <div id="option1"><label>Turn off user</label><CheckBox/></div>
-            <div id="option1"><label>Turn off user</label><CheckBox/></div>
-            <div id="option1"><label>Turn off user</label><CheckBox/></div>
-            <div id="option1"><label>Turn off user</label><CheckBox/></div>
+            <div id="option2"><label>Turn off user</label><CheckBox/></div>
+        </div>
+        <div className="option-box">
+            <p className="option-title">Password</p>
+            <div id="passwordChange"><label for="" >Change password</label> <input type="button" value="Change Password"/></div>
         </div>
     </div>
     );
@@ -69,12 +70,13 @@ function Appearance() {
 
 function Menu(props) { //pass set states function to be able change options through scopes
     const [chosen, setChosen] = React.useState(ProfileSettings);
+    const [active, setActive] = React.useState(0);
     return (
         <div className={props.show ? "menu-container" : "menu-container hidden"}>
             <div className="options-menu">
                 <div className="option-heading"><p>User Settings</p></div>
-                <div className="option-button"><input type="button" value="Appearance" onClick={() => setChosen(Appearance)}/></div>
-                <div className="option-button"><input type="button" value="User Profile" onClick={() => setChosen(ProfileSettings)}/></div>
+                <div className={ active === 0 ? "option-button active" : "option-button"} ><input type="button" value="User Profile" onClick={() => {setActive(0);setChosen(ProfileSettings)}}/></div>
+                <div className={ active === 1 ? "option-button active" : "option-button"}><input type="button" value="Appearance" onClick={() => {setActive(1);setChosen(Appearance)}}/></div>
                 <div className="option-button"><input type="button" value="Log Out" id="logout" /></div>
             </div>
                 <div className="options-container">
@@ -82,7 +84,7 @@ function Menu(props) { //pass set states function to be able change options thro
                         {chosen}
                     </div>
                 <div className="exit-button">
-                <input type="button" onClick={props.exit} value="×"/>
+                <input type="button" onClick={() => {setActive(0); setChosen(ProfileSettings);props.exit()}} value="×"/>
                 <label>Exit</label>
                 </div>
             </div>

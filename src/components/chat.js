@@ -1,6 +1,6 @@
 import React from 'react';
 import './chat.css'
-import {Menu} from './loading.js';
+import {Menu, Modal} from './loading.js';
 
 function Msg(props) {
     return (
@@ -33,13 +33,15 @@ function Guild(props) {
 }
 
 function Chat() { //might turn into class
-    const [show, setShow] = React.useState(false);
+    const [menu, setMenu] = React.useState(false);
+    const [chat, setChat] = React.useState(false);
+    const [create, setCreate] = React.useState(0);
     return (
         <div className="chat-container">
                 <div className="menu">
-                    <MenuOption name="Settings" function={() => setShow(true)}/>
+                    <MenuOption name="Settings" function={() => setMenu(true)}/>
                     <MenuOption name="Games (Not Working yet)" function={() => 1}/>
-                    <MenuOption name="Create/Add Chat" function={() => 1}/>
+                    <MenuOption name="Create/Add Chat" function={() => setChat(true)}/>
                     <Guild img="https://image.shutterstock.com/z/stock-vector-illustration-of-simple-house-isolated-on-white-background-1937900650.jpg" name="Gods plan"/>
                     <Guild img="https://image.shutterstock.com/z/stock-vector-illustration-of-simple-house-isolated-on-white-background-1937900650.jpg" name="Gods plan"/>
                     <Guild img="https://image.shutterstock.com/z/stock-vector-illustration-of-simple-house-isolated-on-white-background-1937900650.jpg" name="Gods plan"/>
@@ -81,7 +83,23 @@ function Chat() { //might turn into class
                         </div>
                     </div>
                 </div>
-                <Menu show={show} exit={() => setShow(false)}/>
+                <Menu show={menu} exit={() => setMenu(false)}/>
+                <Modal show={chat} function={() => {setChat(false); setCreate(0);}} button buttonVal="Exit" width="500" height={create === 1 ? "650" : "350"} transition={create == 1 ? "0.5s" : "0s"}>
+                    <div className="add-chat-options">
+                        <p>Create/Add Chat</p>
+                        <div className={create === 0 ? "chat-options-container" : "chat-options-container hidden"}>
+                            <button onClick={() => setCreate(1)}><label>Create Chat</label><img src="http://www.photogriffon.com/photos-du-monde/DWAYNE-JOHNSON-THE-ROCK-th-best-pictures-ses-plus-belles-photos/DWAYNE-JOHNSON-THE-ROCK-photo-man-maxy-force-bodybuilding-1.jpg"/></button>
+                            <button onClick={() => setCreate(2)}><label>Join Chat</label><img src="http://www.photogriffon.com/photos-du-monde/DWAYNE-JOHNSON-THE-ROCK-th-best-pictures-ses-plus-belles-photos/DWAYNE-JOHNSON-THE-ROCK-photo-man-maxy-force-bodybuilding-1.jpg"/></button>
+                        </div>
+                        <div className={create === 1 ? "chat-create-container" : "chat-create-container hidden"}>
+                            <div className="create-information"></div>
+                            <div className="create-appearance"></div>
+                        </div>
+                        <div className={create === 2 ? "chat-join-container" : "chat-join-container hidden"}>
+                            
+                            </div>
+                    </div>
+                    </Modal>
                 <div className="pageChange"> </div>
         </div>
 

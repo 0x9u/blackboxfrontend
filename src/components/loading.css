@@ -35,14 +35,14 @@
  background: #FEFFFE;
  border-radius: 25px;
  position: absolute;
- box-shadow: 5px 4px 25px 5px;
+ box-shadow: 5px 4px 25px 5px; 
 }
 
 .modal-container.hidden > div[class='hidden'],.modal-container.hidden > div[class='hidden'] > *{
     width: 0px !important;
     height: 0px !important;
     font-size: 0px;
-    transition: 1s;
+    transition: 1s !important;
 }
 
 .menu-container.hidden {
@@ -52,6 +52,7 @@
 
 .modal{
     animation: coolmove 1s;
+    transition: height 1s;
 }
 /*
 #menu {
@@ -86,24 +87,30 @@
 
 .content {
     left: 50%;
-    top: 75%;
-    transform: translate(-50%, -75%);
+    top: 0%;
+    transform: translate(-50%, -0%);
     position: absolute;
     overflow: hidden;
     text-align: center;
     align-items: center;
-    height: 75%;
+    height: 100%;
     width: 100%;
     font-size: 22px;
-    pointer-events: none;
+    opacity: 1.0 !important;
+}
+
+.content.hidden {
+    top: 50%; /* ass crack code*/
+    transform: translate(-50%, -50%);
+    opacity: 0.0 !important;
+    transition: 0.5s !important;
 }
 
 
 input[type="button"] ~ .content {   
-    height: 55%;
+    height: calc(100% - 25px - 15%);
     width: 100%;
     text-align: center;
-    padding-bottom: 45px;
 }
 
 .modal>input[type="button"], .hidden>input[type="button"] {
@@ -173,12 +180,11 @@ input[type="button"] ~ .content {
     border-radius: 5px;
     color: white;
     font-weight: 700;
-    transition: 1s;
+    transition: 0.5s;
 }
 
-.option-button > input:hover {
-    background: rgba(1,250,50,0.5);
-    transition: 1s;
+.option-button.active > input{
+    background: blueviolet;
 }
 
 .options-container {
@@ -202,6 +208,8 @@ input[type="button"] ~ .content {
 
 .options > div {
     overflow: clip;
+    opacity: 0.0;
+    transition: 1s;
 }
 
 .exit-button {
@@ -317,10 +325,6 @@ input[type="button"] ~ .content {
     */
 }
 
-.profile-details > div > input:hover {
-    background: sandybrown;
-}
-
 .profile-details > div > input:active {
     background: white;
 }   
@@ -361,6 +365,7 @@ input[type='button']#logout:hover {
     position: absolute;
     width: 45px;
     height: 20px;
+    cursor: pointer;
 }
 
 .checkBox > div {
@@ -416,4 +421,26 @@ input[type='button']#logout:hover {
     margin: 250px;
     font-size: 32px;
     font-weight: bolder;
+}
+
+.option-title {
+    font-weight: bolder;
+    font-size: 20px;
+    margin-left: 25px;
+}
+
+#passwordChange > input[type='button'] {
+     float: right;
+    margin-right: 25px;
+    border:none;
+    background: green;
+    border-radius: 5px;
+    height: 25px;
+    color: white;
+    font-weight: bold;
+    transition: 0.1s;
+}
+
+#passwordChange > input[type='button']:active {
+    background: gray;
 }

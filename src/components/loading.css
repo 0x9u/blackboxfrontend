@@ -134,7 +134,7 @@ input[type="button"] ~ .content {
     display:flex;
     flex-direction: column;
     flex: 1;
-    overflow: auto;
+
 }
 .option-heading {
     font-weight: bold;
@@ -189,7 +189,7 @@ input[type="button"] ~ .content {
     height: 100%;
     display: flex;
     flex-direction: row;
-    overflow: auto;
+    overflow-y: auto;
     position: relative;
 }
 
@@ -200,13 +200,16 @@ input[type="button"] ~ .content {
     flex-shrink:0;
 }
 
+.options > div {
+    overflow: clip;
+}
 
 .exit-button {
     padding-top: 25px;
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 35px;
+    width: 35px;  
 }
 
 .exit-button > label {
@@ -388,4 +391,29 @@ input[type='button']#logout:hover {
 .checkBox > input[type='checkbox']:checked + div::after {
     transform: translateX(25px);
     background: green;
+}
+
+@keyframes coolthing {
+    from {
+        opacity: 0.0;
+    }
+    to {
+        opacity: 1.0;
+    }
+}
+
+.appearance-settings {
+    display: flex;
+}
+
+.appearance-settings, .profile-settings {
+    opacity: 1.0 !important;
+    transition: 1s;
+}
+
+.appearance-settings > p {
+    text-align: center;
+    margin: 250px;
+    font-size: 32px;
+    font-weight: bolder;
 }

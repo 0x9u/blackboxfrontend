@@ -56,14 +56,25 @@ function ProfileSettings() {
     </div>
     );
 }
+
+function Appearance() {
+    return (
+        <div className="appearance-settings">
+            <p>
+                Coming Soon!
+            </p>
+        </div>
+    );
+}
+
 function Menu(props) { //pass set states function to be able change options through scopes
     const [chosen, setChosen] = React.useState(ProfileSettings);
     return (
         <div className={props.show ? "menu-container" : "menu-container hidden"}>
             <div className="options-menu">
                 <div className="option-heading"><p>User Settings</p></div>
-                <div className="option-button"><input type="button" value="Appearance" onClick={() => setChosen(ProfileSettings)}/></div>
-                <div className="option-button"><input type="button" value="User Profile"/></div>
+                <div className="option-button"><input type="button" value="Appearance" onClick={() => setChosen(Appearance)}/></div>
+                <div className="option-button"><input type="button" value="User Profile" onClick={() => setChosen(ProfileSettings)}/></div>
                 <div className="option-button"><input type="button" value="Log Out" id="logout" /></div>
             </div>
                 <div className="options-container">

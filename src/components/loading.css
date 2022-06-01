@@ -108,7 +108,7 @@
 
 
 input[type="button"] ~ .content {   
-    height: calc(100% - 25px - 15%);
+    height: calc(100% - 45px - 15%);
     width: 100%;
     text-align: center;
 }

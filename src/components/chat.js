@@ -1,6 +1,6 @@
 import React from 'react';
 import './chat.css'
-import {Menu, Modal} from './loading.js';
+import {Menu, Modal, CheckBox} from './loading.js';
 
 function Msg(props) {
     return (
@@ -84,7 +84,7 @@ function Chat() { //might turn into class
                     </div>
                 </div>
                 <Menu show={menu} exit={() => setMenu(false)}/>
-                <Modal show={chat} function={() => {setChat(false); setCreate(0);}} button buttonVal="Exit" width="500" height={create === 1 ? "650" : "350"} transition={create == 1 ? "0.5s" : "0s"}>
+                <Modal show={chat} function={() => {setChat(false); setCreate(0);}} button buttonVal="Exit" width="500" height={create === 1 ? "450" : "350"} transition={create == 1 ? "0.5s" : "0s"}>
                     <div className="add-chat-options">
                         <p>Create/Add Chat</p>
                         <div className={create === 0 ? "chat-options-container" : "chat-options-container hidden"}>
@@ -92,7 +92,17 @@ function Chat() { //might turn into class
                             <button onClick={() => setCreate(2)}><label>Join Chat</label><img src="http://www.photogriffon.com/photos-du-monde/DWAYNE-JOHNSON-THE-ROCK-th-best-pictures-ses-plus-belles-photos/DWAYNE-JOHNSON-THE-ROCK-photo-man-maxy-force-bodybuilding-1.jpg"/></button>
                         </div>
                         <div className={create === 1 ? "chat-create-container" : "chat-create-container hidden"}>
-                            <div className="create-information"></div>
+                            <div className="create-information">
+                                <div className="create-info-option">
+                                <label for="server-name">Server name </label><input id="server-name" type="text"/>
+                                </div>
+                                <div className="create-info-option">
+                                <label >Server name </label><CheckBox disabled/>
+                                </div>
+                                <div className="create-info-option">
+                                <label for="server-name">Server name </label><input id="server-name" type="text"/>
+                                </div>
+                            </div>
                             <div className="create-appearance"></div>
                         </div>
                         <div className={create === 2 ? "chat-join-container" : "chat-join-container hidden"}>

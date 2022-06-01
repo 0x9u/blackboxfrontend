@@ -309,3 +309,24 @@
     width: 50%;
     height: 100%;
 }
+
+.create-info-option {
+    margin: 0px 25px;
+    display: flex;
+    height: 40px;
+}
+
+.create-info-option > label {
+    font-size: 12px;
+    margin: 12px 7.5px;
+    text-align: center;
+}
+
+.create-info-option > input[type='text'] {
+    width: 100px;
+    height: 15px;
+}
+
+.create-info-option > * {
+
+}

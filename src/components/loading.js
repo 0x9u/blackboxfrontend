@@ -23,10 +23,10 @@ function Menu(props) { //will be unused
 }
 */
 
-function CheckBox() {
+function CheckBox(props) {
     return ( //I want to die css is so hard go damn it
         <div className="checkBox">
-            <input id="toggle" type="checkbox"/>
+            <input id="toggle" type="checkbox"disabled={props.disabled}/>
             <div></div>
         </div>
     );
@@ -92,4 +92,4 @@ function Menu(props) { //pass set states function to be able change options thro
     )
 }
 
-export { Modal, Menu };
+export { Modal, Menu, CheckBox };

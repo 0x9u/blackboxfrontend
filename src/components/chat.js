@@ -118,7 +118,8 @@ function Chat() { //might turn into class
                             </div>
                         </div>
                         <div className={create === 2 ? "chat-join-container" : "chat-join-container hidden"}>
-                            
+                            <input placeholder="Invite Code" type="text"/>
+                            <input type="button" value="Join"/>
                             </div>
                     </div>
                     </Modal>

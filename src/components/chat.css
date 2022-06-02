@@ -425,3 +425,17 @@
     border-radius: 5px;
     box-shadow: 1px 1px 4px black;
 }
+
+.chat-join-container {
+}
+
+.chat-join-container > input[type='button'] {
+    width: 50px;
+    justify-self: center;
+    display: block;
+}
+
+.chat-join-container > input[type='text'] {
+    width: 125px;
+    display: block;
+}

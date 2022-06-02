@@ -114,11 +114,14 @@ function Chat() { //might turn into class
                             </div>
                             <div className="create-info-option">
                                 <label for="server-name">Server Name</label><input id="server-name" type="text" maxLength={16}/>
-                                </div>
+                            </div>
+                            <div className='create-info-option'>
+                                <input type="button" value="Create"/>
+                            </div>
                             </div>
                         </div>
                         <div className={create === 2 ? "chat-join-container" : "chat-join-container hidden"}>
-                            <input placeholder="Invite Code" type="text"/>
+                            <input id="invite-input" placeholder="Invite Code" type="text" maxLength={32}/>
                             <input type="button" value="Join"/>
                             </div>
                     </div>

@@ -82,6 +82,39 @@ transform: translateX(-50%);
   transform: translate(-50%, -5%);
 }
 
+.register-form > .userBox#email > label {
+  margin-left: -5px;
+} /* temp fix */
+
+.register-form > .userBox#email > label::after { /* fix bug later  no transition should be here*/
+  position: absolute;
+  left: 95px !important;
+  top: 5px !important;
+  content: "Not Required";
+  color: #A3333D;
+  white-space: nowrap;
+  font-style: italic;
+  font-size: 14px;
+  opacity: 1.0;
+  transition: 0.5s;
+}
+
+.register-form > .userBox#email > input:focus ~ label::after, .register-form > .userBox#email > input:not(:placeholder-shown) ~ label::after {
+  color: white;
+  opacity: 0.0;
+  transition: 0.5s;
+}
+
+.register-form > .userBox#retype-password {
+  left: 50%;
+  top: 55%;
+  transform: translate(-50%, -55%);
+}
+
+.register-form > .userBox#retype-password > label{
+  margin-left: 5px;
+} /* temp fix */
+
 .signin-form > .userBox#username {
   left: 50%;
   top: 15%;
@@ -93,6 +126,7 @@ transform: translateX(-50%);
   top: 35%;
   transform: translate(-50%, -35%);
 }
+
 
 .userBox input {
   border: none;
@@ -119,6 +153,7 @@ transform: translateX(-50%);
   transform: translate(-15%,-40%);
   pointer-events: none;
   transition: .5s;
+  padding: 2.5px 1px;
 }
 
 .buttonBox {
@@ -144,7 +179,7 @@ transform: translateX(-50%);
   box-shadow: 5px 5px 25px 10px #42D9C8;
 }
 
-input:focus ~ label, input:not(:placeholder-shown) ~ label{
+input:focus ~ label, input:not(:placeholder-shown) ~ label {
   top: 0%;
   left: 5%;
   color: burlywood;

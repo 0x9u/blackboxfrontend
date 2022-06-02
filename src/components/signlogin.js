@@ -63,7 +63,7 @@ function SignLogin(props) {
       <div className='prompt'>
         <form className={login ? "register-form hidden" : "register-form"} onSubmit={SignUpSubmit}>
         <div className="userBox" id="email">
-        <input type="text" placeholder=' 'onInvalid={Invalid} spellcheck="false" required/>
+        <input type="text" placeholder=' 'onInvalid={Invalid} spellcheck="false"/>
         <label>Email</label>
         </div>
         <div className="userBox" id="username">
@@ -73,6 +73,10 @@ function SignLogin(props) {
         <div className="userBox" id="password">
         <input type="password" placeholder=' ' spellcheck="false" required/>
         <label>Password</label>
+        </div>
+        <div className="userBox" id="retype-password">
+        <input type="password" placeholder=' ' spellcheck="false" required/>
+        <label>Retype password</label>
         </div>
         <div className="buttonBox">
           <input type="submit" className="button" value="Register"/>
@@ -89,7 +93,7 @@ function SignLogin(props) {
           </div>
           <div className="userBox" id="password">
           <input type="password" placeholder=' 'spellcheck="false" required/>
-            <label>password</label>
+            <label>Password</label>
           </div>
           <div className="buttonBox">
           <input type="submit" className="button" value="Sign In"/>

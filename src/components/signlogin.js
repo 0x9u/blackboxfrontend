@@ -105,7 +105,7 @@ function SignLogin(props) {
         </form>
       </div>
       <div className={ changePage ? "changePage" : "changePage hidden"}></div>
-      <Modal button function={foo} show={load} buttonVal="continue"><p style={{"margin-top": "35px"}}>Loading</p></Modal>
+      <Modal button function={foo} show={load} buttonVal="continue"><p style={{"margin-top": "35px", "font-size" : "22px"}}>Loading</p></Modal>
     </div>
   );
 }

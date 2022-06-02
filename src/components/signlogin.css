@@ -179,7 +179,7 @@ transform: translateX(-50%);
   box-shadow: 5px 5px 25px 10px #42D9C8;
 }
 
-input:focus ~ label, input:not(:placeholder-shown) ~ label {
+.userBox > input:focus ~ label, .userBox > input:not(:placeholder-shown) ~ label {
   top: 0%;
   left: 5%;
   color: burlywood;

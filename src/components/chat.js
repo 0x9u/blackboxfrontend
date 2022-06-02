@@ -113,7 +113,7 @@ function Chat() { //might turn into class
                             </div>
                             </div>
                             <div className="create-info-option">
-                                <label for="server-name">Server Name</label><input id="server-name" type="text" maxLength={16}/>
+                                <label htmlFor="server-name">Server Name</label><input id="server-name" type="text" maxLength={16}/>
                             </div>
                             <div className='create-info-option'>
                                 <input type="button" value="Create"/>

@@ -108,21 +108,27 @@ function Chat() { //might turn into class
                             <div className="create-appearance">
                             <div className="create-info-option" id="change-profile">
                                 <div className="change-profile">
-                                <img src="https://www.pngitem.com/pimgs/m/661-6619328_default-avatar-png-blank-person-transparent-png.png"/>
-                            <input type="file"/>
-                            </div>
+                                    <img src="https://www.pngitem.com/pimgs/m/661-6619328_default-avatar-png-blank-person-transparent-png.png"/>
+                                    <input type="file"/>
+                                </div>
                             </div>
                             <div className="create-info-option">
-                                <label htmlFor="server-name">Server Name</label><input id="server-name" type="text" maxLength={16}/>
+                                <div className="userBox" id="server-name-input">
+                                    <input placeholder=" " type="text" maxLength={16}/>
+                                    <label>Server Name</label>
+                                </div>
                             </div>
                             <div className='create-info-option'>
-                                <input type="button" value="Create"/>
+                                <input className="default" type="button" value="Create" id="create-chat-button"/>
                             </div>
                             </div>
                         </div>
                         <div className={create === 2 ? "chat-join-container" : "chat-join-container hidden"}>
-                            <input id="invite-input" placeholder="Invite Code" type="text" maxLength={32}/>
-                            <input type="button" value="Join"/>
+                            <div className="userBox" id="invite-input">
+                            <input placeholder=" " type="text" maxLength={32}/>
+                            <label>Invite Code</label>
+                            </div>
+                            <input className="default" type="button" value="Join"/>
                             </div>
                     </div>
                     </Modal>

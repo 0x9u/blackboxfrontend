@@ -41,17 +41,13 @@ function ProfileSettings(props) {
         <div className="profile-container">
             <div className="profile-settings-information">
                 <div className="profile-details" id="username">
-                <label >Username:</label><div><p id="username">JohnCena</p><input type="button" value="Change" onClick={() => props.userFunc(true)}/></div>
+                <label >Username:</label><div><p id="username">JohnCena</p><input className="default" type="button" value="Change" onClick={() => props.userFunc(true)}/></div>
                 </div>
                 <div className="profile-details" id="email">
-                <label>Email:</label><div><p>123@biglore.com</p><input type="button" value="Change" onClick={() => props.emailFunc(true)}/></div>
+                <label>Email:</label><div><p>123@biglore.com</p><input className="default" type="button" value="Change" onClick={() => props.emailFunc(true)}/></div>
                 </div>
             </div>
             <img src="https://i.kym-cdn.com/entries/icons/original/000/037/512/004ergTRgx07MxKZhGEw01041200l6Sn0E010.mp4_snapshot_00.02.418.jpg"/>
-        </div>
-        <div className="option-box">
-            <div id="option1"><label>Turn off user</label><CheckBox/></div>
-            <div id="option2"><label>Turn off user</label><CheckBox/></div>
         </div>
         <div className="option-box">
             <p className="option-title">Password</p>
@@ -99,27 +95,33 @@ function Menu(props) { //pass set states function to be able change options thro
                         {render()}
                     </div>
                 <div className="exit-button">
-                <input type="button" onClick={() => {setActive(0);props.exit()}} value="×"/>
+                <input className="default" type="button" onClick={() => {setActive(0);props.exit()}} value="×"/>
                 <label>Exit</label>
                 </div>
             </div>
             <Modal show={changeUser} function={() => showChangeUser(false)} otherbuttons={[{ value : "Done", function : () => {}}]} buttonVal="Exit" button width="450" height="300">
-                <label>New Username</label>
-                <input type="text"/>
-                <label>Current Password</label>
-                <input type="password"/>
+                <form className="changeUsernameModal">
+                    <label>New Username</label>
+                    <input type="text" id="changeUsernameInput"/>
+                    <label>Current Password</label>
+                    <input type="password" id="confirmPass"/>
+                </form>
             </Modal>
-            <Modal show={changeEmail} function={() => showChangeEmail(false)} buttonVal="Exit" button width="450" height="300">
-                <label>New Email</label>
-                <input type="text"/>
-                <label>Current Password</label>
-                <input type="password"/>
+            <Modal show={changeEmail} function={() => showChangeEmail(false)} otherbuttons={[{ value : "Done", function : () => {}}]} buttonVal="Exit" button width="450" height="300">
+                <form className="changeEmailModal">
+                    <label>New Email</label>
+                    <input type="text"/>
+                    <label>Current Password</label>
+                    <input type="password"/>
+                </form>
             </Modal>
-            <Modal show={changePass} function={() => showChangePass(false)} buttonVal="Exit" button width="450" height="300">
-                <label>New Password</label>
-                <input type="password"/>
-                <label>Current Password</label>
-                <input type="password"/>
+            <Modal show={changePass} function={() => showChangePass(false)} otherbuttons={[{ value : "Done", function : () => {}}]} buttonVal="Exit" button width="450" height="300">
+                <form className="changePasswordModal">
+                    <label>New Password</label>
+                    <input type="password"/>
+                    <label>Current Password</label>
+                    <input type="password"/>
+                </form>
             </Modal>
         </div>
     )

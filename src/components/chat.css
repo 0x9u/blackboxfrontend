@@ -436,32 +436,27 @@
     height: 25px;
     outline: none;
     border: none;
-    background: #6096BA;
-    color: white;
     border-radius: 2.5px;
-    transition: 1s;
 }
 
-#server-name input[type='text'], .chat-join-container > input[type='button']
 
-.chat-join-container > input[type='button']:hover {
-    background: #4AB7FF;
-    color: black;
-}
 
-.chat-join-container > input[type='text'] {
-    position: absolute;
+.userBox#invite-input {
+    position:absolute;
+    top: 50%;
     left: 50%;
-    top: 45%;
-    transform: translate(-50%, -45%);
-    width: 150px;
+    transform: translate(-50%, -50%);
+}
+
+.userBox#server-name-input {
+    position: relative;
+}
+
+.userBox#server-name-input input {
+    width: 175px;
+}
+
+input[type='button']#create-chat-button {
+    width: 75px;
     height: 25px;
-    background: rgba(0,0,0,0.6);
-    box-shadow: 1px 1px 30px black;
-    color: white;
-    border: none;
-    border-bottom: 1.5px solid black;
-    outline: none;
-    border-radius: 5px;
-    font-size: 12px;
 }

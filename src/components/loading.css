@@ -112,16 +112,10 @@
     text-align: center;
 }
 
-.modal > .buttons {
+.modal > .buttons{
     width: 100%;
     height: 45px;
 
-}
-
-.hidden > .buttons {
-    height: 0px;
-    width: 0px;
-    flex-shrink: 1;
 }
 
 .modal > .buttons, .hidden > .buttons {
@@ -152,7 +146,7 @@
 }
 
 .options-menu {
-    background: blue;
+    background: #37505C;
     width: 350px;
     padding-left: calc(25% - 350px);
     height: 100%;
@@ -207,7 +201,7 @@
 
 .options-container {
     flex: 2;
-    background: red;
+    background: #4F5D75;
     width: 650px; /* unsure why it overwraps the options menu check later temp fix */
     padding-right: calc(75% - 650px);
     height: 100%;
@@ -235,7 +229,8 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 35px;  
+    width: 35px;
+    background: none;
 }
 
 .exit-button > label {
@@ -247,7 +242,8 @@
 }
 
 .exit-button > input {
-    border-radius: 25px;
+    border-radius: 25px !important;
+    border: solid 2px black !important;
     width: 35px;
     height: 35px;
     transition: 0.5s;
@@ -296,7 +292,7 @@
     flex-direction: column;
     height: 100%;
     width: calc(100% - 100px - 15px);
-    background: gray;
+    background: #A0AAB2;
     box-shadow: 1px 1px 5px black;
     border-radius: 10px;
     padding: 5px;
@@ -329,7 +325,6 @@
     margin-left: 50px;
     float:right;
     margin-right: 10px;
-    background: silver;
     outline: none;
     border-radius: 4px;
     padding: 4px;
@@ -342,10 +337,6 @@
     transform: translateX(40%);
     */
 }
-
-.profile-details > div > input:active {
-    background: white;
-}   
 
 input[type='button']#logout {
     background: rgba(255,0,0,0.25);
@@ -361,6 +352,7 @@ input[type='button']#logout:hover {
     margin: 5px 50px;
     display: flex;
     flex-direction:column;
+    color: white;
 }
 
 .option-box > div {
@@ -471,3 +463,37 @@ input[type='button']#logout:hover {
 #passwordChange > input[type='button']:active {
     background: gray;
 }
+
+.changeUsernameModal, .changePasswordModal, .changeEmailModal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    height: 50px;   
+}
+
+.userBox > input:focus ~ label, .userBox > input:not(:placeholder-shown) ~ label {
+    top: 0%;
+    left: 5%;
+    color: burlywood;
+    font-size: 10px;
+}
+
+input[type='button'].default {
+    background: #6096BA;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    font-weight: bold;
+    transition: 1s;
+}
+input[type='button'].default:hover {
+    background: #4AB7FF;
+    color: black;
+}
+input[type='button'].default:active {
+    background: white;
+}   

@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router';
 import {Modal} from './loading.js';
 /*
 Current bugs:
-when switching to register button has a delay
-in that delay the register button cannot be clicked
+when switching to register button has a delay - fixed
+in that delay the register button cannot be clicked - fixed
 Possiblities:
   Transition bug?
   css?
@@ -78,7 +78,7 @@ function SignLogin(props) {
         <input type="password" placeholder=' ' spellcheck="false" required/>
         <label>Retype password</label>
         </div>
-        <div className="buttonBox">
+        <div className="signlogin-buttonBox">
           <input type="submit" className="button" value="Register"/>
         </div>
         <div className="switch">
@@ -95,7 +95,7 @@ function SignLogin(props) {
           <input type="password" placeholder=' 'spellcheck="false" required/>
             <label>Password</label>
           </div>
-          <div className="buttonBox">
+          <div className="signlogin-buttonBox">
           <input type="submit" className="button" value="Sign In"/>
         </div>
         <div className="switch">

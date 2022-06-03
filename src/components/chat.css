@@ -329,18 +329,21 @@
     margin: 0px 2px;
     justify-content: center;
     transition: 0.25s;
-    background: gold;
+    background: #3F88C5;
+    border-radius: 20px;
+    color:white;
 }
 
 .chat-options-container > button:hover {
-    background: blue;
+    background: #0F7173;
 }
 
 .chat-options-container > button:active {
     transition: 0s;
-    background: yellow;
+    background: #272932;
 }
 
+/*
 .chat-options-container > button > img {
     width: 125px;
     height: 50px;
@@ -349,6 +352,7 @@
     margin: 2px;
     align-self: center;
 }
+*/
 
 .chat-options-container > button > label {
     font-size: 25px;
@@ -372,7 +376,6 @@
 }
 
 .chat-create-container > .create-information, .chat-create-container > .create-appearance {
-    background: red;
     width: 50%;
     height: 100%;
 }
@@ -384,11 +387,12 @@
 }
 
 .create-info-option > label {
-    font-size: 12px;
+    font-size: 14px;
     margin: 12px 7.5px;
     text-align: center;
     flex-basis: 25px;
     flex: 1 0 ;
+    font-weight: 600;
 }
 
 .create-info-option > input[type='text'] {
@@ -403,7 +407,6 @@
 }
 
 .create-appearance {
-    background: blue;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -456,7 +459,55 @@
     width: 175px;
 }
 
+.userBox#server-name-input > input:focus ~ label, .userBox#server-name-input > input:not(:placeholder-shown) ~ label, .userBox#invite-input  > input:focus ~ label, .userBox#invite-input > input:not(:placeholder-shown) ~ label {
+    color: white !important;
+    text-shadow: 2px 2px 5px black;
+} /* brah long ass code*/
+
 input[type='button']#create-chat-button {
     width: 75px;
     height: 25px;
+}
+
+#public-server-option {
+    margin-top: 85px;
+}
+
+.server-options-container > p {
+    font-size: 22px;
+}
+
+.server-options-container > .server-options {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+.server-options-container > .server-options > .create-invite-option,.server-options-container > .server-options > .server-buttons-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    height: 100%;
+}
+
+.server-options-container > .server-options > .create-invite-option > div {
+width: 100%;
+}
+
+.server-options-container > .server-options > .create-invite-option > div > p {
+    text-align: left;
+    margin: 15px;
+}
+
+#create-invite-button {
+    width: 100px;
+    height: 25px;
+}
+
+#leave-server-button, #server-settings-button {
+    width: 125px;
+    height: 25px;
+    margin: 15px;
 }

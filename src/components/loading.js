@@ -1,12 +1,15 @@
 import React from 'react';
 import './loading.css';
 
+
+//find better way to fix button shit
 function Modal (props) { //manual transition fix for now
     return (<div className={props.show ? "modal-container"  : "modal-container hidden"}>
         <div className={props.show ? "modal" : "hidden"} style={{width: (props.width || "350")+"px", height: (props.height || "150")+"px", transition: props.transition || "0s"}}>
             <div className="buttons">
+            { props.otherbuttons && props.otherbuttons.filter(button => button.back).map((button) => <input type="button" key={""} value={button.value} onClick={button.function}/>)}
             { props.button && <input type="button" value={props.buttonVal} onClick={props.function}/>}
-            { props.otherbuttons && props.otherbuttons.map((button) => <input type="button" value={button.value} onClick={button.function}/>)}
+            { props.otherbuttons && props.otherbuttons.filter(button => !button.back).map((button) => <input type="button" key={""} value={button.value} onClick={button.function}/>)}
             </div>
             <div className={props.show ? "content":"content hidden"}>
             {props.children}

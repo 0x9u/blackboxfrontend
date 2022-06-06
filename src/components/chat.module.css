@@ -1,4 +1,4 @@
-.chat-container { /* Note to self the display doesnt actually feel fully when the user has a phone or a small display*/
+.chatContainer { /* Note to self the display doesnt actually feel fully when the user has a phone or a small display*/
     position: absolute;
     display: flex;
     width: 100%;
@@ -36,12 +36,12 @@
     width: calc(100% - 250px);
     background: rgba(0,0,0,0.5);
 }
-.chat-control {
+.chatControl {
     height: 95px;
     width: 100%;
     background: #8896AB;
 }
-.user-input {
+.userInput {
     position:relative;
     width: calc(100% - 15px);
     height: calc( 75% - 15px);
@@ -50,7 +50,7 @@
     display:inline-block;
 }
 
-.user-input textarea {
+.userInput textarea {
     width: calc(100% - 115px);
     border: none;
     outline: none;
@@ -66,7 +66,7 @@
     font-size: 16px;
 }
 
-.user-input input[type="button"] {
+.userInput input[type="button"] {
     border: none;
     outline: none;
     background: #598392;
@@ -80,11 +80,11 @@
     margin-bottom: 7.5px;
 }
 
-.user-input input[type="button"]:hover, .menu-option:hover, .guild-container:hover > .guild-option {
+.userInput input[type="button"]:hover, .menuOption:hover, .guildContainer:hover > .guildOption {
     background: #124559;
 }
 
-.menu-user-container{
+.menuUserContainer{
     width: 250px;
     height: 100%;
     display: flex;
@@ -93,26 +93,26 @@
     flex-grow: 0;
 }
 
-.user-modal {
+.userModal {
     width: 100%;
     height: 75px;
     background: #4E5166;
     display: flex;
 }
 
-.user-modal-profile {
+.userModalProfile {
     height: 100%;
     width: 70px;
 }
 
-.user-modal-username {
+.userModalUsername {
     height: 100%;
     width: 180px;
     display: flex;
     flex-direction: column;
 }
 
-.user-modal-username > p {
+.userModalUsername > p {
     text-align: center;
     color: white;
     font-weight: 500;
@@ -120,7 +120,7 @@
     margin: 10px;
 }
 
-.user-modal-username > div {
+.userModalUsername > div {
     width: 100%;
     height: 35px;
     display: flex;
@@ -128,7 +128,7 @@
     justify-content: center;
 }
 
-.user-modal-username > div > input[type="button"] {
+.userModalUsername > div > input[type="button"] {
     width: 65px;
     height: 22.5px;
     margin: 5px 5px;
@@ -140,11 +140,11 @@
     transition: 0.5s;
 }
 
-.user-modal-username > div > input[type="button"]:hover {
+.userModalUsername > div > input[type="button"]:hover {
     background: #124559;
 }
 
-.user-modal-profile > img {
+.userModalProfile > img {
     width: 50px;
     height: 50px;
     margin: 10px;
@@ -160,7 +160,7 @@
     position: relative;
 }
 
-.menu-option{
+.menuOption{
     flex-shrink: 0;
     width: 100%;
     height: 50px;
@@ -170,21 +170,21 @@
     transition: 0.5s;
 }
 
-.menu-option:first-child {
+.menuOption:first-child {
     margin: 10px !important;
 }
 
-.menu-option {
+.menuOption {
     margin-left: 10px;
     margin-bottom: 10px;
 }
 
-.menu-option, .guild-container {
+.menuOption, .guildContainer {
     font-weight: 500;
     color:white;
 }
 
-.guild-container {
+.guildContainer {
     /*flex-shrink: 0;*/
     height: 75px;
     display: flex;
@@ -195,11 +195,11 @@
     border-radius: 15px;
 }
 
-.guild-container:hover > img{
+.guildContainer:hover > img{
     opacity: 0.5;
 }
 
-.guild-container img {
+.guildContainer img {
     height: 75px;
     width: 35%;
     border-top-right-radius: 15px;
@@ -208,7 +208,7 @@
     user-select: none;
 }
 
-.guild-option {
+.guildOption {
     width: 65%;
     height: 75px;
     background: #598392;
@@ -217,14 +217,14 @@
     transition: 0.5s;
 }
 
-.guild-option p {
+.guildOption p {
     text-align:center;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
 }
 
-.menu-option p, .guild-option p{
+.menuOption p, .guildOption p{
     text-align: center;
     top: 50%;
     position:relative;
@@ -233,22 +233,7 @@
     user-select: none;
 }
 
-/* Change this later */
-::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #488286;
-    border-radius: 5px;
-    transition: 1s;
-}
-
-::-webkit-scrollbar-track {
-    background: #373E40;
-}
-.chat-content {
+.chatContent {
     display:flex;
     flex-direction: column;
     background:#666370;
@@ -289,7 +274,7 @@
     font-weight: bolder;
 }
 
-.add-chat-options {
+.addChatOptions {
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -302,7 +287,7 @@
 
 }
 
-.add-chat-options > p {
+.addChatOptions > p {
     text-align: center;
     width: 100%;
     font-weight: bold;
@@ -310,17 +295,16 @@
     flex: 0 1;
 }
 
-.chat-options-container, .chat-create-container, .chat-join-container {
+.chatOptionsContainer, .chatCreateContainer, .chatJoinContainer {
     display: flex;
-    transition: 0.25;
 }
 
-.chat-options-container {
+.chatOptionsContainer {
     flex: 1 0;
     padding: 25px 15px;
 } 
 
-.chat-options-container > button {
+.chatOptionsContainer > button {
     width: 50%;
     height: 100%;
     display: flex;
@@ -334,17 +318,17 @@
     color:white;
 }
 
-.chat-options-container > button:hover {
+.chatOptionsContainer > button:hover {
     background: #0F7173;
 }
 
-.chat-options-container > button:active {
+.chatOptionsContainer > button:active {
     transition: 0s;
     background: #272932;
 }
 
 /*
-.chat-options-container > button > img {
+.chatOptionsContainer > button > img {
     width: 125px;
     height: 50px;
     flex: 1 0;
@@ -354,7 +338,7 @@
 }
 */
 
-.chat-options-container > button > label {
+.chatOptionsContainer > button > label {
     font-size: 25px;
     left: 15px;
     flex: 0 0;
@@ -364,29 +348,31 @@
 .hidden {
     opacity: 0.0;
     transition: 0.25s;
+    pointer-events: none;
+    visibility: hidden;
 }
 
-.chat-create-container.hidden, .chat-join-container.hidden, .chat-options-container.hidden {
+.chatCreateContainer.hidden, .chatJoinContainer.hidden, .chatOptionsContainer.hidden {
     display: none;
 }
 
-.chat-create-container {
+.chatCreateContainer {
     flex: 1 0;
     flex-direction: row;
 }
 
-.chat-create-container > .create-information, .chat-create-container > .create-appearance {
+.chatCreateContainer > .createInformation, .chatCreateContainer > .createAppearance {
     width: 50%;
     height: 100%;
 }
 
-.create-info-option {
+.createInfoOption {
     margin: 0px 25px;
     display: flex;
     height: 40px;
 }
 
-.create-info-option > label {
+.createInfoOption > label {
     font-size: 14px;
     margin: 12px 7.5px;
     text-align: center;
@@ -395,33 +381,33 @@
     font-weight: 600;
 }
 
-.create-info-option > input[type='text'] {
+.createInfoOption > input[type='text'] {
     width: 100px;
     height: 25px;
 }
 
-.create-info-option > *:not(label) {
+.createInfoOption > *:not(label) {
     align-self: center;
     flex: 1 0;
     margin: 0px;
 }
 
-.create-appearance {
+.createAppearance {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.create-info-option#change-profile {
+.createInfoOption[id='changeProfile'] {
     flex-basis: 75px;
     padding: 45px;
 }
 
-.change-profile > input[type='file'] {
+.changeProfile > input[type='file'] {
     display: none;
 }
 
-.change-profile > img {
+.changeProfile > img {
     width: 100px;
     height: 100px;
     position: relative;
@@ -429,7 +415,7 @@
     box-shadow: 1px 1px 4px black;
 }
 
-.chat-join-container > input[type='button'] {
+.chatJoinContainer > input[type='button'] {
     position: absolute;
     left: 50%;
     top: 75%;
@@ -444,47 +430,47 @@
 
 
 
-.userBox#invite-input {
+div[id='inviteInput'] {
     position:absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
-.userBox#server-name-input {
+div[id='serverNameInput'] {
     position: relative;
 }
 
-.userBox#server-name-input input {
+div[id='serverNameInput'] input {
     width: 175px;
 }
 
-.userBox#server-name-input > input:focus ~ label, .userBox#server-name-input > input:not(:placeholder-shown) ~ label, .userBox#invite-input  > input:focus ~ label, .userBox#invite-input > input:not(:placeholder-shown) ~ label {
+div[id='serverNameInput'] > input:focus ~ label, div[id='serverNameInput'] > input:not(:placeholder-shown) ~ label, div[id='inviteInput']  > input:focus ~ label, div[id='inviteInput'] > input:not(:placeholder-shown) ~ label {
     color: white !important;
     text-shadow: 2px 2px 5px black;
 } /* brah long ass code*/
 
-input[type='button']#create-chat-button {
+input[type='button'][id='createInviteButton'] {
     width: 75px;
     height: 25px;
 }
 
-#public-server-option {
+input[type='button'][id='publicServerOption'] {
     margin-top: 85px;
 }
 
-.server-options-container > p {
+.serverOptionsContainer > p {
     font-size: 22px;
 }
 
-.server-options-container > .server-options {
+.serverOptionsContainer > .serverOptions {
     display: flex;
     height: 100%;
     width: 100%;
     position: absolute;
 }
 
-.server-options-container > .server-options > .create-invite-option,.server-options-container > .server-options > .server-buttons-option {
+.serverOptionsContainer > .serverOptions > .createInviteOption,.serverOptionsContainer > .serverOptions > .serverButtonsOption {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -492,21 +478,25 @@ input[type='button']#create-chat-button {
     height: 100%;
 }
 
-.server-options-container > .server-options > .create-invite-option > div {
+.serverOptionsContainer > .serverOptions > .createInviteOption > div {
 width: 100%;
 }
 
-.server-options-container > .server-options > .create-invite-option > div > p {
+.serverOptionsContainer > .serverOptions > .createInviteOption > div > p {
     text-align: left;
     margin: 15px;
 }
 
-#create-invite-button {
+input[id='createInviteButton'] {
     width: 100px;
     height: 25px;
 }
 
-#leave-server-button, #server-settings-button {
+input[id='createChatButton'] {
+    transition: 0.5s;
+}
+
+input[id='leaveServerButton'], input[id='serverSettingsButton'] {
     width: 125px;
     height: 25px;
     margin: 15px;

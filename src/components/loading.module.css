@@ -1,4 +1,4 @@
-.modal-container, .menu-container{
+.modalContainer, .menuContainer{
     left:0%;
     top:0%;
     position: absolute;
@@ -8,7 +8,11 @@
     min-width: 500px;
 }
 
-.menu-container {
+.hidden {
+    pointer-events: none;
+}
+
+.menuContainer {
     background: white;
     display: flex;
     flex-direction: row;
@@ -16,12 +20,12 @@
     overflow-x: auto;
 }
 
-.modal-container {
+.modalContainer {
     background: rgba(0,0,0,0.25);
     transition: 1s;
 }
 
-.modal, .modal-container.hidden > div[class='hidden'] {
+.modal, .modalContainer.hidden > .hidden {
  left: 50%;
  top: 50%;
  /*
@@ -35,19 +39,25 @@
  box-shadow: 5px 4px 25px 5px; 
 }
 
-.modal-container.hidden > div[class='hidden'],.modal-container.hidden > div[class='hidden'] > *{
+.modalContainer.hidden > .hidden , .modalContainer.hidden > .hidden > *, .modalContainer.hidden > .hidden> .buttons > input[type='button'] {
     width: 0px !important;
     height: 0px !important;
     font-size: 0px;
     transition: 1s !important;
 }
 
-.menu-container.hidden {
-    transition: 0.5s;
-    opacity: 0.0;
+.modalContainer.hidden > .hidden> .buttons > input[type='button'] {
+margin: 5px;
 }
 
-.modal{
+.menuContainer.hidden {
+    transition: 0.5s;
+    opacity: 0.0;
+    width: 0px;
+    height: 0px;
+}
+
+.modal {
     animation: coolmove 1s;
     transition: height 1s;
 }
@@ -71,7 +81,7 @@
     }
 }
 
-.modal-container.hidden {
+.modalContainer.hidden {
     opacity: 0.0;
     left: 0%;
     top: 0%;
@@ -102,7 +112,6 @@
     transition: 0.5s !important;
 }
 
-
 .modal > .buttons ~ .content {   
     height: calc(100% - 45px - 15%);
     width: 100%;
@@ -122,7 +131,7 @@
     transform: translate(-50%, -85%);
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-around !important;
     align-items: center;
 }
 
@@ -142,7 +151,7 @@
     color: black;
 }
 
-.options-menu {
+.optionsMenu {
     background: #37505C;
     width: 350px;
     padding-left: calc(25% - 350px);
@@ -152,21 +161,21 @@
     flex: 1;
 
 }
-.option-heading {
+.optionHeading {
     font-weight: bold;
     border-bottom: 2px solid white;
     padding: 0;
 }
 
-.option-heading p {
+.optionHeading p {
     margin:0;
 }
 
-.option-heading:first-child {
+.optionHeading:first-child {
     margin-top: 10px !important;
 }
 
-.option-heading, .option-button {
+.optionHeading, .optionButton {
     text-align:center;
     color:white;
     width: 120px;
@@ -177,11 +186,11 @@
 }
 
 
-.option-heading ,.option-button {
+.optionHeading ,.optionButton {
     margin-bottom: 10px;
 }
 
-.option-button > input {
+.optionButton > input {
     background: rgba(0,0,0,0.5);
     width: 100%;
     height: 100%;
@@ -192,11 +201,11 @@
     transition: 0.5s;
 }
 
-.option-button.active > input{
+.optionButton.active > input{
     background: blueviolet;
 }
 
-.options-container {
+.optionsContainer {
     flex: 2;
     background: #4F5D75;
     width: 650px; /* unsure why it overwraps the options menu check later temp fix */
@@ -221,7 +230,7 @@
     transition: 1s;
 }
 
-.exit-button {
+.exitButton {
     padding-top: 25px;
     position: relative;
     display: flex;
@@ -230,7 +239,7 @@
     background: none;
 }
 
-.exit-button > label {
+.exitButton > label {
     margin-left: 6.5px;
     margin-top: 1px;
     font-weight: bolder;
@@ -238,7 +247,7 @@
     color: white !important;
 }
 
-.exit-button > input {
+.exitButton > input {
     border-radius: 25px !important;
     border: solid 2px black !important;
     width: 35px;
@@ -251,19 +260,19 @@
 }
 
 
-.exit-button > input:hover {
+.exitButton > input:hover {
     background: gray;
     transition: 0.5s;
 }
 
-.profile-settings {
+.profileSettings {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
 }
 
-.profile-container {
+.profileContainer {
     position: relative;
     display:flex;
     flex-direction: row;
@@ -275,7 +284,7 @@
     background: yellow;
 }
 
-.profile-container > img {
+.profileContainer > img {
     width: 100px;
     height: 100px;
     margin-top: 15px;
@@ -284,7 +293,7 @@
     box-shadow: 1px 1px 5px black;
 }
 
-.profile-container > .profile-settings-information {
+.profileContainer > .profileSettingsInformation {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -296,7 +305,7 @@
     margin-top: -5px;
 }
 
-.profile-details {
+.profileDetails {
     margin-left: 15px;
     margin-top: 5.5px;
     user-select: none;
@@ -304,20 +313,20 @@
     flex-direction: column;
 }
 
-.profile-details > div > p {
+.profileDetails > div > p {
     margin: 0px;
     margin-left: 15px;
     color: white;
     display:inline;
 }
 
-.profile-details > label {
+.profileDetails > label {
     font-weight: bold;
     margin-top: 10px;
     padding: 0px;
 }
 
-.profile-details > div > input {
+.profileDetails > div > input {
     display: inline;
     margin-left: 50px;
     float:right;
@@ -335,16 +344,16 @@
     */
 }
 
-input[type='button']#logout {
+input[type='button'][id='logout'] {
     background: rgba(255,0,0,0.25);
     border: 2px solid red;
 }
 
-input[type='button']#logout:hover {
+input[type='button'][id='logout']:hover {
     background: red;
 }
 
-.option-box {
+.optionBox {
     border-top: 2px solid black;
     margin: 5px 50px;
     display: flex;
@@ -352,13 +361,13 @@ input[type='button']#logout:hover {
     color: white;
 }
 
-.option-box > div {
+.optionBox > div {
     width: 100%;
     margin: 10px 5px;
     align-items: center;
 }
 
-.option-box > div > label {
+.optionBox > div > label {
     margin-left: 25px;
 }
 
@@ -423,29 +432,29 @@ input[type='button']#logout:hover {
     }
 }
 
-.appearance-settings {
+.appearanceSettings {
     display: flex;
 }
 
-.appearance-settings, .profile-settings {
+.appearanceSettings, .profileSettings {
     opacity: 1.0 !important;
     transition: 1s;
 }
 
-.appearance-settings > p {
+.appearanceSettings > p {
     text-align: center;
     margin: 250px;
     font-size: 32px;
     font-weight: bolder;
 }
 
-.option-title {
+.optionTitle {
     font-weight: bolder;
     font-size: 20px;
     margin-left: 25px;
 }
 
-#passwordChange > input[type='button'] {
+div[id='passwordChange'] > input[type='button'] {
      float: right;
     margin-right: 25px;
     border:none;
@@ -457,7 +466,7 @@ input[type='button']#logout:hover {
     transition: 0.1s;
 }
 
-#passwordChange > input[type='button']:active {
+div[id='passwordChange'] > input[type='button']:active {
     background: gray;
 }
 
@@ -472,6 +481,10 @@ input[type='button']#logout:hover {
     height: 50px;   
 }
 
+.userBox {
+    position: absolute;
+  }
+
 .userBox > input:focus ~ label, .userBox > input:not(:placeholder-shown) ~ label {
     top: 0%;
     left: 5%;
@@ -479,18 +492,31 @@ input[type='button']#logout:hover {
     font-size: 10px;
 }
 
-input[type='button'].default {
-    background: #6096BA;
-    color: white;
+.userBox input {
     border: none;
-    border-radius: 2px;
-    font-weight: bold;
-    transition: 1s;
-}
-input[type='button'].default:hover {
-    background: #4AB7FF;
-    color: black;
-}
-input[type='button'].default:active {
-    background: white;
-}   
+    border-bottom: 2px solid black;
+    height: 35px;
+    width: 250px;
+    font-size: 16px;
+    background: rgba(0,0,0,0.45);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    color:white;
+    outline: none;
+    padding: 0 10px;
+    caret-color: rgba(0,0,0,0.5);
+    padding-top: 2.5px;
+  }
+  
+  .userBox label {
+    font-size: 15 px;
+    position: absolute;
+    left:15%;
+    top: 40%;
+    color: white;
+    transform: translate(-15%,-40%);
+    pointer-events: none;
+    transition: .5s;
+    padding: 2.5px 1px;
+  }
+  

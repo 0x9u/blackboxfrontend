@@ -1,7 +1,7 @@
-import './signlogin.css';
+import styles from './signlogin.module.css';
 import React from 'react';
 import { useNavigate } from 'react-router';
-import {Modal} from './loading.js';
+import {Modal, InputBox} from './loading.js';
 /*
 Current bugs:
 when switching to register button has a delay - fixed
@@ -58,54 +58,36 @@ function SignLogin(props) {
     //event.setCustom
   }
   return (
-    <div className="signlogin">
-      <div className="title"><h1>BlackBox ;)</h1></div>
-      <div className='prompt'>
-        <form className={login ? "register-form hidden" : "register-form"} onSubmit={SignUpSubmit}>
-        <div className="userBox" id="email">
-        <input type="text" placeholder=' 'onInvalid={Invalid} spellcheck="false"/>
-        <label>Email</label>
+    <div className={styles.signlogin}>
+      <div className={styles.title}><h1>BlackBox ;)</h1></div>
+      <div className={styles.prompt}>
+        <form className={login ? `${styles.registerForm} ${styles.hidden}` : styles.registerForm} onSubmit={SignUpSubmit}>
+        <InputBox id="email" label="Email" type="text"/>
+        <InputBox id="username" label="Username" type="text"/>
+        <InputBox id="password" label="Password" type="password"/>
+        <InputBox id={"retype-password"} label="Retype Password" type="password"/>
+        <div className={styles.signloginButtonBox}>
+          <input type="submit" className={styles.button} value="Register"/>
         </div>
-        <div className="userBox" id="username">
-        <input type="text" placeholder=' ' spellcheck="false" required/>
-        <label>Username</label>
-        </div>
-        <div className="userBox" id="password">
-        <input type="password" placeholder=' ' spellcheck="false" required/>
-        <label>Password</label>
-        </div>
-        <div className="userBox" id="retype-password">
-        <input type="password" placeholder=' ' spellcheck="false" required/>
-        <label>Retype password</label>
-        </div>
-        <div className="signlogin-buttonBox">
-          <input type="submit" className="button" value="Register"/>
-        </div>
-        <div className="switch">
+        <div className={styles.switch}>
           <p>Already have an account?</p>
-          <input type="button" className="button" value="Sign In" onClick={Change}/>
+          <input type="button" className={styles.button} value="Sign In" onClick={Change}/>
           </div>
         </form>
-        <form className={login ? 'signin-form' : "signin-form hidden"} onSubmit={LoginSubmit}>
-          <div className="userBox" id="username">
-          <input type="text" placeholder=' ' spellcheck="false" required/>
-            <label>Username</label>
-          </div>
-          <div className="userBox" id="password">
-          <input type="password" placeholder=' 'spellcheck="false" required/>
-            <label>Password</label>
-          </div>
-          <div className="signlogin-buttonBox">
-          <input type="submit" className="button" value="Sign In"/>
+        <form className={login ? styles.signinForm : `${styles.signinForm} ${styles.hidden}`} onSubmit={LoginSubmit}>
+        <InputBox id="username" label="Username" type="text"/>
+        <InputBox id="password" label="Password" type="password"/>  
+        <div className={styles.signloginButtonBox}>
+          <input type="submit" className={styles.button} value="Sign In"/>
         </div>
-        <div className="switch">
+        <div className={styles.switch}>
           <p>Don't have an account?</p>
-          <input type="button" className="button" value="Register" onClick={Change}/>
+          <input type="button" className={styles.button} value="Register" onClick={Change}/>
           </div>
         </form>
       </div>
-      <div className={ changePage ? "changePage" : "changePage hidden"}></div>
-      <Modal button function={foo} show={load} buttonVal="continue"><p style={{"margin-top": "35px", "font-size" : "22px"}}>Loading</p></Modal>
+      <div className={ changePage ? styles.changePage : `${styles.changePage} ${styles.hidden}`}></div>
+      <Modal button function={foo} show={load} buttonVal="continue"><p style={{marginTop: "35px", fontSize : "22px"}}>Loading</p></Modal>
     </div>
   );
 }

@@ -10,7 +10,7 @@
   background: #333745;
   box-shadow: 10px 10px 5px rgba(0,0,0,0.25);
 }
-.register-form, .signin-form {
+.registerForm, .signinForm {
   opacity: 1.0;
   transition: .5s;
 }
@@ -47,10 +47,6 @@
   position: fixed;
 }
 
-.userBox {
-  position: absolute;
-}
-
 .title {
 color: #FFFFFF;
 text-align: center;
@@ -64,29 +60,29 @@ transform: translateX(-50%);
   font-size: 12.5vmin;
 }
 
-.register-form > .userBox#password {
+.registerForm > div[id='password'] {
   left: 50%;
   top: 40%;
   transform: translate(-50%, -45%);
 }
 
-.register-form > .userBox#username {
+.registerForm > div[id='username'] {
   left: 50%;
   top: 25%;
   transform: translate(-50%,-25%);
 }
 
-.register-form > .userBox#email {
+.registerForm > div[id='email'] {
   left: 50%;
   top: 10%;
   transform: translate(-50%, -5%);
 }
 
-.register-form > .userBox#email > label {
+.registerForm > div[id='email'] > label {
   margin-left: -5px;
 } /* temp fix */
 
-.register-form > .userBox#email > label::after { /* fix bug later  no transition should be here*/
+.registerForm > div[id='email'] > label::after { /* fix bug later  no transition should be here*/
   position: absolute;
   left: 95px !important;
   top: 5px !important;
@@ -99,64 +95,34 @@ transform: translateX(-50%);
   transition: 0.5s;
 }
 
-.register-form > .userBox#email > input:focus ~ label::after, .register-form > .userBox#email > input:not(:placeholder-shown) ~ label::after {
+.registerForm > div[id='email'] > input:focus ~ label::after, .registerForm > div[id='email'] > input:not(:placeholder-shown) ~ label::after {
   color: white;
   opacity: 0.0;
   transition: 0.5s;
 }
 
-.register-form > .userBox#retype-password {
+.registerForm > div[id='retype-password'] {
   left: 50%;
   top: 55%;
   transform: translate(-50%, -55%);
 }
 
-.register-form > .userBox#retype-password > label{
+.registerForm > div[id='retype-password'] > label{
   margin-left: 5px;
 } /* temp fix */
 
-.signin-form > .userBox#username {
+.signinForm > div[id='username'] {
   left: 50%;
   top: 15%;
   transform: translate(-50%,-15%);
 }
 
-.signin-form > .userBox#password {
+.signinForm > div[id='password'] {
   left: 50%;
   top: 35%;
   transform: translate(-50%, -35%);
 }
-
-
-.userBox input {
-  border: none;
-  border-bottom: 2px solid black;
-  height: 35px;
-  width: 250px;
-  font-size: 16px;
-  background: rgba(0,0,0,0.45);
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  color:white;
-  outline: none;
-  padding: 0 10px;
-  caret-color: rgba(0,0,0,0.5);
-  padding-top: 2.5px;
-}
-
-.userBox label {
-  font-size: 15 px;
-  position: absolute;
-  left:15%;
-  top: 40%;
-  color: white;
-  transform: translate(-15%,-40%);
-  pointer-events: none;
-  transition: .5s;
-  padding: 2.5px 1px;
-}
-
-.signlogin-buttonBox {
+.signloginButtonBox {
   position: absolute;
   left: 50%;
   top: 75%;
@@ -179,7 +145,7 @@ transform: translateX(-50%);
   box-shadow: 5px 5px 25px 10px #42D9C8;
 }
 
-.userBox > input:focus ~ label, .userBox > input:not(:placeholder-shown) ~ label {
+div > input:focus ~ label, div > input:not(:placeholder-shown) ~ label {
   top: 0%;
   left: 5%;
   color: burlywood;

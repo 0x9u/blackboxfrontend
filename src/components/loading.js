@@ -7,9 +7,7 @@ function Modal (props) { //manual transition fix for now
     return (<div className={props.show ? styles.modalContainer  : `${styles.modalContainer} ${styles.hidden}`}>
         <div className={props.show ? styles.modal : styles.hidden} style={{width: (props.width || "350")+"px", height: (props.height || "150")+"px", transition: props.transition || "0s"}}>
             <div className={styles.buttons}>
-            { props.otherbuttons && props.otherbuttons.filter(button => button.back).map((button) => <input type="button" key={""} value={button.value} onClick={button.function}/>)}
-            { props.button && <input type="button" value={props.buttonVal} onClick={props.function}/>}
-            { props.otherbuttons && props.otherbuttons.filter(button => !button.back).map((button) => <input type="button" key={""} value={button.value} onClick={button.function}/>)}
+            { props.buttons && props.buttons.map((button, idx) => <input type="button" key={idx} value={button.value} onClick={button.function}/>)}
             </div>
             <div className={props.show ? styles.content:`${styles.content} ${styles.hidden}`}>
             {props.children}
@@ -87,7 +85,7 @@ function Menu(props) { //pass set states function to be able change options thro
     const [changeUser, showChangeUser] = React.useState(false);
     const [changeEmail, showChangeEmail] = React.useState(false);
     const [changePass, showChangePass] = React.useState(false);
-    function render() {
+    function renderUserSettings() {
         switch (active) {
             case 0:
                 return <ProfileSettings userFunc={showChangeUser} emailFunc={showChangeEmail} passFunc={showChangePass}/>;
@@ -97,24 +95,45 @@ function Menu(props) { //pass set states function to be able change options thro
                 return <p>Something is Wrong!</p>
         }
     }
+    function renderServerSettings() {
+        switch (active) {
+            case 0:
+                return <p>Server Settings</p>;
+            case 1:
+                return <p>Server Settings</p>;
+            default:
+                return <p>Something is Wrong!</p>;
+        }
+    }
     return (
         <div className={props.show ? styles.menuContainer : `${styles.menuContainer} ${styles.hidden}`}>
             <div className={styles.optionsMenu}>
+                {
+                    props.type == 0 ?
+                    <>
                 <div className={styles.optionHeading}><p>User Settings</p></div>
                 <div className={ active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="User Profile" onClick={() => {setActive(0)}}/></div>
                 <div className={ active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Appearance" onClick={() => {setActive(1)}}/></div>
                 <div className={styles.optionButton}><input type="button" value="Log Out" id="logout" /></div>
+                    </>
+                    :
+                    <>
+                <div className={styles.optionHeading}><p>Server Settings</p></div>
+                <div className={ active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Server Settings" onClick={() => {setActive(0)}}/></div>
+                <div className={ active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Ban/Kick User" onClick={() => {setActive(1)}}/></div>
+                    </>
+            }
             </div>
                 <div className={styles.optionsContainer}>
                     <div className={styles.options}>   
-                        {render()}
+                        {props.type == 0 ? renderUserSettings() : renderServerSettings()}
                     </div>
                 <div className={styles.exitButton}>
                 <input className="default" type="button" onClick={() => {setActive(0);props.exit()}} value="×"/>
                 <label>Exit</label>
                 </div>
             </div>
-            <Modal show={changeUser} function={() => showChangeUser(false)} otherbuttons={[{ value : "Done", function : () => {}}]} buttonVal="Exit" button width="450" height="300">
+            <Modal show={changeUser} buttons={[{value:"Exit", function : () => showChangeUser(false)}, { value : "Done", function : () => {}}]} width="450" height="300">
                 <form className={styles.changeUsernameModal}>
                     <label>New Username</label>
                     <input type="text" id="changeUsernameInput"/>
@@ -122,7 +141,7 @@ function Menu(props) { //pass set states function to be able change options thro
                     <input type="password" id="confirmPass"/>
                 </form>
             </Modal>
-            <Modal show={changeEmail} function={() => showChangeEmail(false)} otherbuttons={[{ value : "Done", function : () => {}}]} buttonVal="Exit" button width="450" height="300">
+            <Modal show={changeEmail} buttons={[{value: "Exit", function : () => showChangeEmail(false)}, { value : "Done", function : () => {}}]} width="450" height="300">
                 <form className={styles.changeEmailModal}>
                     <label>New Email</label>
                     <input type="text"/>
@@ -130,7 +149,7 @@ function Menu(props) { //pass set states function to be able change options thro
                     <input type="password"/>
                 </form>
             </Modal>
-            <Modal show={changePass} function={() => showChangePass(false)} otherbuttons={[{ value : "Done", function : () => {}}]} buttonVal="Exit" button width="450" height="300">
+            <Modal show={changePass} buttons={[{value : "Exit", function : () => showChangePass(false)}, { value : "Done", function : () => {}}]} width="450" height="300">
                 <form className={styles.changePasswordModal}>
                     <label>New Password</label>
                     <input type="password"/>

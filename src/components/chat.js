@@ -13,6 +13,15 @@ function Msg(props) {
         );
 }
 
+function User(props) {
+    return (
+        <div className={styles.userListChild}>
+            <img src={props.img} width="50" height="50" alt="pfp"/>
+            <p>{props.username}</p>
+        </div>
+    );
+}
+
 
 function MenuOption(props) {
     return (
@@ -38,7 +47,11 @@ function Chat() { //might turn into class
     const [server, setServer] = React.useState(false); //show server settings / create invite?
     const [chat, setChat] = React.useState(false); //to determine if it should show dialog to invite or create chat
     const [create, setCreate] = React.useState(0); //for type in invite/create chat
-    const [invitetxt, setInviteTxt] = React.useState(""); //for type in invite
+    const [inviteTxt, setInviteTxt] = React.useState(""); //for type in invite
+    const [genInvite, setGenInvite] = React.useState("avbsadjajsdajasdasdsadasdasdasasjiod"); //for generated invite
+    const [userList, setUserList] = React.useState(false); //for userlist
+    const [invite, setInvite] = React.useState(false);
+    const [serverSettings, setServerSettings] = React.useState(false);
 
     function saveChatHistoryOption () {
         console.log("save chat history");
@@ -57,7 +70,7 @@ function Chat() { //might turn into class
         <div className={styles.chatContainer}>
                 <div className={styles.menuUserContainer}>
                 <div className={styles.userModal}>
-                    <div className={styles.userModalUsername}><p>Bob Swanson</p><div><input type="button" value="settings" onClick={() => setMenu(true)}/><input type="button" value="server" onClick={() => setServer(true)}/></div></div>
+                    <div className={styles.userModalUsername}><p>Bob Swanson</p><div><input type="button" value="settings" onClick={() => setMenu(true)}/></div></div>
                     <div className={styles.userModalProfile}><img src="https://i1.sndcdn.com/avatars-IesRuX9vhlBZzVuz-1H6bOA-t500x500.jpg" id="pfp"/></div>
                 </div>
                 <div className={styles.menu}>
@@ -67,8 +80,48 @@ function Chat() { //might turn into class
                     </div>
                 </div>
                 <div className={styles.chat}>
+                    <div className={styles.chatTopMenu}>
+                        <div className={styles.topMenuServerName}>
+                            <p>{"Gods plan"}</p>
+                        </div>
+                        <div className={styles.topMenuServerButton}>
+                        <input type="button" value="server" onClick={() => setServer(!server)}/>
+                        <input type="button" value="user list" onClick={() => setUserList(!userList)}/>
+                        </div>
+                    </div>
+                    <div className={styles.chatContentContainer}>
                     <div className={styles.chatContent}>
                         <Msg username="The Rock" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" msg="Helloa World!"/>
+                    </div>
+                    <div className={userList ? styles.chatUserList : styles.chatUserListHidden}>
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+                        <User username="Bob swansoaaaaaaaaaaaaaaaaaaaaaaaaaan" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+
+                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
+
+
+                    </div>
+                    <div className={server ? styles.serverMiniOptions : styles.serverMiniOptionsHidden}>
+                    <input className="default" type="button" value="Create Invite" id="createInviteButton" onClick={() => {setInvite(true); setServer(false);}}/>
+                    <input className="default" type="button" value="Server Settings" id="serverSettingsButton" onClick={() => {setServerSettings(true); setServer(false)}}/>
+                    <input className="default" type="button" value="Leave Server" id="leaveServerButton"/>
+                    </div>
                     </div>
                     <div className={styles.chatControl}>
                         <div className={styles.userInput}>
@@ -77,23 +130,9 @@ function Chat() { //might turn into class
                         </div>
                     </div>
                 </div>
-                <Menu show={menu} exit={() => setMenu(false)}/>
-                <Modal show={server} function={() => setServer(false)} button buttonVal="Exit" width="550" height="350">
-                    <div className={styles.serverOptionsContainer}>
-                        <p>You selected {"Sample Text" /* Add something idk idc */}</p>
-                        <div className={styles.serverOptions}>
-                            <div className={styles.createInviteOption}>
-                                <div><p>Your Invite Is </p></div>
-                                <input className="default" type="button" value="Create Invite" id="createInviteButton"/>
-                            </div>
-                            <div className={styles.serverButtonsOption}>
-                                <input className="default" type="button" value="Server Settings" id="serverSettingsButton"/>
-                                <input className="default" type="button" value="Leave Server" id="leaveServerButton"/>
-                            </div>
-                        </div>
-                    </div>
-                </Modal>
-                <Modal show={chat} function={() => {setChat(false);setCreate(0);}} button otherbuttons={ create !== 0 && create !== -1 ? [{ value : "Back", back : true , function : () => {setCreate(-1)}}] : []} buttonVal="Exit" width="500" height={create === 1 ? "450" : "350"} transition={create !== 0 ? "0.5s" : "0s"}>
+                <Menu show={serverSettings} type={1} exit={() => setServerSettings(false)}/>
+                <Menu show={menu} type={0} exit={() => setMenu(false)}/>
+                <Modal show={chat} buttons={ create !== 0 && create !== -1 ? [{ value : "Back", function : () => {setCreate(-1)}}, {value: "Exit", function : () => {setChat(false);setCreate(0);}}] : [{value: "Exit", function : () => {setChat(false);setCreate(0);}}]} width="500" height={create === 1 ? "450" : "350"} transition={create !== 0 ? "0.5s" : "0s"}>
                     <div className={styles.addChatOptions}>
                         <p>Create/Add Chat</p>
                         <div className={create === 0 || create === -1 ? styles.chatOptionsContainer : `${styles.chatOptionsContainer} ${styles.hidden}`}>
@@ -129,6 +168,18 @@ function Chat() { //might turn into class
                             <input className="default" type="button" value="Join" onClick={createGuild}/>
                         </div>
                     </div>
+                    </Modal>
+                    <Modal show={invite} height="250" width="400" buttons={[{value: "Exit", function : () => setInvite(false)}]}>
+                        <h1>Create Invite</h1>
+                        <div className={styles.inviteContainer}>
+                            <div className={styles.inviteBox}>
+                                <label>Your Invite</label>
+                                <input value={genInvite} type="text" readOnly/>
+                            </div>
+                            <div>
+                            <input type="button" value="Create" className={`default ${styles.genInviteButton}`} onClick={(() => {})}/>
+                            </div>
+                        </div>
                     </Modal>
                 <div className={styles.pageChange}></div>
         </div>

@@ -18,6 +18,7 @@ function SignLogin(props) {
   const [login, setLogin] = React.useState(props.login);
   const [load, setLoad] = React.useState(false);
   const [changePage, setChangePage] = React.useState(false);
+  const [TandC, setTandC] = React.useState(false);  
   const navigate = useNavigate();
   function Change() {
     if (login) { //fixed 2 second lag delay by leaving out arrow function
@@ -42,7 +43,7 @@ function SignLogin(props) {
     //post request back to backend server
     //obtain token
     //change route to chatapp
-    setLoad(true); //possible promise
+    setTandC(true); //possible promise
     //create promise for post request
     // then make it run a function from here when finished
     // or another function on fail
@@ -87,7 +88,15 @@ function SignLogin(props) {
         </form>
       </div>
       <div className={ changePage ? styles.changePage : `${styles.changePage} ${styles.hidden}`}></div>
-      <Modal button function={foo} show={load} buttonVal="continue"><p style={{marginTop: "35px", fontSize : "22px"}}>Loading</p></Modal>
+      <Modal show={TandC} buttons={[{value: "No I dont agree", function: () => setTandC(false)}, {value:"Yes I agree", function: () => {setTandC(false) ;setLoad(true)}} ]} width="450" height="450"><h1>Terms and Conditions</h1><p style={{fontSize : "15px", margin: "10px"}}>
+        1.The owner and creator of this website is not responsible for any damages caused by the use of this website.<br/>
+        <br/>
+        2.The chat is unfiltered and may contain profanity.<br/>
+        <br/>
+        3.You may not use this website for any illegal purposes.<br/>
+        <br/>
+        </p></Modal>
+      <Modal show={load} buttons={[{value:"continue", function: foo}]}><p style={{marginTop: "35px", fontSize : "22px"}}>Loading</p></Modal>
     </div>
   );
 }

@@ -84,6 +84,12 @@
     background: #124559;
 }
 
+.userInput input[type="button"]:active, .menuOption:active, .guildContainer:active > .guildOption {
+    background: white;
+    color: black;
+    transition: 0s;
+}
+
 .menuUserContainer{
     width: 250px;
     height: 100%;
@@ -118,6 +124,7 @@
     font-weight: 500;
     font-size: 16px;
     margin: 10px;
+    user-select: none;
 }
 
 .userModalUsername > div {
@@ -233,14 +240,63 @@
     user-select: none;
 }
 
+.chatTopMenu {
+    width: 100%;
+    height: 50px;
+    background: #598392;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px 10px;
+    box-sizing: border-box;
+}
+
+.topMenuServerName {
+    color: white;
+    font-size: 18px;
+    user-select: none;
+}
+
+.topMenuServerButton {
+    margin-left: auto;
+    width: 225px;
+}
+
+.topMenuServerButton > input[type='button'] {
+    width: 100px;
+    height: 25px;
+    margin-left: 10px;
+    transition: 0.5s;
+    background: #7AA095;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.topMenuServerButton > input[type='button']:hover {
+    background: #40531B;
+}
+
 .chatContent {
     display:flex;
     flex-direction: column;
     background:#666370;
-    width: 100%;
-    height: calc(100% - 95px);
+    height: 100%;
     overflow-y: auto;
+    transition: width 1s;
+    flex-shrink: 1;
+    flex-grow: 1;
+    min-width: 400px;
 }
+
+.chatContentContainer {
+    width: 100%;
+    height: calc(100% - 95px - 50px);
+    display: flex;
+    flex: 0 0;
+    overflow-x: auto;
+}
+
 .msg {
     position: relative;
     display:block;
@@ -310,7 +366,7 @@
     display: flex;
     flex-direction: column;
     border: none;
-    margin: 0px 2px;
+    margin: 10px 5px ;
     justify-content: center;
     transition: 0.25s;
     background: #3F88C5;
@@ -367,9 +423,9 @@
 }
 
 .createInfoOption {
-    margin: 0px 25px;
     display: flex;
     height: 40px;
+    width: 100%;    
 }
 
 .createInfoOption > label {
@@ -381,15 +437,19 @@
     font-weight: 600;
 }
 
-.createInfoOption > input[type='text'] {
-    width: 100px;
-    height: 25px;
+div[id='serverNameInput'] > input {
+    width: 215px;
 }
 
 .createInfoOption > *:not(label) {
     align-self: center;
     flex: 1 0;
     margin: 0px;
+}
+
+.createInfoOption > input[type='button'] {
+    flex: 0 0;
+    margin: auto;
 }
 
 .createAppearance {
@@ -437,23 +497,17 @@ div[id='inviteInput'] {
     transform: translate(-50%, -50%);
 }
 
-div[id='serverNameInput'] {
+div[id='Input'] {
     position: relative;
 }
 
-div[id='serverNameInput'] input {
-    width: 175px;
-}
 
 div[id='serverNameInput'] > input:focus ~ label, div[id='serverNameInput'] > input:not(:placeholder-shown) ~ label, div[id='inviteInput']  > input:focus ~ label, div[id='inviteInput'] > input:not(:placeholder-shown) ~ label {
     color: white !important;
     text-shadow: 2px 2px 5px black;
 } /* brah long ass code*/
 
-input[type='button'][id='createInviteButton'] {
-    width: 75px;
-    height: 25px;
-}
+
 
 input[type='button'][id='publicServerOption'] {
     margin-top: 85px;
@@ -496,8 +550,116 @@ input[id='createChatButton'] {
     transition: 0.5s;
 }
 
-input[id='leaveServerButton'], input[id='serverSettingsButton'] {
+.chatUserList {
+    width: 250px;
+    overflow: auto;
+}
+
+.chatUserList, .chatUserListHidden {
+    background: red;
+    box-sizing: border-box;
+    height: 100%;
+    transition: width 0.25s;
+    flex-shrink:0;
+}
+
+.chatUserListHidden {
+    background: red;
+    width: 0px;
+    overflow: hidden;
+}
+
+.userListChild {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 1em;
+    margin: 10px;
+}
+
+.userListChild > img {
+    border-radius: 10px;
+}
+.userListChild > p {
+    margin: 0px 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.serverMiniOptions {
+    height: 150px;
+}
+
+.serverMiniOptions, .serverMiniOptionsHidden {
+    position: absolute;
+    width: 250px;
+    background: #9BC1BC;
+    right: 0;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    overflow: hidden;
+    transition: 0.25s;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.serverMiniOptionsHidden {
+    height: 0vh;
+}
+
+input[id='leaveServerButton'], input[id='serverSettingsButton'],input[id='createInviteButton'] {
     width: 125px;
     height: 25px;
-    margin: 15px;
+    margin: auto;
+}
+
+input[id='leaveServerButton'] {
+    background: #DF2935 !important;
+    outline: none;
+    transition: background 0.5s;
+}
+
+input[id='leaveServerButton']:active {
+    transition: 0s;
+    background: white !important;
+    color: white !important;
+}
+
+input[id='leaveServerButton']:hover {
+    background: white !important;
+    color: black;
+    border: #DF2935 2px solid;
+    transition: background 0.5s;
+}
+
+.inviteContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.inviteBox {
+    width: 250px;
+}
+
+.inviteBox > input {
+    outline: none;
+    border: none;
+    display: block;
+    margin: 2px auto;
+    border-bottom: black 2px solid;
+    padding-bottom: 5px;
+    border-radius : 2.5px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.genInviteButton {
+    width: 100px;
+    height: 25px;
+    margin: 15px 0px;
 }

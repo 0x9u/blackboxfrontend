@@ -140,7 +140,7 @@ margin: 5px;
     color: white;
     border: none;
     font-weight: bold;
-    width: 100px;
+    width: 10em;
     height: 25px;
     border-radius: 2px;
     transition: 0.5s;
@@ -478,8 +478,16 @@ div[id='passwordChange'] > input[type='button']:active {
     display: flex;
     flex-direction: column;
     width: 150px;
-    height: 50px;   
+    height: 50px;
 }
+
+.changeUsernameModal>input, .changePasswordModal>input, .changeEmailModal>input {
+    border:none;
+    outline:none;
+    border-bottom: black 2px solid;
+    font-size: 16px;
+    font-weight: bold;
+} 
 
 .userBox {
     position: absolute;

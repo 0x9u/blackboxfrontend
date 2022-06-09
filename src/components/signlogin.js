@@ -1,7 +1,7 @@
 import styles from './signlogin.module.css';
 import React from 'react';
 import { useNavigate } from 'react-router';
-import {Modal, InputBox} from './loading.js';
+import {Modal, InputBox} from './modals.js';
 /*
 Current bugs:
 when switching to register button has a delay - fixed
@@ -18,9 +18,16 @@ function SignLogin(props) {
   const [login, setLogin] = React.useState(props.login);
   const [load, setLoad] = React.useState(false);
   const [changePage, setChangePage] = React.useState(false);
-  const [TandC, setTandC] = React.useState(false);  
+  const [TandC, setTandC] = React.useState(false);
+  
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [email, setEmail] = React.useState("");
+
   const navigate = useNavigate();
   function Change() {
+    resetFields();
     if (login) { //fixed 2 second lag delay by leaving out arrow function
         setLogin(false); //it just works yo
         navigate("../register", {"replace": true});
@@ -58,15 +65,23 @@ function SignLogin(props) {
   function Invalid(event) {
     //event.setCustom
   }
+
+  function resetFields() {
+    setUsername("");
+    setPassword("");
+    setConfirmPassword("");
+    setEmail("");
+  }
+
   return (
     <div className={styles.signlogin}>
       <div className={styles.title}><h1>BlackBox ;)</h1></div>
       <div className={styles.prompt}>
         <form className={login ? `${styles.registerForm} ${styles.hidden}` : styles.registerForm} onSubmit={SignUpSubmit}>
-        <InputBox id="email" label="Email" type="text"/>
-        <InputBox id="username" label="Username" type="text"/>
-        <InputBox id="password" label="Password" type="password"/>
-        <InputBox id={"retype-password"} label="Retype Password" type="password"/>
+        <InputBox id="email" label="Email" value={email} onChange={(e) => setEmail(e.target.value)} type="text"/>
+        <InputBox id="username" label="Username" value={username} onChange={(e) => setUsername(e.target.value)} type="text" onInvalid={(e) => e.target.setCustomValidity("Please Type Your username!")} required/>
+        <InputBox id="password" label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required/>
+        <InputBox id={"retype-password"} label="Retype Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="password" required/>
         <div className={styles.signloginButtonBox}>
           <input type="submit" className={styles.button} value="Register"/>
         </div>
@@ -76,8 +91,8 @@ function SignLogin(props) {
           </div>
         </form>
         <form className={login ? styles.signinForm : `${styles.signinForm} ${styles.hidden}`} onSubmit={LoginSubmit}>
-        <InputBox id="username" label="Username" type="text"/>
-        <InputBox id="password" label="Password" type="password"/>  
+        <InputBox id="username" label="Username" value={username} onChange={(e) => setUsername(e.target.value)} type="text" required/>
+        <InputBox id="password" label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required/>  
         <div className={styles.signloginButtonBox}>
           <input type="submit" className={styles.button} value="Sign In"/>
         </div>

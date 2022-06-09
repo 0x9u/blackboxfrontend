@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './chat.module.css';
-import {Menu, Modal, CheckBox, InputBox} from './loading.js';
+import {Menu, Modal, CheckBox, InputBox} from './modals.js';
 
 
 function Msg(props) {

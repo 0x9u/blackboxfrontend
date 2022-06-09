@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './loading.module.css';
+import styles from './modals.module.css';
 
 
 //find better way to fix button shit
@@ -20,7 +20,7 @@ function Modal (props) { //manual transition fix for now
 function InputBox(props) {
     return (
     <div className={styles.userBox} id={props.id}>
-    <input type={props.type} onChange={props.onChange} placeholder=' ' spellCheck="false" required={props.required} maxLength={props.maxLength}/>
+    <input type={props.type} value={props.value} onChange={props.onChange} placeholder=' ' spellCheck="false" required={props.required} maxLength={props.maxLength} onInvalid={props.onInvalid}/>
     <label>{props.label}</label>
     </div>
     );
@@ -73,6 +73,16 @@ function ProfileSettings(props) {
 function Appearance() {
     return (
         <div className={styles.appearanceSettings}>
+            <p>
+                Coming Soon!
+            </p>
+        </div>
+    );
+}
+
+function ServerSettings() {
+    return (
+        <div className={styles.serverSettings}>
             <p>
                 Coming Soon!
             </p>

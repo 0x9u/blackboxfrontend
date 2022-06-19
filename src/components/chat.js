@@ -85,8 +85,8 @@ function Chat() { //might turn into class
                             <p>{"Gods plan"}</p>
                         </div>
                         <div className={styles.topMenuServerButton}>
-                        <input type="button" value="server" onClick={() => setServer(!server)}/>
-                        <input type="button" value="user list" onClick={() => setUserList(!userList)}/>
+                        <input type="button" value="server" onClick={() => {setServer(!server) ; setUserList(false)}}/>
+                        <input type="button" value="user list" onClick={() => {setUserList(!userList); setServer(false) }}/>
                         </div>
                     </div>
                     <div className={styles.chatContentContainer}>

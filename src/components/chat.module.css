@@ -608,13 +608,14 @@ input[id='createChatButton'] {
 
 
 .serverMiniOptionsHidden {
-    height: 0vh;
+    height: 0px;
 }
 
 input[id='leaveServerButton'], input[id='serverSettingsButton'],input[id='createInviteButton'] {
     width: 125px;
     height: 25px;
-    margin: auto;
+    margin: 12.5px 62.5px;
+    flex-shrink: 0; /* fixed weird button squishing bug*/
 }
 
 input[id='leaveServerButton'] {

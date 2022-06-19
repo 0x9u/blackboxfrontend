@@ -257,6 +257,7 @@ margin: 5px;
     font-size: 20px;
     text-align: center;
     line-height: 32px;
+    padding: 0px;
 }
 
 
@@ -493,7 +494,7 @@ div[id='passwordChange'] > input[type='button']:active {
     position: absolute;
   }
 
-.userBox > input:focus ~ label, .userBox > input:not(:placeholder-shown) ~ label {
+.userBox > input:focus ~ .userBoxLabel, .userBox > input:not(:placeholder-shown) ~ .userBoxLabel {
     top: 0%;
     left: 5%;
     color: burlywood;
@@ -516,9 +517,10 @@ div[id='passwordChange'] > input[type='button']:active {
     padding-top: 2.5px;
   }
   
-  .userBox label {
-    font-size: 15 px;
+  .userBox > .userBoxLabel {
+    font-size: 15px;
     position: absolute;
+    margin: auto;
     left:15%;
     top: 40%;
     color: white;
@@ -526,6 +528,20 @@ div[id='passwordChange'] > input[type='button']:active {
     pointer-events: none;
     transition: .5s;
     padding: 2.5px 1px;
+  }
+
+  .userBox > .userBoxError {
+    position: absolute;
+    color: #cc0000;
+    font-size: 10px;
+    bottom: -10%;
+    left: 0%;
+    margin-left: 10px;
+    transform: translate(0%, 10%);
+  }
+
+  .userBox > .userBoxError:not(:empty)::before {
+    content:"⚠️ "
   }
   
   .serverSettings {

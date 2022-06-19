@@ -79,11 +79,10 @@ white-space: nowrap;
   transform: translate(-50%, -5%);
 }
 
-.registerForm > div[id='email'] > label {
-  margin-left: -5px;
-} /* temp fix */
+/* fix bug later  no transition should be here*/
+/*
 
-.registerForm > div[id='email'] > label::after { /* fix bug later  no transition should be here*/
+.registerForm > div[id='email'] > input ~ label::after { 
   position: absolute;
   left: 95px !important;
   top: 5px !important;
@@ -102,15 +101,13 @@ white-space: nowrap;
   transition: 0.5s;
 }
 
+*/
+
 .registerForm > div[id='retype-password'] {
   left: 50%;
   top: 55%;
   transform: translate(-50%, -55%);
 }
-
-.registerForm > div[id='retype-password'] > label{
-  margin-left: 5px;
-} /* temp fix */
 
 .signinForm > div[id='username'] {
   left: 50%;
@@ -146,10 +143,9 @@ white-space: nowrap;
   box-shadow: 5px 5px 25px 10px #42D9C8;
 }
 
-div > input:focus ~ label, div > input:not(:placeholder-shown) ~ label {
+div > input:focus ~ .userBoxLabel, div > input:not(:placeholder-shown) ~ .userBoxLabel {
   top: 0%;
   left: 5%;
-  color: burlywood;
   font-size: 10px;
   font-weight: bold;
 }

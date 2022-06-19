@@ -1,117 +1,149 @@
 import styles from './signlogin.module.css';
 import React from 'react';
 import { useNavigate } from 'react-router';
-import {Modal, InputBox} from './modals.js';
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
+
+import { Modal, InputBox } from './modals.js';
+import { postSignup, getLogin } from '../api/signloginApi.js'; //api call to signin and login
+
 /*
 Current bugs:
-when switching to register button has a delay - fixed
-in that delay the register button cannot be clicked - fixed
-Possiblities:
-  Transition bug?
-  css?
-Never mind fixed it lmao
-it was a css bug
-a quick pointer events fixes it
+errors change when user types but only after they press the submit button
 
 */
+
 function SignLogin(props) {
   const [login, setLogin] = React.useState(props.login);
   const [load, setLoad] = React.useState(false);
   const [changePage, setChangePage] = React.useState(false);
   const [TandC, setTandC] = React.useState(false);
-  
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [email, setEmail] = React.useState("");
+  const [error, setError] = React.useState("");
+  const [showError, setShowError] = React.useState(false);
+
+  const [data, setData] = React.useState({});
 
   const navigate = useNavigate();
+
+  const schemaR = Yup.object().shape({ //this is the validation schema for signup
+    username: Yup.string().required("Username is required").min(6, "must be at least 6 characters"),
+    password: Yup.string().required("Password is required").min(6, "Password must be at least 6 characters"),
+    confirmPassword: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
+    email: Yup.string().notRequired().when( //this makes it optional
+      {
+        is: (value) => value?.length,
+        then: (rule) => rule.email("Invalid email format")
+      }
+    )
+  });
+
+  const schemaL = Yup.object().shape({
+    username: Yup.string().required("Username is required"),
+    password: Yup.string().required("Password is required")
+  });
+
+  const { handleSubmit: handleSubmitR, register: registerR, setError: setErrorR, reset: resetR, formState: { errors: errorsR } } = useForm({
+    resolver: yupResolver(schemaR)
+  });
+
+  const { handleSubmit: handleSubmitL, register: registerL, setError: setErrorL,reset: resetL, formState: { errors: errorsL } } = useForm({
+    resolver: yupResolver(schemaL)
+  });
+
   function Change() {
-    resetFields();
+    resetL();
+    resetR();
     if (login) { //fixed 2 second lag delay by leaving out arrow function
-        setLogin(false); //it just works yo
-        navigate("../register", {"replace": true});
+      setLogin(false); //it just works yo
+      navigate("../register", { "replace": true });
     } else {
-        setLogin(true);
-        navigate("../login", {"replace": true});
+      setLogin(true);
+      navigate("../login", { "replace": true });
     }
   }
   async function WaitAnim() {
-    await setTimeout(() => navigate("../chat", {"replace" : false}), 1000); //replace: replaces the history (didnt find anything about it in documentation bruh)
+    await setTimeout(() => navigate("../chat", { "replace": false }), 1000); //replace: replaces the history (didnt find anything about it in documentation bruh)
   }
-  function foo(event) {
-    console.log("activated");
-    setLoad(false);
+  function ActivateAnim(event) { //animation for moving to chat
     setChangePage(true);
     WaitAnim();
   }
-  function SignUpSubmit(event) {
-      event.preventDefault();
-    //post request back to backend server
-    //obtain token
-    //change route to chatapp
+  function SignUpSubmit(form) {
+    setData(form);
     setTandC(true); //possible promise
-    //create promise for post request
-    // then make it run a function from here when finished
-    // or another function on fail
-    //navigate("../chat", {"replace" : true});
-  }
-  function LoginSubmit(event) {
-    event.preventDefault();
-    
-    setLoad(true);
-    //navigate("../chat", {"replace" : true});
-  }
-  function Invalid(event) {
-    //event.setCustom
   }
 
-  function resetFields() {
-    setUsername("");
-    setPassword("");
-    setConfirmPassword("");
-    setEmail("");
+  function LoginSubmit(form) {
+    setLoad(true);
+    getLogin(form).then( () => {
+        ActivateAnim();
+      }).catch( (err) => {
+        setErrorL("username", {type: "custom", message: err.toString()});
+        setErrorL("password", {type: "custom", message: err.toString()});
+      }).finally(() => 
+        setLoad(false)
+      );
+  }
+
+  function TandCSubmit() {
+    setTandC(false);
+    setLoad(true);
+    postSignup(data).then( () => {
+        ActivateAnim();
+    }).catch( (err) => {
+      setErrorR("username", {type: "custom", message: err.toString()});
+      setErrorR("password", {type: "custom", message: err.toString()});
+      setErrorR("confirmPassword", {type: "custom", message: err.toString()});
+      setErrorR("email", {type: "custom", message: err.toString()});
+    }).finally( () =>
+      setLoad(false)
+    );
   }
 
   return (
     <div className={styles.signlogin}>
       <div className={styles.title}><h1>BlackBox ;)</h1></div>
       <div className={styles.prompt}>
-        <form className={login ? `${styles.registerForm} ${styles.hidden}` : styles.registerForm} onSubmit={SignUpSubmit}>
-        <InputBox id="email" label="Email" value={email} onChange={(e) => setEmail(e.target.value)} type="text"/>
-        <InputBox id="username" label="Username" value={username} onChange={(e) => setUsername(e.target.value)} type="text" onInvalid={(e) => e.target.setCustomValidity("Please Type Your username!")} required/>
-        <InputBox id="password" label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required/>
-        <InputBox id={"retype-password"} label="Retype Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="password" required/>
-        <div className={styles.signloginButtonBox}>
-          <input type="submit" className={styles.button} value="Register"/>
-        </div>
-        <div className={styles.switch}>
-          <p>Already have an account?</p>
-          <input type="button" className={styles.button} value="Sign In" onClick={Change}/>
+        <form className={login ? `${styles.registerForm} ${styles.hidden}` : styles.registerForm} onSubmit={handleSubmitR(SignUpSubmit)}>
+          <InputBox id="email" label="Email" errorMessage={errorsR?.email?.message} type="text" register={registerR("email")} />
+          <InputBox id="username" label="Username" errorMessage={errorsR?.username?.message} type="text" register={registerR("username")} />
+          <InputBox id="password" label="Password" errorMessage={errorsR?.password?.message} type="password" register={registerR("password")} />
+          <InputBox id="retype-password" label="Retype Password" errorMessage={errorsR?.confirmPassword?.message} type="password" register={registerR("confirmPassword")} />
+          <div className={styles.signloginButtonBox}>
+            <input type="submit" className={styles.button} value="Register"/>
+          </div>
+          <div className={styles.switch}>
+            <p>Already have an account?</p>
+            <input type="button" className={styles.button} value="Sign In" onClick={Change} />
           </div>
         </form>
-        <form className={login ? styles.signinForm : `${styles.signinForm} ${styles.hidden}`} onSubmit={LoginSubmit}>
-        <InputBox id="username" label="Username" value={username} onChange={(e) => setUsername(e.target.value)} type="text" required/>
-        <InputBox id="password" label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required/>  
-        <div className={styles.signloginButtonBox}>
-          <input type="submit" className={styles.button} value="Sign In"/>
-        </div>
-        <div className={styles.switch}>
-          <p>Don't have an account?</p>
-          <input type="button" className={styles.button} value="Register" onClick={Change}/>
+        <form className={login ? styles.signinForm : `${styles.signinForm} ${styles.hidden}`} onSubmit={handleSubmitL(LoginSubmit)}>
+          <InputBox id="username" label="Username" errorMessage={errorsL?.username?.message} type="text" register={registerL("username")} />
+          <InputBox id="password" label="Password" errorMessage={errorsL?.password?.message} type="password" register={registerL("password")} />
+          <div className={styles.signloginButtonBox}>
+            <input type="submit" className={styles.button} value="Sign In"/>
+          </div>
+          <div className={styles.switch}>
+            <p>Don't have an account?</p>
+            <input type="button" className={styles.button} value="Register" onClick={Change} />
           </div>
         </form>
       </div>
-      <div className={ changePage ? styles.changePage : `${styles.changePage} ${styles.hidden}`}></div>
-      <Modal show={TandC} buttons={[{value: "No I dont agree", function: () => setTandC(false)}, {value:"Yes I agree", function: () => {setTandC(false) ;setLoad(true)}} ]} width="450" height="450"><h1>Terms and Conditions</h1><p style={{fontSize : "15px", margin: "10px"}}>
-        1.The owner and creator of this website is not responsible for any damages caused by the use of this website.<br/>
-        <br/>
-        2.The chat is unfiltered and may contain profanity.<br/>
-        <br/>
-        3.You may not use this website for any illegal purposes.<br/>
-        <br/>
+      <div className={changePage ? styles.changePage : `${styles.changePage} ${styles.hidden}`}></div>
+      <Modal show={TandC} buttons={[{ value: "No I dont agree", function: () => setTandC(false) }, { value: "Yes I agree", function: () => TandCSubmit() }]} width="450" height="450">
+        <h1>Terms and Conditions</h1>
+        <p style={{ fontSize: "15px", margin: "10px" }}>
+          1.The owner and creator of this website is not responsible for any damages caused by the use of this website.<br />
+          <br />
+          2.The chat is unfiltered and may contain profanity.<br />
+          <br />
+          3.You may not use this website for any illegal purposes.<br />
+          <br />
         </p></Modal>
-      <Modal show={load} buttons={[{value:"continue", function: foo}]}><p style={{marginTop: "35px", fontSize : "22px"}}>Loading</p></Modal>
+      <Modal show={load}><p style={{ marginTop: "50px", fontSize: "22px" }}>Loading</p></Modal>
+      {/* will be unused*/}
+      <Modal show={showError} buttons={[{ value: "Ok", function: () => setShowError(false) }]}><p style={{ marginTop: "35px" }}>{error}</p></Modal>
     </div>
   );
 }

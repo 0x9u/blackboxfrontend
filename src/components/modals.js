@@ -3,14 +3,14 @@ import styles from './modals.module.css';
 
 
 //find better way to fix button shit
-function Modal (props) { //manual transition fix for now
-    return (<div className={props.show ? styles.modalContainer  : `${styles.modalContainer} ${styles.hidden}`}>
-        <div className={props.show ? styles.modal : styles.hidden} style={{width: (props.width || "350")+"px", height: (props.height || "150")+"px", transition: props.transition || "0s"}}>
+function Modal(props) { //manual transition fix for now
+    return (<div className={props.show ? styles.modalContainer : `${styles.modalContainer} ${styles.hidden}`}>
+        <div className={props.show ? styles.modal : styles.hidden} style={{ width: (props.width || "350") + "px", height: (props.height || "150") + "px", transition: props.transition || "0s" }}>
             <div className={styles.buttons}>
-            { props.buttons && props.buttons.map((button, idx) => <input type="button" key={idx} value={button.value} onClick={button.function}/>)}
+                {props.buttons && props.buttons.map((button, idx) => <input type="button" key={idx} value={button.value} onClick={button.function} />)}
             </div>
-            <div className={props.show ? styles.content:`${styles.content} ${styles.hidden}`}>
-            {props.children}
+            <div className={props.show ? styles.content : `${styles.content} ${styles.hidden}`}>
+                {props.children}
             </div>
         </div>
     </div>)
@@ -19,17 +19,18 @@ function Modal (props) { //manual transition fix for now
 
 function InputBox(props) {
     return (
-    <div className={styles.userBox} id={props.id}>
-    <input type={props.type} value={props.value} onChange={props.onChange} placeholder=' ' spellCheck="false" required={props.required} maxLength={props.maxLength} onInvalid={props.onInvalid}/>
-    <label>{props.label}</label>
-    </div>
+        <div className={styles.userBox} id={props.id}>
+            <input type={props.type} value={props.value} {...props.register} placeholder=' ' spellCheck="false" />
+            <label className={styles.userBoxLabel}>{props.label}</label>
+            <label className={styles.userBoxError}>{props.errorMessage}</label>
+        </div>
     );
 }
 
 function CheckBox(props) {
     return ( //I want to die css is so hard go damn it
         <div className={styles.checkBox}>
-            <input id="toggle" type="checkbox" disabled={props.disabled} onChange={props.onChange}/>
+            <input id="toggle" type="checkbox" disabled={props.disabled} onChange={props.onChange} />
             <div></div>
         </div>
     );
@@ -41,8 +42,8 @@ function PictureSelector(props) {
     }
     return (
         <div className={styles.pictureSelectorContainer}>
-            <input className={styles.pictureSelector} type="file" onChange={() => {props.onChange(); changeImage();}}/>
-            <img width="200"/>
+            <input className={styles.pictureSelector} type="file" onChange={() => { props.onChange(); changeImage(); }} />
+            <img width="200" />
         </div>
     );
 }
@@ -50,23 +51,23 @@ function PictureSelector(props) {
 
 function ProfileSettings(props) {
     return (
-    <div className={styles.profileSettings}>
-        <div className={styles.profileContainer}>
-            <div className={styles.profileSettingsInformation}>
-                <div className={styles.profileDetails} id="username">
-                <label >Username:</label><div><p id="username">JohnCena</p><input className="default" type="button" value="Change" onClick={() => props.userFunc(true)}/></div>
+        <div className={styles.profileSettings}>
+            <div className={styles.profileContainer}>
+                <div className={styles.profileSettingsInformation}>
+                    <div className={styles.profileDetails} id="username">
+                        <label >Username:</label><div><p id="username">JohnCena</p><input className="default" type="button" value="Change" onClick={() => props.userFunc(true)} /></div>
+                    </div>
+                    <div className={styles.profileDetails} id="email">
+                        <label>Email:</label><div><p>123@biglore.com</p><input className="default" type="button" value="Change" onClick={() => props.emailFunc(true)} /></div>
+                    </div>
                 </div>
-                <div className={styles.profileDetails} id="email">
-                <label>Email:</label><div><p>123@biglore.com</p><input className="default" type="button" value="Change" onClick={() => props.emailFunc(true)}/></div>
-                </div>
+                <img src="https://i.kym-cdn.com/entries/icons/original/000/037/512/004ergTRgx07MxKZhGEw01041200l6Sn0E010.mp4_snapshot_00.02.418.jpg" />
             </div>
-            <img src="https://i.kym-cdn.com/entries/icons/original/000/037/512/004ergTRgx07MxKZhGEw01041200l6Sn0E010.mp4_snapshot_00.02.418.jpg"/>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>Password</p>
+                <div id="passwordChange"><label>Change password</label> <input type="button" value="Change Password" onClick={() => props.passFunc(true)} /></div>
+            </div>
         </div>
-        <div className={styles.optionBox}>
-            <p className={styles.optionTitle}>Password</p>
-            <div id="passwordChange"><label>Change password</label> <input type="button" value="Change Password" onClick={() => props.passFunc(true)}/></div>
-        </div>
-    </div>
     );
 }
 
@@ -98,9 +99,9 @@ function Menu(props) { //pass set states function to be able change options thro
     function renderUserSettings() {
         switch (active) {
             case 0:
-                return <ProfileSettings userFunc={showChangeUser} emailFunc={showChangeEmail} passFunc={showChangePass}/>;
+                return <ProfileSettings userFunc={showChangeUser} emailFunc={showChangeEmail} passFunc={showChangePass} />;
             case 1:
-                return <Appearance/>;
+                return <Appearance />;
             default:
                 return <p>Something is Wrong!</p>
         }
@@ -120,51 +121,51 @@ function Menu(props) { //pass set states function to be able change options thro
             <div className={styles.optionsMenu}>
                 {
                     props.type == 0 ?
-                    <>
-                <div className={styles.optionHeading}><p>User Settings</p></div>
-                <div className={ active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="User Profile" onClick={() => {setActive(0)}}/></div>
-                <div className={ active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Appearance" onClick={() => {setActive(1)}}/></div>
-                <div className={styles.optionButton}><input type="button" value="Log Out" id="logout" /></div>
-                    </>
-                    :
-                    <>
-                <div className={styles.optionHeading}><p>Server Settings</p></div>
-                <div className={ active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Server Settings" onClick={() => {setActive(0)}}/></div>
-                <div className={ active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Ban/Kick User" onClick={() => {setActive(1)}}/></div>
-                    </>
-            }
+                        <>
+                            <div className={styles.optionHeading}><p>User Settings</p></div>
+                            <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
+                            <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Appearance" onClick={() => { setActive(1) }} /></div>
+                            <div className={styles.optionButton}><input type="button" value="Log Out" id="logout" /></div>
+                        </>
+                        :
+                        <>
+                            <div className={styles.optionHeading}><p>Server Settings</p></div>
+                            <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Server Settings" onClick={() => { setActive(0) }} /></div>
+                            <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
+                        </>
+                }
             </div>
-                <div className={styles.optionsContainer}>
-                    <div className={styles.options}>   
-                        {props.type == 0 ? renderUserSettings() : renderServerSettings()}
-                    </div>
+            <div className={styles.optionsContainer}>
+                <div className={styles.options}>
+                    {props.type == 0 ? renderUserSettings() : renderServerSettings()}
+                </div>
                 <div className={styles.exitButton}>
-                <input className="default" type="button" onClick={() => {setActive(0);props.exit()}} value="×"/>
-                <label>Exit</label>
+                    <input className="default" type="button" onClick={() => { setActive(0); props.exit() }} value="×" />
+                    <label>Exit</label>
                 </div>
             </div>
-            <Modal show={changeUser} buttons={[{value:"Exit", function : () => showChangeUser(false)}, { value : "Done", function : () => {}}]} width="450" height="300">
+            <Modal show={changeUser} buttons={[{ value: "Exit", function: () => showChangeUser(false) }, { value: "Done", function: () => { } }]} width="450" height="300">
                 <form className={styles.changeUsernameModal}>
                     <label>New Username</label>
-                    <input type="text" id="changeUsernameInput"/>
+                    <input type="text" id="changeUsernameInput" />
                     <label>Current Password</label>
-                    <input type="password" id="confirmPass"/>
+                    <input type="password" id="confirmPass" />
                 </form>
             </Modal>
-            <Modal show={changeEmail} buttons={[{value: "Exit", function : () => showChangeEmail(false)}, { value : "Done", function : () => {}}]} width="450" height="300">
+            <Modal show={changeEmail} buttons={[{ value: "Exit", function: () => showChangeEmail(false) }, { value: "Done", function: () => { } }]} width="450" height="300">
                 <form className={styles.changeEmailModal}>
                     <label>New Email</label>
-                    <input type="text"/>
+                    <input type="text" />
                     <label>Current Password</label>
-                    <input type="password"/>
+                    <input type="password" />
                 </form>
             </Modal>
-            <Modal show={changePass} buttons={[{value : "Exit", function : () => showChangePass(false)}, { value : "Done", function : () => {}}]} width="450" height="300">
+            <Modal show={changePass} buttons={[{ value: "Exit", function: () => showChangePass(false) }, { value: "Done", function: () => { } }]} width="450" height="300">
                 <form className={styles.changePasswordModal}>
                     <label>New Password</label>
-                    <input type="password"/>
+                    <input type="password" />
                     <label>Current Password</label>
-                    <input type="password"/>
+                    <input type="password" />
                 </form>
             </Modal>
         </div>

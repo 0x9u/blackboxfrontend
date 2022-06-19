@@ -556,7 +556,7 @@ input[id='createChatButton'] {
 }
 
 .chatUserList, .chatUserListHidden {
-    background: red;
+    background: #474A48;
     box-sizing: border-box;
     height: 100%;
     transition: width 0.25s;
@@ -564,7 +564,6 @@ input[id='createChatButton'] {
 }
 
 .chatUserListHidden {
-    background: red;
     width: 0px;
     overflow: hidden;
 }
@@ -585,6 +584,7 @@ input[id='createChatButton'] {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: white;
 }
 
 .serverMiniOptions {

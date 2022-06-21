@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './chat.module.css';
-import {Menu, Modal, CheckBox, InputBox} from './modals.js';
+import {Menu, Modal, CheckBox, InputBox, PictureSelector} from './modals.js';
 
 
 function Msg(props) {
@@ -53,6 +53,8 @@ function Chat() { //might turn into class
     const [invite, setInvite] = React.useState(false);
     const [serverSettings, setServerSettings] = React.useState(false);
 
+    const [serverImage, setServerImage] = React.useState(null);
+
     function saveChatHistoryOption () {
         console.log("save chat history");
     }
@@ -64,6 +66,15 @@ function Chat() { //might turn into class
     function createGuild() {
         setCreate(0);
         setChat(false);
+    }
+
+    function exitCreateChat() {
+        setCreate(0);
+        setChat(false);
+    }
+
+    function changeServerImage(e) {
+        setServerImage(e.target.files[0]);
     }
 
     return (
@@ -132,7 +143,7 @@ function Chat() { //might turn into class
                 </div>
                 <Menu show={serverSettings} type={1} exit={() => setServerSettings(false)}/>
                 <Menu show={menu} type={0} exit={() => setMenu(false)}/>
-                <Modal show={chat} buttons={ create !== 0 && create !== -1 ? [{ value : "Back", function : () => {setCreate(-1)}}, {value: "Exit", function : () => {setChat(false);setCreate(0);}}] : [{value: "Exit", function : () => {setChat(false);setCreate(0);}}]} width="500" height={create === 1 ? "450" : "350"} transition={create !== 0 ? "0.5s" : "0s"}>
+                <Modal show={chat} buttons={ create !== 0 && create !== -1 ? [{ value : "Back", function : () => {setCreate(-1)}}, {value: "Exit", function : () => {exitCreateChat()}}] : [{value: "Exit", function : () => {exitCreateChat()}}]} width="500" height={create === 1 ? "450" : "350"} transition={create !== 0 ? "0.5s" : "0s"}>
                     <div className={styles.addChatOptions}>
                         <p>Create/Add Chat</p>
                         <div className={create === 0 || create === -1 ? styles.chatOptionsContainer : `${styles.chatOptionsContainer} ${styles.hidden}`}>
@@ -150,10 +161,12 @@ function Chat() { //might turn into class
                             </div>
                             <div className={styles.createAppearance}>
                             <div className={styles.createInfoOption} id="changeProfile">
-                                <div className={styles.changeProfile}>
+                                {/*<div className={styles.changeProfile}>
                                     <img src="https://www.pngitem.com/pimgs/m/661-6619328_default-avatar-png-blank-person-transparent-png.png"/>
                                     <input type="file"/>
                                 </div>
+                                */}
+                                <PictureSelector src={ serverImage } height="150" width="150"/>
                             </div>
                             <div className={styles.createInfoOption}>
                                 <InputBox id="serverNameInput" label="Server Name" onChange={handleInviteChange} type="text" maxLength={16}/>

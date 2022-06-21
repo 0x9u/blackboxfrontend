@@ -1,9 +1,12 @@
+import Cookies from 'universal-cookie';
+ 
+const cookies = new Cookies();
+
 function postSignup(data) {
     return fetch('http://localhost:8090/api/user', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            "Accept": "application/json"
         },
         body: JSON.stringify({
             email: data.email,
@@ -13,6 +16,10 @@ function postSignup(data) {
     }).then(
         res => {
             if (res.ok) {
+                res.json().then( data => {
+                cookies.set("token",data["token"], {expires: new Date(data["expires"])})
+                cookies.set("id",data["user_id"], {expires: new Date(data["expires"])})
+                })
                 return
             } else {
                 throw new Error(
@@ -35,6 +42,11 @@ function getLogin(data) {
     }).then(
         res => {
             if (res.ok) {
+                data = res.json().then(data => {
+                    console.log(data)
+                    cookies.set("token",data["token"], {expires: new Date(data["expires"])});
+                    cookies.set("id",data["user_id"], {expires: new Date(data["expires"])});
+                });
                 return
             } else {
                 throw new Error(

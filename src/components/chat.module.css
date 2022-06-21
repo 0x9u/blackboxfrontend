@@ -458,11 +458,12 @@ div[id='serverNameInput'] > input {
     align-items: center;
 }
 
+
 .createInfoOption[id='changeProfile'] {
     flex-basis: 75px;
     padding: 45px;
 }
-
+/*
 .changeProfile > input[type='file'] {
     display: none;
 }
@@ -474,6 +475,7 @@ div[id='serverNameInput'] > input {
     border-radius: 5px;
     box-shadow: 1px 1px 4px black;
 }
+*/
 
 .chatJoinContainer > input[type='button'] {
     position: absolute;

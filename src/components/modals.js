@@ -43,7 +43,7 @@ function PictureSelector(props) {
     return (
         <div className={styles.pictureSelectorContainer}>
             <input className={styles.pictureSelector} type="file" onChange={() => { props.onChange(); changeImage(); }} />
-            <img width="200" />
+            <img width={props.width} height={props.height} />
         </div>
     );
 }
@@ -120,7 +120,7 @@ function Menu(props) { //pass set states function to be able change options thro
         <div className={props.show ? styles.menuContainer : `${styles.menuContainer} ${styles.hidden}`}>
             <div className={styles.optionsMenu}>
                 {
-                    props.type == 0 ?
+                    props.type === 0 ?
                         <>
                             <div className={styles.optionHeading}><p>User Settings</p></div>
                             <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
@@ -137,7 +137,7 @@ function Menu(props) { //pass set states function to be able change options thro
             </div>
             <div className={styles.optionsContainer}>
                 <div className={styles.options}>
-                    {props.type == 0 ? renderUserSettings() : renderServerSettings()}
+                    {props.type === 0 ? renderUserSettings() : renderServerSettings()}
                 </div>
                 <div className={styles.exitButton}>
                     <input className="default" type="button" onClick={() => { setActive(0); props.exit() }} value="×" />
@@ -172,4 +172,4 @@ function Menu(props) { //pass set states function to be able change options thro
     )
 }
 
-export { Modal, Menu, CheckBox, InputBox };
+export { Modal, Menu, CheckBox, InputBox, PictureSelector };

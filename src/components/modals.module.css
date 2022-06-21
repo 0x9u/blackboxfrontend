@@ -555,3 +555,15 @@ div[id='passwordChange'] > input[type='button']:active {
     font-size: 16px;
     font-weight: bold;
   }
+
+  .pictureSelectorContainer > input[type='file'] {
+    display: none;
+  }
+
+  .pictureSelectorContainer > img {
+    border-radius: 10%;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: black 2px solid;
+  }

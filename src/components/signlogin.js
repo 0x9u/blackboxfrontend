@@ -7,6 +7,9 @@ import * as Yup from 'yup';
 
 import { Modal, InputBox } from './modals.js';
 import { postSignup, getLogin } from '../api/signloginApi.js'; //api call to signin and login
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
 
 /*
 Current bugs:
@@ -19,16 +22,23 @@ function SignLogin(props) {
   const [load, setLoad] = React.useState(false);
   const [changePage, setChangePage] = React.useState(false);
   const [TandC, setTandC] = React.useState(false);
-  const [error, setError] = React.useState("");
-  const [showError, setShowError] = React.useState(false);
 
   const [data, setData] = React.useState({});
 
   const navigate = useNavigate();
 
+  React.useEffect(
+    () => {
+      console.log(cookies.get("token"))
+      if (cookies.get("token") !== undefined) {
+        navigate("../chat", { "replace": false });
+      }
+    }
+    , [navigate]) //fuck you React you bitch ass crackhead
+
   const schemaR = Yup.object().shape({ //this is the validation schema for signup
-    username: Yup.string().required("Username is required").min(6, "must be at least 6 characters"),
-    password: Yup.string().required("Password is required").min(6, "Password must be at least 6 characters"),
+    username: Yup.string().required("Username is required").matches(/^[a-zA-Z0-9_]*$/, "Username cannot contain any symbols or spaces").min(6, "must be at least 6 characters").max(32, "Maximum is 32 characters"),
+    password: Yup.string().required("Password is required").matches(/^[\x00-\xFF]*$/, "Password must be a valid ascii character").min(6, "Password must be at least 6 characters").max(64, "Maximum is 64 characters"),
     confirmPassword: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
     email: Yup.string().notRequired().when( //this makes it optional
       {
@@ -47,7 +57,7 @@ function SignLogin(props) {
     resolver: yupResolver(schemaR)
   });
 
-  const { handleSubmit: handleSubmitL, register: registerL, setError: setErrorL,reset: resetL, formState: { errors: errorsL } } = useForm({
+  const { handleSubmit: handleSubmitL, register: registerL, setError: setErrorL, reset: resetL, formState: { errors: errorsL } } = useForm({
     resolver: yupResolver(schemaL)
   });
 
@@ -76,27 +86,27 @@ function SignLogin(props) {
 
   function LoginSubmit(form) {
     setLoad(true);
-    getLogin(form).then( () => {
-        ActivateAnim();
-      }).catch( (err) => {
-        setErrorL("username", {type: "custom", message: err.toString()});
-        setErrorL("password", {type: "custom", message: err.toString()});
-      }).finally(() => 
-        setLoad(false)
-      );
+    getLogin(form).then(() => {
+      ActivateAnim();
+    }).catch((err) => {
+      setErrorL("username", { type: "custom", message: err.toString() });
+      setErrorL("password", { type: "custom", message: err.toString() });
+    }).finally(() =>
+      setLoad(false)
+    );
   }
 
   function TandCSubmit() {
     setTandC(false);
     setLoad(true);
-    postSignup(data).then( () => {
-        ActivateAnim();
-    }).catch( (err) => {
-      setErrorR("username", {type: "custom", message: err.toString()});
-      setErrorR("password", {type: "custom", message: err.toString()});
-      setErrorR("confirmPassword", {type: "custom", message: err.toString()});
-      setErrorR("email", {type: "custom", message: err.toString()});
-    }).finally( () =>
+    postSignup(data).then(() => {
+      ActivateAnim();
+    }).catch((err) => {
+      setErrorR("username", { type: "custom", message: err.toString() });
+      setErrorR("password", { type: "custom", message: err.toString() });
+      setErrorR("confirmPassword", { type: "custom", message: err.toString() });
+      setErrorR("email", { type: "custom", message: err.toString() });
+    }).finally(() =>
       setLoad(false)
     );
   }
@@ -111,7 +121,7 @@ function SignLogin(props) {
           <InputBox id="password" label="Password" errorMessage={errorsR?.password?.message} type="password" register={registerR("password")} />
           <InputBox id="retype-password" label="Retype Password" errorMessage={errorsR?.confirmPassword?.message} type="password" register={registerR("confirmPassword")} />
           <div className={styles.signloginButtonBox}>
-            <input type="submit" className={styles.button} value="Register"/>
+            <input type="submit" className={styles.button} value="Register" />
           </div>
           <div className={styles.switch}>
             <p>Already have an account?</p>
@@ -122,7 +132,7 @@ function SignLogin(props) {
           <InputBox id="username" label="Username" errorMessage={errorsL?.username?.message} type="text" register={registerL("username")} />
           <InputBox id="password" label="Password" errorMessage={errorsL?.password?.message} type="password" register={registerL("password")} />
           <div className={styles.signloginButtonBox}>
-            <input type="submit" className={styles.button} value="Sign In"/>
+            <input type="submit" className={styles.button} value="Sign In" />
           </div>
           <div className={styles.switch}>
             <p>Don't have an account?</p>
@@ -142,8 +152,6 @@ function SignLogin(props) {
           <br />
         </p></Modal>
       <Modal show={load}><p style={{ marginTop: "50px", fontSize: "22px" }}>Loading</p></Modal>
-      {/* will be unused*/}
-      <Modal show={showError} buttons={[{ value: "Ok", function: () => setShowError(false) }]}><p style={{ marginTop: "35px" }}>{error}</p></Modal>
     </div>
   );
 }

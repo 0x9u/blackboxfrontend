@@ -1,15 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Routes  } from 'react-router-dom';
+
+import SignLogin from './components/signlogin.js';
+import Chat from './components/chat.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-        <App />
+     <Routes>
+        <Route path="/" element={<SignLogin login={true} />} />
+        <Route path="login" element={<SignLogin login={true} />} />
+        <Route path="register" element={<SignLogin login={false} />} />
+        <Route path="chat" element={<Chat />} />
+      </Routes>
     </BrowserRouter>
   </React.StrictMode>
 );

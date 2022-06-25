@@ -1,3 +1,4 @@
+import { produceWithPatches } from 'immer';
 import React from 'react';
 import styles from './modals.module.css';
 
@@ -37,13 +38,10 @@ function CheckBox(props) {
 }
 
 function PictureSelector(props) {
-    function changeImage() {
-
-    }
     return (
         <div className={styles.pictureSelectorContainer}>
-            <input className={styles.pictureSelector} type="file" onChange={() => { props.onChange(); changeImage(); }} />
-            <img width={props.width} height={props.height} />
+            <input className={styles.pictureSelector} type="file" onChange={() => { props.onChange(); props.changeImage(); }} />
+            <img src={props.src} width={props.width} height={props.height} onChange={props.onChange}/>
         </div>
     );
 }

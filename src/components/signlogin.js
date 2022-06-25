@@ -3,18 +3,20 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
 
 import { Modal, InputBox } from './modals.js';
-import { postSignup, getLogin } from '../api/signloginApi.js'; //api call to signin and login
-import Cookies from 'universal-cookie';
+import { getAuth, postAuth } from '../app/reducers/auth.js';
+//import { postSignup, getLogin } from '../api/client.js'; //api call to signin and login
+//import Cookies from 'universal-cookie';
 
-const cookies = new Cookies();
+//const cookies = new Cookies();
 
 /*
 Current bugs:
 errors change when user types but only after they press the submit button
-
+loading modal doesnt have enough time - fixed (dont put in async function)
 */
 
 function SignLogin(props) {
@@ -23,10 +25,15 @@ function SignLogin(props) {
   const [changePage, setChangePage] = React.useState(false);
   const [TandC, setTandC] = React.useState(false);
 
-  const [data, setData] = React.useState({});
+  const [data, setData] = React.useState({}); //replace later
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  //global states
+  const { expires, userId, token } = useSelector(state => state.auth);
+
+  /*
   React.useEffect(
     () => {
       console.log(cookies.get("token"))
@@ -36,9 +43,14 @@ function SignLogin(props) {
     }
     , [navigate]) //fuck you React you bitch ass crackhead
 
+    */
+  React.useEffect(
+    () => {
+      if ([token, userId].every(Boolean)) navigate("../chat", { "replace": false });
+    }, [dispatch, navigate, token, userId])
   const schemaR = Yup.object().shape({ //this is the validation schema for signup
     username: Yup.string().required("Username is required").matches(/^[a-zA-Z0-9_]*$/, "Username cannot contain any symbols or spaces").min(6, "must be at least 6 characters").max(32, "Maximum is 32 characters"),
-    password: Yup.string().required("Password is required").matches(/^[\x00-\xFF]*$/, "Password must be a valid ascii character").min(6, "Password must be at least 6 characters").max(64, "Maximum is 64 characters"),
+    password: Yup.string().required("Password is required").matches(/^[\x20-\xFF]*$/, "Password must be a valid ascii character").min(6, "Password must be at least 6 characters").max(64, "Maximum is 64 characters"),
     confirmPassword: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
     email: Yup.string().notRequired().when( //this makes it optional
       {
@@ -73,12 +85,35 @@ function SignLogin(props) {
     }
   }
   async function WaitAnim() {
-    await setTimeout(() => navigate("../chat", { "replace": false }), 1000); //replace: replaces the history (didnt find anything about it in documentation bruh)
+    await setTimeout(() => navigate("../chat", { "replace": false }), 1500); //replace: replaces the history (didnt find anything about it in documentation bruh)
   }
-  function ActivateAnim(event) { //animation for moving to chat
-    setChangePage(true);
-    WaitAnim();
+  async function signupLogin(type, form) {
+    if (type === "signup") {
+      const res = await dispatch(postAuth(form));
+      if (res.error) {
+        console.log(res.error);
+        setErrorR("username", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
+        setErrorR("password", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
+        setErrorR("confirmPassword", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
+        setErrorR("email", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
+      } else {
+        setChangePage(true);
+        WaitAnim();
+      }
+    } else {
+      const res = await dispatch(getAuth(form));
+      if (res.error) {
+        console.log(res.error)
+        let error = res.error.message === "400" ? "Incorrect password or username" : `Something went wrong ( ${res.error.message} )`;
+        setErrorL("username", { type: "custom", message: error });
+        setErrorL("password", { type: "custom", message: error });
+      } else {
+        setChangePage(true);
+        WaitAnim();
+      }
+    }
   }
+
   function SignUpSubmit(form) {
     setData(form);
     setTandC(true); //possible promise
@@ -86,29 +121,15 @@ function SignLogin(props) {
 
   function LoginSubmit(form) {
     setLoad(true);
-    getLogin(form).then(() => {
-      ActivateAnim();
-    }).catch((err) => {
-      setErrorL("username", { type: "custom", message: err.toString() });
-      setErrorL("password", { type: "custom", message: err.toString() });
-    }).finally(() =>
-      setLoad(false)
-    );
+    signupLogin("login", form);
+    setLoad(false);
   }
 
   function TandCSubmit() {
     setTandC(false);
     setLoad(true);
-    postSignup(data).then(() => {
-      ActivateAnim();
-    }).catch((err) => {
-      setErrorR("username", { type: "custom", message: err.toString() });
-      setErrorR("password", { type: "custom", message: err.toString() });
-      setErrorR("confirmPassword", { type: "custom", message: err.toString() });
-      setErrorR("email", { type: "custom", message: err.toString() });
-    }).finally(() =>
-      setLoad(false)
-    );
+    signupLogin("signup", data);
+    setLoad(false);
   }
 
   return (

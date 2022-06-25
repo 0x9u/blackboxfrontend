@@ -47,11 +47,13 @@ function Chat() { //might turn into class
     const [server, setServer] = React.useState(false); //show server settings / create invite?
     const [chat, setChat] = React.useState(false); //to determine if it should show dialog to invite or create chat
     const [create, setCreate] = React.useState(0); //for type in invite/create chat
+    const [serverSettings, setServerSettings] = React.useState(false); //show server settings
+    const [userList, setUserList] = React.useState(false); //for userlist
+    const [invite, setInvite] = React.useState(false); //show invite dialog
+
     const [inviteTxt, setInviteTxt] = React.useState(""); //for type in invite
     const [genInvite, setGenInvite] = React.useState("avbsadjajsdajasdasdsadasdasdasasjiod"); //for generated invite
-    const [userList, setUserList] = React.useState(false); //for userlist
-    const [invite, setInvite] = React.useState(false);
-    const [serverSettings, setServerSettings] = React.useState(false);
+    
 
     const [serverImage, setServerImage] = React.useState(null);
 

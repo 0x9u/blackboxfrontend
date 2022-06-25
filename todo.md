@@ -6,3 +6,4 @@
 - rework server menu 
 - Add react redux for managing tokens if cookies are disabled
     - also use react redux for websockets since I may implement it into games
+- convert this to typescript

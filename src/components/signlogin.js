@@ -7,7 +7,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
 
 import { Modal, InputBox } from './modals.js';
-import { getAuth, postAuth } from '../app/reducers/auth.js';
+import { postAuth, getAuth } from '../api/authApi.js';
+import { authClear } from '../app/reducers/auth.js';
+
 //import { postSignup, getLogin } from '../api/client.js'; //api call to signin and login
 //import Cookies from 'universal-cookie';
 
@@ -33,21 +35,15 @@ function SignLogin(props) {
   //global states
   const { expires, userId, token } = useSelector(state => state.auth);
 
-  /*
   React.useEffect(
     () => {
-      console.log(cookies.get("token"))
-      if (cookies.get("token") !== undefined) {
-        navigate("../chat", { "replace": false });
+      if (![token, userId, expires].every(Boolean)) return
+      if ( Date.now() > expires ) {
+        dispatch(authClear());
       }
-    }
-    , [navigate]) //fuck you React you bitch ass crackhead
-
-    */
-  React.useEffect(
-    () => {
-      if ([token, userId].every(Boolean)) navigate("../chat", { "replace": false });
-    }, [dispatch, navigate, token, userId])
+      navigate("../chat", { "replace": false });
+    }, [dispatch, navigate, token, userId, expires])
+  
   const schemaR = Yup.object().shape({ //this is the validation schema for signup
     username: Yup.string().required("Username is required").matches(/^[a-zA-Z0-9_]*$/, "Username cannot contain any symbols or spaces").min(6, "must be at least 6 characters").max(32, "Maximum is 32 characters"),
     password: Yup.string().required("Password is required").matches(/^[\x20-\xFF]*$/, "Password must be a valid ascii character").min(6, "Password must be at least 6 characters").max(64, "Maximum is 64 characters"),
@@ -85,19 +81,22 @@ function SignLogin(props) {
     }
   }
   async function WaitAnim() {
+    setChangePage(true);
     await setTimeout(() => navigate("../chat", { "replace": false }), 1500); //replace: replaces the history (didnt find anything about it in documentation bruh)
   }
   async function signupLogin(type, form) {
     if (type === "signup") {
-      const res = await dispatch(postAuth(form));
+      const res = await dispatch(postAuth(form))
       if (res.error) {
-        console.log(res.error);
+        if (res.error.message === "400") {
+          setErrorR("username", { message: "Username already exists!" });
+        } else {
         setErrorR("username", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
         setErrorR("password", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
-        setErrorR("confirmPassword", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
+        setErrorR("confirmPassword", { type: "custom", message:`Something went wrong ( ${res.error.message} )` });
         setErrorR("email", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
+        }
       } else {
-        setChangePage(true);
         WaitAnim();
       }
     } else {
@@ -108,7 +107,6 @@ function SignLogin(props) {
         setErrorL("username", { type: "custom", message: error });
         setErrorL("password", { type: "custom", message: error });
       } else {
-        setChangePage(true);
         WaitAnim();
       }
     }

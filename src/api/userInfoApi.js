@@ -1,5 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
+const 
+    EDITPASS = 0,
+    EDITEMAIL = 1,
+    EDITUSERNAME = 2;
+
 const getUserInfo = createAsyncThunk("userInfo/get", async (args, getState) => {
     const response = await getApi("user/info", {}, {
         headers: {
@@ -9,7 +14,7 @@ const getUserInfo = createAsyncThunk("userInfo/get", async (args, getState) => {
     return response
 });
 
-const updateUserInfo = createAsyncThunk("userInfo/put", async (args, getState) => {
+const updateUserInfo = createAsyncThunk("userInfo/put", async (args, getState) => { //no dispatch needed
     const {password, change, newData } = args
     await putApi("user/info", {
         password,
@@ -24,4 +29,4 @@ const updateUserInfo = createAsyncThunk("userInfo/put", async (args, getState) =
     //    return response
 });
 
-export { getUserInfo, updateUserInfo };
+export { getUserInfo, updateUserInfo, EDITPASS, EDITEMAIL, EDITUSERNAME };

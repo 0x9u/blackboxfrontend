@@ -14,7 +14,7 @@ const getMsgs = createAsyncThunk("msgs/get", async (args, getState) => {
     return response
 });
 
-const sendMsgs = createAsyncThunk("msgs/post", async (args, getState) => {
+const sendMsgs = createAsyncThunk("msgs/post", async (args, getState) => { // no dispatch needed
     const { msg, guild } = args;
     await postApi("msg", {
         msg: msg,

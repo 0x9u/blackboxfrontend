@@ -11,18 +11,25 @@ import {
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage';
 import thunk from 'redux-thunk';
-import { default as authReducer } from './reducers/auth.js';
-import { default as userInfoReducer } from './reducers/userInfo.js';
-import { default as wsChatReducer } from './reducers/wsChat.js';
-import { default as guildReducer } from './reducers/guilds.js';
+import { createEpicMiddleware, combineEpics } from 'redux-observable';
+import { default as authReducer } from './reducers/auth';
+import { default as userInfoReducer } from './reducers/userInfo';
+import { default as guildReducer } from './reducers/guilds';
+import { wsEpic } from '../api/websocket';
 
-const middlewares = [thunk];
-//const store = createStore(rootReducer, composeEnhancers);
+const epicMiddleware = createEpicMiddleware();
+
+const middlewares = [thunk, epicMiddleware];
+
+const rootEpic = combineEpics(
+    wsEpic
+);
+
 const rootReducer = combineReducers({
     guilds: guildReducer,
     auth: authReducer,
     userInfo: userInfoReducer,
-    wsChat: wsChatReducer
+    //    wsChat: wsChatReducer
 });
 
 const peristConfig = {
@@ -33,7 +40,7 @@ const peristConfig = {
     storage, //localstorage PROBLEM no idea how to make it expire
 };
 
-const persistedReducer = persistReducer(peristConfig, rootReducer);
+const persistedReducer = persistReducer(peristConfig, rootReducer); //load config for localstorage saving
 
 const store = configureStore({
     reducer: persistedReducer,
@@ -44,6 +51,8 @@ const store = configureStore({
     }).concat(...middlewares),
     devTools: true
 });
+
+epicMiddleware.run(rootEpic);
 
 const persistor = persistStore(store)
 

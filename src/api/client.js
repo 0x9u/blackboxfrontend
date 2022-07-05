@@ -2,7 +2,8 @@ const gateway = "http://localhost:8090/api/";
 
 async function requestApi(endpoint, type, { data, urlParams, ...customConfig } = {}) {
     try {
-        const response = await fetch(`${gateway}${endpoint}${urlParams !== {} ? "?" + new URLSearchParams(urlParams) : ""}`, 
+        const response = await fetch(`${gateway}${endpoint}
+        ${urlParams !== {} ? "?" + new URLSearchParams(urlParams) : ""}`, 
             {
             ...customConfig,
             method: type,

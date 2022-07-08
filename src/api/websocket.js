@@ -1,8 +1,8 @@
 import { webSocket } from 'rxjs/webSocket';
-import { map } from 'rxjs';
+import { map, mergeMap } from 'rxjs';
 import { ofType } from 'redux-observable';
 
-WEBSOCKET_URL = 'http://localhost:8090/ws';
+const WEBSOCKET_URL = 'ws://localhost:8090/ws';
 
 const
     PING = 0,
@@ -48,46 +48,49 @@ const wsEpic = action$ => action$.pipe(
     ofType(WS_START),
     mergeMap(
         action => {
-            webSocket(WEBSOCKET_URL //probs bad to store token in url params
+            const wsSubject$ = webSocket(WEBSOCKET_URL //probs bad to store token in url params
                 + "?"
-                + URLSearchParams({
+                + new URLSearchParams({
                     token: action.payload.token
                 }))
                 .pipe(
                     map(
-                        (data) => {
-                            const { dataType } = data;
+                        (payload) => {
+                            const { dataType,  data } = payload;
                             switch (dataType) {
                                 case PING:
                                     wsSubject$.next({
                                         dataType: 0,
                                     }); //pings back to server to let it know its alive
+                                    console.log("pinging");
                                     return null;
                                 case MSGADD:
-                                    return msgAdd(payload);
+                                    return msgAdd(data);
                                 case MSGREMOVE:
-                                    return msgRemove(payload);
+                                    return msgRemove(data);
                                 case GUILDADD:
-                                    return guildAdd(payload);
+                                    return guildAdd(data);
                                 case GUILDREMOVE:
-                                    return guildRemove(payload);
+                                    return guildRemove(data);
                                 default:
                                     console.log("Unidenified data type: " + dataType);
                                     return null;
                             }
                         }
                     )
-                ).subscribe({
+                );
+                wsSubject$.subscribe({
                     next: action => {
                         console.log(action);
                     },
                     error: err => {
-                        console.log(err);
+                        console.log(err.error);
                     },
                     complete: () => { //shouldnt ever happen
                         console.log("complete");
                     }
                 })
+                return wsSubject$;
         }
     )
 )

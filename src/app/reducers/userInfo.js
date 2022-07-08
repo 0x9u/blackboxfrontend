@@ -1,19 +1,32 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+import { GetUserInfo } from "../../api/userInfoApi";
+
 const userInfoSlice = createSlice({
     name: "userInfo",
     initialState: {
         email: "",
         username: "",
-        profileId: 0
+        icon: 0
     }
     , reducers: {
         userSet: (state, action) => {
-            return { ...state, email: action.payload.email, username: action.payload.username, profileId: action.payload.profileId };
+            state.email = action.payload.Email;
+            state.username = action.payload.Username;
+            state.icon = action.payload.Icon;
         }
         , userClear: (state, action) => {
-            return { ...state, email: "", username: "", profileId: 0 };
+            state.email = "";
+            state.username = "";
+            state.icon = 0;
         }
+    }
+    , extraReducers: (builder) => {
+        builder.addCase(GetUserInfo.fulfilled, (state, action) => {
+            state.email = action.payload.Email;
+            state.username = action.payload.Username;
+            state.icon = action.payload.Icon;
+        })
     }
 });
 

@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 
 import { Modal, InputBox } from './modals.js';
 import { postAuth, getAuth } from '../api/authApi.js';
-import { authClear } from '../app/reducers/auth.js';
+import { authSet, authClear } from '../app/reducers/auth.js';
 
 //import { postSignup, getLogin } from '../api/client.js'; //api call to signin and login
 //import Cookies from 'universal-cookie';

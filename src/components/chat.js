@@ -1,8 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './chat.module.css';
 import { Menu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { startSocket } from '../api/websocket';
+import { GetMsgs } from '../api/msgApi';
+import { GetGuilds, GetGuildUsers } from '../api/guildApi';
+import auth, { authClear } from '../app/reducers/auth';
+import { GetUserInfo } from '../api/userInfoApi';
+
 
 function Msg(props) {
     return (
@@ -14,6 +20,12 @@ function Msg(props) {
     );
 }
 
+function RenderChatMsgs() {
+    const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
+    console.log(msgsList);
+    return msgsList.map(msg => <Msg img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} />);
+}
+
 function User(props) {
     return (
         <div className={styles.userListChild}>
@@ -21,6 +33,11 @@ function User(props) {
             <p>{props.username}</p>
         </div>
     );
+}
+
+function RenderUserList() {
+    const userList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Users ?? []);
+    return userList.map(user => <User key={user.Id} img="/profileImg.png" username={user.Username} />);
 }
 
 
@@ -43,6 +60,12 @@ function Guild(props) {
     );
 }
 
+function RenderGuilds() {
+    const guildInfo = useSelector(state => state.guilds.guildInfo);
+    const guildOrder = useSelector(state => state.guilds.guildOrder);
+    return guildOrder.map(guild => <Guild key={guildInfo[guild].Id} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} />);
+}
+
 function Chat() { //might turn into class
     const [menu, setMenu] = React.useState(false); //show the settings?
     const [server, setServer] = React.useState(false); //show server settings / create invite?
@@ -53,7 +76,7 @@ function Chat() { //might turn into class
     const [invite, setInvite] = React.useState(false); //show invite dialog
 
     const [inviteTxt, setInviteTxt] = React.useState(""); //for type in invite
-    const [genInvite, setGenInvite] = React.useState("avbsadjajsdajasdasdsadasdasdasasjiod"); //for generated invite
+    const [genInvite, setGenInvite] = React.useState("avbsadjajsdajasdasdsadasdasdasasjiod"); //for generated invite PLACEHOLDER TXT
 
 
     const [serverImage, setServerImage] = React.useState(null);
@@ -63,7 +86,10 @@ function Chat() { //might turn into class
 
     const { expires, userId, token } = useSelector(state => state.auth);
 
-    const auth = useDispatch(state => state.auth);
+    function GetData() {
+        console.log('getting data');
+
+    }
 
     React.useEffect(
         () => {
@@ -71,9 +97,14 @@ function Chat() { //might turn into class
                 dispatch(authClear());
             }
             if (![token, userId, expires].every(Boolean)) navigate("../login", { "replace": false });
+            dispatch(GetGuilds()).then(() => dispatch(GetGuildUsers())).then(
+                () => dispatch(GetMsgs())).then(() => dispatch(GetUserInfo()));
 
-            startSocket(token).subscribe(dispatch); //start da websocket brah
+            //dispatch(startSocket(token)); //start da websocket brah
         }, [dispatch, navigate, token, userId, expires])
+    
+    const userInfo = useSelector(state => state.userInfo);
+    console.log(userInfo);
 
     function saveChatHistoryOption() {
         console.log("save chat history");
@@ -101,19 +132,28 @@ function Chat() { //might turn into class
         <div className={styles.chatContainer}>
             <div className={styles.menuUserContainer}>
                 <div className={styles.userModal}>
-                    <div className={styles.userModalUsername}><p>Bob Swanson</p><div><input type="button" value="settings" onClick={() => setMenu(true)} /></div></div>
-                    <div className={styles.userModalProfile}><img src="https://i1.sndcdn.com/avatars-IesRuX9vhlBZzVuz-1H6bOA-t500x500.jpg" id="pfp" /></div>
+                    <div className={styles.userModalUsername}>
+                        <p> {userInfo.username} </p>
+                        <div>
+                            <input type="button" value="settings" onClick={() => setMenu(true)} />
+                        </div>
+                    </div>
+                    <div className={styles.userModalProfile}>
+                        <img src="/profileImg.png" id="pfp" />
+                    </div>
                 </div>
                 <div className={styles.menu}>
                     <MenuOption name="Games (Not Working yet)" function={() => 1} />
                     <MenuOption name="Create/Add Chat" function={() => setChat(true)} />
-                    <Guild img="https://image.shutterstock.com/z/stock-vector-illustration-of-simple-house-isolated-on-white-background-1937900650.jpg" name="Gods plan" />
+                    {
+                        RenderGuilds()
+                    }
                 </div>
             </div>
             <div className={styles.chat}>
                 <div className={styles.chatTopMenu}>
                     <div className={styles.topMenuServerName}>
-                        <p>{"Gods plan"}</p>
+                        <p>{"Gods plan"}</p> {/* REPLACE WITH SOME COOL ASS FUNCTION */}
                     </div>
                     <div className={styles.topMenuServerButton}>
                         <input type="button" value="server" onClick={() => { setServer(!server); setUserList(false) }} />
@@ -122,30 +162,14 @@ function Chat() { //might turn into class
                 </div>
                 <div className={styles.chatContentContainer}>
                     <div className={styles.chatContent}>
-                        <Msg username="The Rock" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" msg="Helloa World!" />
+                        {
+                            RenderChatMsgs()
+                        }
                     </div>
                     <div className={userList ? styles.chatUserList : styles.chatUserListHidden}>
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-                        <User username="Bob swansoaaaaaaaaaaaaaaaaaaaaaaaaaan" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-
-                        <User username="Bob swanson" img="https://fanbuzz.com/wp-content/uploads/sites/5/2019/05/Dwayne-Johnson.png" />
-
+                        {
+                            RenderUserList()
+                        }
 
                     </div>
                     <div className={server ? styles.serverMiniOptions : styles.serverMiniOptionsHidden}>

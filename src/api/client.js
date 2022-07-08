@@ -1,9 +1,9 @@
 const gateway = "http://localhost:8090/api/";
 
+//change this to use rxjs as new api soon
 async function requestApi(endpoint, type, { data, urlParams, ...customConfig } = {}) {
     try {
-        const response = await fetch(`${gateway}${endpoint}
-        ${urlParams !== {} ? "?" + new URLSearchParams(urlParams) : ""}`, 
+        const response = await fetch(`${gateway}${endpoint}${Object.keys(urlParams).length !== 0 ? "?" + new URLSearchParams(urlParams) : ""}`, 
             {
             ...customConfig,
             method: type,
@@ -14,7 +14,6 @@ async function requestApi(endpoint, type, { data, urlParams, ...customConfig } =
             body: data ? JSON.stringify(data) : undefined
         })
         const resJson = await response.json()
-        console.log(resJson.error)
 
         if (!response.ok) {
             console.log("activating")

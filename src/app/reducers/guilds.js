@@ -1,13 +1,13 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { getGuilds } from "../../api/guildApi";
-import { getMsgs } from "../../api/msgApi";
+import { createSlice, current } from "@reduxjs/toolkit";
+import { GetGuilds, GetGuildUsers } from "../../api/guildApi";
+import { GetMsgs } from "../../api/msgApi";
 
 /*
 format for guilds (guildInfo)
 {
     name : string,
     icon : id, // will be unused for now so its 0
-    members : [
+    users : [
         {
             userId : int,
             username : string,
@@ -31,49 +31,67 @@ const guildSlice = createSlice({
     name: "guilds",
     initialState: {
         guildInfo: {},
-        guilds: [], //order list of guilds
-        currentGuild: 0
+        guildOrder: [], //order list of guilds
+        currentGuild: 1
     }
     , reducers: {
-        guild: {
-            add: (state, action) => { //accepts guild : int, info: object
-                state.guildInfo[action.payload.guild] = action.payload.info;
-                state.guildInfo[action.payload.guild].msgHistory = [];
-                state.guilds.push(action.payload.guild);
-            }
-            , remove: (state, action) => { //accepts guild : int
-                state.guildInfo[action.payload.guild] = undefined;
-                state.guilds = state.guilds.filter(guild => guild !== action.payload.guild)
-                state.currentGuild = state.currentGuild !== action.payload.guild ? state.currentGuild : 0;
-            }
-            , set: (state, action) => { //accepts guildInfo : object<string : object>, guilds : array<int>
-                state.guildInfo = action.payload.guildInfo;
-                state.guilds = action.payload.guilds;
-                //state.currentGuild = action.payload.currentGuild; //most likely will not be stored in database
-            }
-        },
-        msg: {
-            add: (state, action) => { //accepts guild : int, msg : object
-                state.guildInfo[action.payload.guild].msgHistory.push(action.payload.msg);
-            }
-            , remove: (state, action) => { //accepts guild : int, msg : object
-                state.guildInfo[action.payload.guild].msgHistory = state.guildInfo[action.payload.guild]
-                    .msgHistory.filter(msg => msg.id !== action.payload.id);
-            }
-        },
+        guildAdd: (state, action) => { //accepts guild : int, info: object
+            state.guildInfo[action.payload.Guild] = action.payload.Info;
+            state.guildInfo[action.payload.Guild].MsgHistory = [];
+            state.guildOrder.push(action.payload.Guild);
+        }
+        , guildRemove: (state, action) => { //accepts guild : int
+            state.guildInfo[action.payload.Id] = undefined;
+            state.guildOrder = state.guildOrder.filter(guild => guild !== action.payload.Id)
+            state.currentGuild = state.currentGuild !== action.payload.Id ? state.currentGuild : 0;
+        }
+        , guildSet: (state, action) => { //accepts guildInfo : object<string : object>, guilds : array<int>
+            state.guildInfo = action.payload.GuildInfo;
+            state.guildOrder = action.payload.GuildOrder;
+            //state.currentGuild = action.payload.currentGuild; //most likely will not be stored in database
+        }
+        ,
+        msgAdd: (state, action) => { //accepts guild : int, msg : object
+            state.guildInfo[action.payload.Guild].MsgHistory.push(action.payload.Msg);
+        }
+        , msgRemove: (state, action) => { //accepts guild : int, msg : object
+            state.guildInfo[action.payload.guild].MsgHistory = state.guildInfo[action.payload.guild]
+                .MsgHistory.filter(msg => msg.id !== action.payload.id);
+        }
     },
-    extraReducers: (builders) => {
-        builders.addCase(getGuilds.fulfilled, (state, action) => {
-            state.guilds = action.payload.guilds;
-            state.guildInfo = action.payload.guildInfo;
-        })
-            .addCase(getMsgs.fulfilled, (state, action) => {
-                state.guildInfo[state.currentGuild].msgHistory.push(action.payload);
+    extraReducers: (builder) => {
+        builder
+            .addCase(GetGuilds.fulfilled, (state, action) => {
+                action.payload.map(guild => {
+                    state.guildInfo[guild.Id] = {
+                        Name: guild.Name,
+                        Icon: guild.Icon,
+                        Users: [],
+                        MsgHistory: []
+                    };
+                    state.guildOrder.push(guild.Id);
+                }
+                );
+                console.log(current(state.guildInfo));
+            })
+            .addCase(GetMsgs.fulfilled, (state, action) => {
+                console.log("hiaaaaaaaaaaaaaaaaaaa")
+                action.payload.map(msg => 
+                state.guildInfo[state.currentGuild].MsgHistory.push(msg)
+                )
+            })
+            .addCase(GetGuildUsers.fulfilled, (state, action) => {
+    console.log("got guild users");
+                action.payload.map(user => 
+                state.guildInfo?.[state.currentGuild]?.Users.push(user)
+                )
+                console.log(current(state.guildInfo))
+
             });
 
     }
 
 });
 
-export const { guildAdd, guildRemove, guildSet } = guildSlice.actions;
+export const { guildAdd, guildRemove, guildSet, msgAdd, msgRemove } = guildSlice.actions;
 export default guildSlice.reducer;

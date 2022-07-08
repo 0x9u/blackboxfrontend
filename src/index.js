@@ -13,8 +13,8 @@ import { store, persistor } from './app/store.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-root.render(
-  <React.StrictMode>
+root.render( //note to self React StrictMode is causing rendering twice allowing useeffect to activiate twice
+//Remove React StrictMode when testing API/CHAT
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
@@ -27,7 +27,6 @@ root.render(
         </BrowserRouter>
       </PersistGate>
     </Provider>
-  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

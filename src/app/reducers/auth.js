@@ -9,12 +9,12 @@ const authSlice = createSlice({
         //  error: null, status: "idle",
     },
     reducers: { //this is passed to createReducer which allows me to safely mutate states
-        set: (state, action) => { //likely unused
-            state.token = action.payload.token;
-            state.userId = action.payload.userId
-            state.expires = action.payload.expires
+        authSet: (state, action) => { //likely unused
+            state.token = action.payload.Token;
+            state.userId = action.payload.UserId
+            state.expires = action.payload.Expires
         }
-        , clear: (state, action) => {
+        , authClear: (state, action) => {
             state.token = "";
             state.userId = 0;
             state.expires = 0;
@@ -27,9 +27,9 @@ const authSlice = createSlice({
                 (state, action) => {
                     //state.status = "success";
                     console.log("fulfilled!")
-                    state.token = action.payload.token;
-                    state.userId = action.payload.userId;
-                    state.expires = action.payload.expires;
+                    state.token = action.payload.Token;
+                    state.userId = action.payload.UserId;
+                    state.expires = action.payload.Expires;
                 }
             )
     }

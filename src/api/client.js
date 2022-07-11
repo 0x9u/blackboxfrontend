@@ -2,6 +2,7 @@ const gateway = "http://localhost:8090/api/";
 
 //change this to use rxjs as new api soon
 async function requestApi(endpoint, type, { data, urlParams, ...customConfig } = {}) {
+    console.log(data)
     try {
         const response = await fetch(`${gateway}${endpoint}${Object.keys(urlParams).length !== 0 ? "?" + new URLSearchParams(urlParams) : ""}`, 
             {
@@ -29,12 +30,12 @@ async function requestApi(endpoint, type, { data, urlParams, ...customConfig } =
 
 //export { postSignup, getLogin };
 const postApi = (endpoint, body, customConfig = {}) => requestApi(
-    endpoint, "POST", { ...customConfig, data: body });
+    endpoint, "POST", { ...customConfig, data: body, urlParams: {}});
 const getApi = (endpoint, urlBody, customConfig = {}) => requestApi(
     endpoint, "GET", { ...customConfig, urlParams: urlBody });
 const deleteApi = (endpoint, body, customConfig = {}) => requestApi(
-    endpoint, "DELETE", { ...customConfig, data: body });
+    endpoint, "DELETE", { ...customConfig, data: body, urlParams: {} });
 const putApi = (endpoint, body, customConfig = {}) => requestApi(
-    endpoint, "PUT", { ...customConfig, data: body });
+    endpoint, "PUT", { ...customConfig, data: body, urlParams : {} });
 
 export { postApi, getApi, deleteApi, putApi };

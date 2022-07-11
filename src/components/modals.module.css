@@ -473,13 +473,22 @@ div[id='passwordChange'] > input[type='button']:active {
 
 .changeUsernameModal, .changePasswordModal, .changeEmailModal {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
     display: flex;
     flex-direction: column;
     width: 150px;
     height: 50px;
+}
+
+.changeUsernameModal, .changeEmailModal {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+.changePasswordModal {
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%,-35%);
 }
 
 .changeUsernameModal>input, .changePasswordModal>input, .changeEmailModal>input {
@@ -489,6 +498,10 @@ div[id='passwordChange'] > input[type='button']:active {
     font-size: 16px;
     font-weight: bold;
 } 
+
+.changeUsernameModal>label[id="error"], .changePasswordModal>label[id="error"], .changeEmailModal>label[id="error"] {
+    color: red;
+}
 
 .userBox {
     position: absolute;

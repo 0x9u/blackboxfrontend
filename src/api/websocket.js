@@ -2,7 +2,7 @@ import { webSocket } from 'rxjs/webSocket';
 import { map, mergeMap } from 'rxjs';
 import { ofType } from 'redux-observable';
 
-const WEBSOCKET_URL = 'ws://localhost:8090/ws';
+const WEBSOCKET_URL = 'ws://localhost:8090/api/ws';
 
 const
     PING = 0,
@@ -12,6 +12,8 @@ const
     GUILDREMOVE = 4;
 
 const WS_START = "WS_START";
+const WS_PING = "WS_PING";
+const WS_STOP = "WS_STOP";
 
 const startSocket = (token) => ({
     type: WS_START,
@@ -44,7 +46,7 @@ const guildRemove = id => ({
     },
 });
 
-const wsEpic = action$ => action$.pipe(
+const wsEpic = action$ => action$.pipe( //not working needs to be fixed
     ofType(WS_START),
     mergeMap(
         action => {
@@ -56,14 +58,14 @@ const wsEpic = action$ => action$.pipe(
                 .pipe(
                     map(
                         (payload) => {
-                            const { dataType,  data } = payload;
+                            const { dataType, data } = payload;
                             switch (dataType) {
                                 case PING:
-                                    wsSubject$.next({
+                                    wsSubject$.next(JSON.stringify({
                                         dataType: 0,
-                                    }); //pings back to server to let it know its alive
+                                    })); //pings back to server to let it know its alive
                                     console.log("pinging");
-                                    return null;
+                                    return;
                                 case MSGADD:
                                     return msgAdd(data);
                                 case MSGREMOVE:
@@ -74,23 +76,24 @@ const wsEpic = action$ => action$.pipe(
                                     return guildRemove(data);
                                 default:
                                     console.log("Unidenified data type: " + dataType);
-                                    return null;
+                                    return;
                             }
                         }
                     )
                 );
-                wsSubject$.subscribe({
-                    next: action => {
-                        console.log(action);
-                    },
-                    error: err => {
-                        console.log(err.error);
-                    },
-                    complete: () => { //shouldnt ever happen
-                        console.log("complete");
-                    }
-                })
-                return wsSubject$;
+            wsSubject$.subscribe({
+                next: action => {
+                    console.log(action);
+                },
+                error: err => {
+                    console.log("gonna print error rn");
+                    console.log(err.error);
+                },
+                complete: () => { //shouldnt ever happen
+                    console.log("complete");
+                }
+            })
+            return wsSubject$;
         }
     )
 )

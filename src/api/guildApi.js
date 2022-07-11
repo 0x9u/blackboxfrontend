@@ -51,7 +51,7 @@ const ChangeGuild = createAsyncThunk("guilds/update", async (args, api) => {
 //    return response
 });
 
-const JoinGuild = createAsyncThunk("guilds/join", async (args,api) => {
+const JoinGuild = createAsyncThunk("guilds/join/get", async (args,api) => {
     await getApi("guild/join",{
         invite : args.invite
     }, {
@@ -61,4 +61,26 @@ const JoinGuild = createAsyncThunk("guilds/join", async (args,api) => {
     });
 });
 
-export { GetGuilds, GetGuildUsers, CreateGuild, ChangeGuild, JoinGuild };
+const GenInvite = createAsyncThunk("guilds/invite/post", async (args,api) => {
+    const response = await postApi("invite", {
+        guild : api.getState().guilds.currentGuild
+    }, {
+        headers : {
+            "Auth-Token" : api.getState().auth.token
+        }
+    })
+    return response
+})
+
+const GetInvite = createAsyncThunk("guilds/invite/get", async (args, api) => {
+    const response = await getApi("invite", {
+        guild: api.getState().guilds.currentGuild
+    }, {
+        headers : {
+            "Auth-Token" : api.getState().auth.token
+        }
+    })
+    return response
+})
+
+export { GetGuilds, GetGuildUsers, CreateGuild, ChangeGuild, JoinGuild, GenInvite, GetInvite };

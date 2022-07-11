@@ -2,10 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './chat.module.css';
-import { Menu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
+import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { startSocket } from '../api/websocket';
 import { GetMsgs } from '../api/msgApi';
-import { GetGuilds, GetGuildUsers } from '../api/guildApi';
+import { GetGuilds, GetGuildUsers, GenInvite, GetInvite } from '../api/guildApi';
 import auth, { authClear } from '../app/reducers/auth';
 import { GetUserInfo } from '../api/userInfoApi';
 
@@ -66,6 +66,30 @@ function RenderGuilds() {
     return guildOrder.map(guild => <Guild key={guildInfo[guild].Id} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} />);
 }
 
+function RenderChatName() {
+    const guildName = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Name ?? "NO NAME");
+    return guildName
+}
+
+function InviteModal(props) {
+    const genInvite = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.invite ?? "");
+    const dispatch = useDispatch();
+    return (
+        <Modal show={props.show} height="250" width="400" buttons={[{ value: "Exit", function: props.exit }]}>
+            <h1>Create Invite</h1>
+            <div className={styles.inviteContainer}>
+                <div className={styles.inviteBox}>
+                    <label>Your Invite</label>
+                    <input value={genInvite} type="text" readOnly />
+                </div>
+                <div>
+                    <input type="button" value="Create" className={`default ${styles.genInviteButton}`} onClick={(() => dispatch(GenInvite()) )} />
+                </div>
+            </div>
+        </Modal>
+    )
+}
+
 function Chat() { //might turn into class
     const [menu, setMenu] = React.useState(false); //show the settings?
     const [server, setServer] = React.useState(false); //show server settings / create invite?
@@ -76,7 +100,6 @@ function Chat() { //might turn into class
     const [invite, setInvite] = React.useState(false); //show invite dialog
 
     const [inviteTxt, setInviteTxt] = React.useState(""); //for type in invite
-    const [genInvite, setGenInvite] = React.useState("avbsadjajsdajasdasdsadasdasdasasjiod"); //for generated invite PLACEHOLDER TXT
 
 
     const [serverImage, setServerImage] = React.useState(null);
@@ -87,8 +110,7 @@ function Chat() { //might turn into class
     const { expires, userId, token } = useSelector(state => state.auth);
 
     function GetData() {
-        console.log('getting data');
-
+        dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite()));
     }
 
     React.useEffect(
@@ -97,12 +119,11 @@ function Chat() { //might turn into class
                 dispatch(authClear());
             }
             if (![token, userId, expires].every(Boolean)) navigate("../login", { "replace": false });
-            dispatch(GetGuilds()).then(() => dispatch(GetGuildUsers())).then(
-                () => dispatch(GetMsgs())).then(() => dispatch(GetUserInfo()));
+            dispatch(GetGuilds()).then(() => dispatch(GetUserInfo())).then(() => GetData());
 
-            //dispatch(startSocket(token)); //start da websocket brah
+            dispatch(startSocket(token)); //start da websocket brah
         }, [dispatch, navigate, token, userId, expires])
-    
+
     const userInfo = useSelector(state => state.userInfo);
     console.log(userInfo);
 
@@ -153,7 +174,7 @@ function Chat() { //might turn into class
             <div className={styles.chat}>
                 <div className={styles.chatTopMenu}>
                     <div className={styles.topMenuServerName}>
-                        <p>{"Gods plan"}</p> {/* REPLACE WITH SOME COOL ASS FUNCTION */}
+                        <p>{RenderChatName()}</p> {/* REPLACE WITH SOME COOL ASS FUNCTION */}
                     </div>
                     <div className={styles.topMenuServerButton}>
                         <input type="button" value="server" onClick={() => { setServer(!server); setUserList(false) }} />
@@ -185,8 +206,8 @@ function Chat() { //might turn into class
                     </div>
                 </div>
             </div>
-            <Menu show={serverSettings} type={1} exit={() => setServerSettings(false)} />
-            <Menu show={menu} type={0} exit={() => setMenu(false)} />
+            <ServerMenu show={serverSettings} exit={() => setServerSettings(false)} />
+            <UserMenu show={menu} exit={() => setMenu(false)} />
             <Modal show={chat} buttons={create !== 0 && create !== -1 ? [{ value: "Back", function: () => { setCreate(-1) } }, { value: "Exit", function: () => { exitCreateChat() } }] : [{ value: "Exit", function: () => { exitCreateChat() } }]} width="500" height={create === 1 ? "450" : "350"} transition={create !== 0 ? "0.5s" : "0s"}>
                 <div className={styles.addChatOptions}>
                     <p>Create/Add Chat</p>
@@ -226,18 +247,7 @@ function Chat() { //might turn into class
                     </div>
                 </div>
             </Modal>
-            <Modal show={invite} height="250" width="400" buttons={[{ value: "Exit", function: () => setInvite(false) }]}>
-                <h1>Create Invite</h1>
-                <div className={styles.inviteContainer}>
-                    <div className={styles.inviteBox}>
-                        <label>Your Invite</label>
-                        <input value={genInvite} type="text" readOnly />
-                    </div>
-                    <div>
-                        <input type="button" value="Create" className={`default ${styles.genInviteButton}`} onClick={(() => { })} />
-                    </div>
-                </div>
-            </Modal>
+            <InviteModal show={invite} exit={() => setInvite(false)}/>
             <div className={styles.pageChange}></div>
         </div>
 

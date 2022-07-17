@@ -23,27 +23,32 @@ const startSocket = (token) => ({
 });
 
 const msgAdd = msgData => ({
-    type: 'guilds/msg/add',
+    type: 'guilds/msgAdd',
     payload: msgData
 });
 
 const msgRemove = id => ({
-    type: 'guilds/msg/remove',
+    type: 'guilds/msgRemove',
     payload: {
         id
     }
 });
 
 const guildAdd = guildData => ({
-    type: 'guilds/guild/add',
+    type: 'guilds/guildAdd',
     payload: guildData
 });
 
 const guildRemove = id => ({
-    type: 'guilds/guild/remove',
+    type: 'guilds/guildRemove',
     payload: {
         id
     },
+});
+
+const DONOTHING = () => ({ //temporary fix
+    type: "DONOTHING",
+    payload: {}
 });
 
 const wsEpic = action$ => action$.pipe( //not working needs to be fixed
@@ -55,45 +60,59 @@ const wsEpic = action$ => action$.pipe( //not working needs to be fixed
                 + new URLSearchParams({
                     token: action.payload.token
                 }))
-                .pipe(
-                    map(
-                        (payload) => {
-                            const { dataType, data } = payload;
-                            switch (dataType) {
-                                case PING:
-                                    wsSubject$.next(JSON.stringify({
-                                        dataType: 0,
-                                    })); //pings back to server to let it know its alive
-                                    console.log("pinging");
-                                    return;
-                                case MSGADD:
-                                    return msgAdd(data);
-                                case MSGREMOVE:
-                                    return msgRemove(data);
-                                case GUILDADD:
-                                    return guildAdd(data);
-                                case GUILDREMOVE:
-                                    return guildRemove(data);
-                                default:
-                                    console.log("Unidenified data type: " + dataType);
-                                    return;
-                            }
-                        }
-                    )
-                );
             wsSubject$.subscribe({
                 next: action => {
+                    console.log("Got pinged a packet");
+                    /*
                     console.log(action);
+                    wsSubject$.next({
+                        dataType: 0,
+                        data: {
+                            Data: "ping"
+                        }
+                    });
+                    */
                 },
                 error: err => {
-                    console.log("gonna print error rn");
+                    console.log(err);
                     console.log(err.error);
                 },
                 complete: () => { //shouldnt ever happen
                     console.log("complete");
                 }
             })
-            return wsSubject$;
+            return wsSubject$.pipe(
+                map(
+                    (payload) => {
+                        const { dataType, data } = payload;
+                        console.log(payload);
+                        switch (dataType) {
+                            case PING: //pings back to server to let it know its alive
+                                console.log("pinging");
+                                wsSubject$.next({
+                                    dataType: 0,
+                                    data: {
+                                        Data: "ping"
+                                    }
+                                });
+                                return DONOTHING();
+                            case MSGADD:
+                                console.log("got a message!");
+                                console.log(payload);
+                                return msgAdd(data);
+                            case MSGREMOVE:
+                                return msgRemove(data);
+                            case GUILDADD:
+                                return guildAdd(data);
+                            case GUILDREMOVE:
+                                return guildRemove(data);
+                            default:
+                                console.log("Unidenified data type: " + dataType);
+                                return DONOTHING();
+                        }
+                    }
+                )
+            );
         }
     )
 )

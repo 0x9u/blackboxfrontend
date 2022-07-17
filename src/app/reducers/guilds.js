@@ -1,5 +1,5 @@
 import { createSlice, current } from "@reduxjs/toolkit";
-import { GetGuilds, GetGuildUsers, GenInvite } from "../../api/guildApi";
+import { GetGuilds, GetGuildUsers } from "../../api/guildApi";
 import { GetMsgs } from "../../api/msgApi";
 
 /*
@@ -59,7 +59,9 @@ const guildSlice = createSlice({
             state.guildInfo[state.currentGuild].invite = "";
         },
         msgAdd: (state, action) => { //accepts guild : int, msg : object
-            state.guildInfo[action.payload.Guild].MsgHistory.push(action.payload.Msg);
+            console.log("adding msg");
+            state.guildInfo[action.payload.Guild].MsgHistory.push(action.payload);
+            console.log("current is ", current(state.guildInfo[action.payload.Guild].MsgHistory));
         }
         , msgRemove: (state, action) => { //accepts guild : int, msg : object
             state.guildInfo[action.payload.guild].MsgHistory = state.guildInfo[action.payload.guild]
@@ -79,7 +81,6 @@ const guildSlice = createSlice({
                     state.guildOrder.push(guild.Id);
                 }
                 );
-                console.log(current(state.guildInfo));
             })
             .addCase(GetMsgs.fulfilled, (state, action) => {
                 action.payload.map(msg => 
@@ -90,7 +91,6 @@ const guildSlice = createSlice({
                 action.payload.map(user => 
                 state.guildInfo?.[state.currentGuild]?.Users.push(user)
                 )
-                console.log(current(state.guildInfo))
 
             })
             .addMatcher((action) => action.type.match(/guilds\/invite\/[a-z]*\/fulfilled/), (state,action) => {

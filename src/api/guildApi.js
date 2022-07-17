@@ -11,7 +11,6 @@ const GetGuilds = createAsyncThunk("guilds/get", async (args, api) => {
 });
 
 const GetGuildUsers = createAsyncThunk("guilds/users/get", async (args, api) => {
-    console.log("getting guild users");
     const response = await getApi("guild/users", {
         guild : api.getState().guilds.currentGuild
     }, {
@@ -19,7 +18,6 @@ const GetGuildUsers = createAsyncThunk("guilds/users/get", async (args, api) => 
             "Auth-Token" : api.getState().auth.token
         }
     }) //figure out how to make fetching users work later with ws
-    console.log("finished");
     return response
     //probs filter existing users recieved from ws with users list in websocket (inefficent?)
 })

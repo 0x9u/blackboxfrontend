@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { startSocket } from '../api/websocket';
-import { GetMsgs } from '../api/msgApi';
+import { GetMsgs, SendMsgs } from '../api/msgApi';
 import { GetGuilds, GetGuildUsers, GenInvite, GetInvite } from '../api/guildApi';
 import auth, { authClear } from '../app/reducers/auth';
 import { GetUserInfo } from '../api/userInfoApi';
@@ -22,7 +22,6 @@ function Msg(props) {
 
 function RenderChatMsgs() {
     const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
-    console.log(msgsList);
     return msgsList.map(msg => <Msg img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} />);
 }
 
@@ -83,7 +82,7 @@ function InviteModal(props) {
                     <input value={genInvite} type="text" readOnly />
                 </div>
                 <div>
-                    <input type="button" value="Create" className={`default ${styles.genInviteButton}`} onClick={(() => dispatch(GenInvite()) )} />
+                    <input type="button" value="Create" className={`default ${styles.genInviteButton}`} onClick={(() => dispatch(GenInvite()))} />
                 </div>
             </div>
         </Modal>
@@ -100,17 +99,29 @@ function Chat() { //might turn into class
     const [invite, setInvite] = React.useState(false); //show invite dialog
 
     const [inviteTxt, setInviteTxt] = React.useState(""); //for type in invite
+    const [chatTxt, setChatTxt] = React.useState(""); //for type in chat
 
 
     const [serverImage, setServerImage] = React.useState(null);
+
+    const dummyMsgBottomRef = React.useRef(null); //used to scroll down to bottom of chat when new message appears (CHANGE LATER NOT GOOD DESIGN!!!)
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const { expires, userId, token } = useSelector(state => state.auth);
 
+    const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory); //maybe temp?
+
     function GetData() {
         dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite()));
+    }
+
+    function prepareSendMsg() {
+        dispatch(SendMsgs({
+            msg: chatTxt
+        }));
+        setChatTxt("");
     }
 
     React.useEffect(
@@ -124,8 +135,13 @@ function Chat() { //might turn into class
             dispatch(startSocket(token)); //start da websocket brah
         }, [dispatch, navigate, token, userId, expires])
 
+    React.useEffect( //maybe temp?
+        () => {
+            dummyMsgBottomRef.current?.scrollIntoView({behavior:'smooth'});
+        }, [messages] 
+    )
+
     const userInfo = useSelector(state => state.userInfo);
-    console.log(userInfo);
 
     function saveChatHistoryOption() {
         console.log("save chat history");
@@ -186,6 +202,7 @@ function Chat() { //might turn into class
                         {
                             RenderChatMsgs()
                         }
+                        <div ref={dummyMsgBottomRef}></div> {/* used to scroll automatically down at bottom of chat lmao*/}
                     </div>
                     <div className={userList ? styles.chatUserList : styles.chatUserListHidden}>
                         {
@@ -201,8 +218,8 @@ function Chat() { //might turn into class
                 </div>
                 <div className={styles.chatControl}>
                     <div className={styles.userInput}>
-                        <textarea placeholder="type here!" />
-                        <input type="button" value="Send!" />
+                        <textarea placeholder="type here!" value={chatTxt} onChange={(e) => setChatTxt(e.target.value)} />
+                        <input type="button" value="Send!" onClick={prepareSendMsg} />
                     </div>
                 </div>
             </div>
@@ -247,7 +264,7 @@ function Chat() { //might turn into class
                     </div>
                 </div>
             </Modal>
-            <InviteModal show={invite} exit={() => setInvite(false)}/>
+            <InviteModal show={invite} exit={() => setInvite(false)} />
             <div className={styles.pageChange}></div>
         </div>
 

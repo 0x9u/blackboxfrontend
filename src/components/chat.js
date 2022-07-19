@@ -6,11 +6,12 @@ import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from
 import { startSocket } from '../api/websocket';
 import { GetMsgs, SendMsgs } from '../api/msgApi';
 import { GetGuilds, GetGuildUsers, GenInvite, GetInvite } from '../api/guildApi';
-import auth, { authClear } from '../app/reducers/auth';
+import { authClear } from '../app/reducers/auth';
 import { GetUserInfo } from '../api/userInfoApi';
+import { guildCurrentSet } from '../app/reducers/guilds';
 
 
-function Msg(props) {
+function Msg(props) { //TODO add id to return in backend
     return (
         <div className={styles.msg}>
             <img src={props.img} width="50" height="50" alt="pfp" />
@@ -22,7 +23,7 @@ function Msg(props) {
 
 function RenderChatMsgs() {
     const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
-    return msgsList.map(msg => <Msg img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} />);
+    return msgsList.map((msg, index) => <Msg key={index} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} />);
 }
 
 function User(props) {
@@ -36,7 +37,7 @@ function User(props) {
 
 function RenderUserList() {
     const userList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Users ?? []);
-    return userList.map(user => <User key={user.Id} img="/profileImg.png" username={user.Username} />);
+    return userList.map((user,index) => <User key={index} img="/profileImg.png" username={user.Username} />);
 }
 
 
@@ -49,8 +50,9 @@ function MenuOption(props) {
 }
 
 function Guild(props) {
+    const dispatch = useDispatch();
     return (
-        <div className={styles.guildContainer}>
+        <div className={styles.guildContainer} onClick={() => dispatch(guildCurrentSet({Guild : props.guildId}))}>
             <div className={styles.guildOption}>
                 <p>{props.name}</p>
             </div>
@@ -62,7 +64,7 @@ function Guild(props) {
 function RenderGuilds() {
     const guildInfo = useSelector(state => state.guilds.guildInfo);
     const guildOrder = useSelector(state => state.guilds.guildOrder);
-    return guildOrder.map(guild => <Guild key={guildInfo[guild].Id} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} />);
+    return guildOrder.map((guild, index) => <Guild key={index} guildId={guild} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} />);
 }
 
 function RenderChatName() {
@@ -111,7 +113,10 @@ function Chat() { //might turn into class
 
     const { expires, userId, token } = useSelector(state => state.auth);
 
+    const { currentGuild } = useSelector(state => state.guilds);
+
     const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory); //maybe temp?
+    const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded); //maybe temp?
 
     function GetData() {
         dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite()));
@@ -130,14 +135,25 @@ function Chat() { //might turn into class
                 dispatch(authClear());
             }
             if (![token, userId, expires].every(Boolean)) navigate("../login", { "replace": false });
-            dispatch(GetGuilds()).then(() => dispatch(GetUserInfo())).then(() => GetData());
+            dispatch(GetGuilds()).then(() => dispatch(GetUserInfo()))
 
             dispatch(startSocket(token)); //start da websocket brah
         }, [dispatch, navigate, token, userId, expires])
 
+    React.useEffect(
+        () => {
+            if (!guildLoaded) {
+                console.log("loading data");
+                GetData();
+            }
+        }
+        , [dispatch, currentGuild]);
+
+    
+
     React.useEffect( //maybe temp?
         () => {
-            dummyMsgBottomRef.current?.scrollIntoView({behavior:'smooth'});
+            dummyMsgBottomRef.current?.scrollIntoView();
         }, [messages] 
     )
 

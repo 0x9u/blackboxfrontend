@@ -1,6 +1,10 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
 import styles from './modals.module.css';
+import { UpdateUserInfo } from '../api/userInfoApi';
 
 
 //find better way to fix button shit
@@ -51,7 +55,7 @@ function ProfileSettings(props) {
     const username = useSelector(state => state.userInfo.username);
     const email = useSelector(state => state.userInfo.email);
     const icon = useSelector(state => state.userInfo.icon);
-    
+
     return (
         <div className={styles.profileSettings}>
             <div className={styles.profileContainer}>
@@ -99,6 +103,8 @@ function UserMenu(props) {
     const [changeEmail, showChangeEmail] = React.useState(false);
     const [changePass, showChangePass] = React.useState(false);
 
+    const dispatch = useDispatch();
+
     function renderUserSettings() {
         switch (active) {
             case 0:
@@ -111,9 +117,9 @@ function UserMenu(props) {
     }
 
     function changeUsernameAPI() {
-
+        dispatch(UpdateUserInfo());
     }
-    
+
     function changeEmailAPI() {
 
     }
@@ -122,41 +128,117 @@ function UserMenu(props) {
 
     }
 
+    const schemaUsername = Yup.object().shape({
+        username: Yup.string()
+            .required("Username is required")
+            .matches(/^[a-zA-Z0-9_]*$/, "Username cannot contain any symbols or spaces")
+            .min(6, "must be at least 6 characters")
+            .max(32, "Maximum is 32 characters"),
+        password: Yup.string()
+            .required("Password is required"),
+    });
+
+    const schemaEmail = Yup.object().shape({
+        email: Yup.string().notRequired().when( //this makes it optional copied and pasted from signin.js
+        {
+          is: (value) => value?.length,
+          then: (rule) => rule.email("Invalid email format")
+        }),
+        password: Yup.string().required("Password is required")
+    })
+
+    const schemaPassword = Yup.object().shape({
+        newPassword: Yup.string()
+            .required("Password is required")
+            .min(6, "must be at least 6 characters")
+            .max(32, "Maximum is 32 characters"),
+        confirmPassword: Yup.string()
+            .required("Password is required")
+            .oneOf([Yup.ref('password'), null], "Passwords must match"),
+        password: Yup.string().required("Password is required")
+    })
+
+    const { handleSubmit: handleSubmitU, register: registerU, setError: setErrorU, reset: resetU, formState: { errors: errorsU } } = useForm({
+        resolver: yupResolver(schemaUsername)
+    });
+
+
+    const { handleSubmit: handleSubmitE, register: registerE, setError: setErrorE, reset: resetE, formState: { errors: errorsE } } = useForm({
+        resolver: yupResolver(schemaEmail)
+    });
+
+    const { handleSubmit: handleSubmitP, register: registerP, setError: setErrorP, reset: resetP, formState: { errors: errorsP } } = useForm({
+        resolver: yupResolver(schemaPassword)
+    });
+
     function modals() {
         return <>
-            <Modal show={changeUser} buttons={[{ value: "Exit", function: () => showChangeUser(false) }, { value: "Done", function: changeUsernameAPI }]} width="450" height="300">
+            <Modal show={changeUser} buttons={[{ value: "Exit", function: () => showChangeUser(false) }, { value: "Done", function: handleSubmitU(changeUsernameAPI) }]} width="450" height="300">
                 <form className={styles.changeUsernameModal}>
-                    <label>New Username</label>
-                    <input type="text" id="changeUsernameInput" />
-                    <label>Current Password</label>
-                    <input type="password" id="confirmPass" />
-                    <label id="error"></label>
+                    <div className={styles.changeContainer}>
+                        <label id="name">New Username</label>
+                        <div className={styles.innerChangeContainer}>
+                            <input type="text" id="changeUsernameInput" {...registerU("username")} />
+                            <label id="error">{errorsU?.username?.message}</label>
+                        </div>
+                    </div>
+                    <div className={styles.changeContainer}>
+                        <label id="name">Current Password</label>
+                        <div className={styles.innerChangeContainer}>
+                            <input type="password" id="confirmPass" {...registerU("password")} />
+                            <div></div>
+                            <label id="error">{errorsU?.password?.message}</label>
+                        </div>
+                    </div>
                 </form>
             </Modal>
-            <Modal show={changeEmail} buttons={[{ value: "Exit", function: () => showChangeEmail(false) }, { value: "Done", function: changeEmailAPI }]} width="450" height="300">
+            <Modal show={changeEmail} buttons={[{ value: "Exit", function: () => showChangeEmail(false) }, { value: "Done", function: handleSubmitE(changeEmailAPI) }]} width="450" height="300">
                 <form className={styles.changeEmailModal}>
-                    <label>New Email</label>
-                    <input type="text" />
-                    <label>Current Password</label>
-                    <input type="password" />
-                    <label id="error"></label>
+                    <div className={styles.changeContainer}>
+                        <label>New Email</label>
+                        <div className={styles.innerChangeContainer}>
+                            <input type="text" {...registerE("email")}/>
+                            <label id="error">{errorsE?.email?.message}</label>
+                        </div>
+                    </div>
+                    <div className={styles.changeContainer}>
+                        <label>Current Password</label>
+                        <div className={styles.innerChangeContainer}>
+                            <input type="password" {...registerE("password")}/>
+                            <label id="error">{errorsE?.password?.message}</label>
+                        </div>
+                    </div>
                 </form>
             </Modal>
-            <Modal show={changePass} buttons={[{ value: "Exit", function: () => showChangePass(false) }, { value: "Done", function: changePasswordAPI }]} width="450" height="300">
+            <Modal show={changePass} buttons={[{ value: "Exit", function: () => showChangePass(false) }, { value: "Done", function: handleSubmitP(changePasswordAPI) }]} width="450" height="300">
                 <form className={styles.changePasswordModal}>
-                    <label>New Password</label>
-                    <input type="password" />
-                    <label>Confirm Password</label>
-                    <input type="password" />
-                    <label>Current Password</label>
-                    <input type="password" />
-                    <label id="error"></label>
+                    <div className={styles.changeContainer}>
+                        <label>New Password</label>
+                        <div className={styles.innerChangeContainer}>
+                            <input type="password" {...registerP("newPassword")}/>
+                            <label id="error">{errorsP?.newPassword?.message}</label>
+                        </div>
+                    </div>
+                    <div className={styles.changeContainer}>
+                        <label>Confirm Password</label>
+                        <div className={styles.innerChangeContainer}>
+                            <input type="password" {...registerP("confirmPassword")}/>
+                            <label id="error">{errorsP?.confirmPassword?.message}</label>
+                        </div>
+                    </div>
+                    <div className={styles.changeContainer}>
+                        <label>Current Password</label>
+                        <div className={styles.innerChangeContainer}>
+                            <input type="password" {...registerP("password")}/>
+                            <label id="error">{errorsP?.password?.message}</label>
+                        </div>
+                    </div>
                 </form>
             </Modal>
         </>
     }
     return (
-        <Menu show={props.show} exit={() => {setActive(0);props.exit()}} render={renderUserSettings()} modals={modals()}>
+        <Menu show={props.show} exit={() => { setActive(0); props.exit() }} render={renderUserSettings()} modals={modals()}>
             <div className={styles.optionHeading}><p>User Settings</p></div>
             <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
             <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Appearance" onClick={() => { setActive(1) }} /></div>
@@ -170,7 +252,7 @@ function ServerMenu(props) {
     function renderServerSettings() {
         switch (active) {
             case 0:
-                return <ServerSettings/>;
+                return <ServerSettings />;
             case 1:
                 return <p>Server Settings</p>;
             default:
@@ -178,7 +260,7 @@ function ServerMenu(props) {
         }
     }
     return (
-        <Menu show={props.show} exit={() => {setActive(0);props.exit()}} render={renderServerSettings()}>
+        <Menu show={props.show} exit={() => { setActive(0); props.exit() }} render={renderServerSettings()}>
             <div className={styles.optionHeading}><p>Server Settings</p></div>
             <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Server Settings" onClick={() => { setActive(0) }} /></div>
             <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>

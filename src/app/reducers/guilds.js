@@ -7,7 +7,8 @@ format for guilds (guildInfo)
 {
     name : string,
     icon : id, // will be unused for now so its 0
-    invite : ""
+    invite : "",
+    loaded : bool,
     users : [
         {
             userId : int,
@@ -58,6 +59,9 @@ const guildSlice = createSlice({
         guildRemoveInvite: (state, action) => { //accepts invite : string
             state.guildInfo[state.currentGuild].invite = "";
         },
+        guildCurrentSet: (state, action) => { //accepts guild : int
+            state.currentGuild = action.payload.Guild;
+        },
         msgAdd: (state, action) => { //accepts guild : int, msg : object
             console.log("adding msg");
             state.guildInfo[action.payload.Guild].MsgHistory.push(action.payload);
@@ -75,6 +79,8 @@ const guildSlice = createSlice({
                     state.guildInfo[guild.Id] = {
                         Name: guild.Name,
                         Icon: guild.Icon,
+                        Invite: "",
+                        Loaded: false,
                         Users: [],
                         MsgHistory: []
                     };
@@ -83,17 +89,19 @@ const guildSlice = createSlice({
                 );
             })
             .addCase(GetMsgs.fulfilled, (state, action) => {
-                action.payload.map(msg => 
-                state.guildInfo[state.currentGuild].MsgHistory.push(msg)
+                action.payload.map(msg =>
+                    state.guildInfo[state.currentGuild].MsgHistory.push(msg)
                 )
             })
             .addCase(GetGuildUsers.fulfilled, (state, action) => {
-                action.payload.map(user => 
-                state.guildInfo?.[state.currentGuild]?.Users.push(user)
+                action.payload.map(user => {
+                    state.guildInfo?.[state.currentGuild]?.Users.push(user);
+                    state.guildInfo[state.currentGuild].Loaded = true;
+                }
                 )
 
             })
-            .addMatcher((action) => action.type.match(/guilds\/invite\/[a-z]*\/fulfilled/), (state,action) => {
+            .addMatcher((action) => action.type.match(/guilds\/invite\/[a-z]*\/fulfilled/), (state, action) => {
                 state.guildInfo[state.currentGuild].invite = action.payload.Invite;
             })
             ;
@@ -102,5 +110,5 @@ const guildSlice = createSlice({
 
 });
 
-export const { guildAdd, guildRemove, guildSet, msgAdd, msgRemove } = guildSlice.actions;
+export const { guildAdd, guildRemove, guildSet, guildCurrentSet, guildSetInvite, guildRemoveInvite, msgAdd, msgRemove } = guildSlice.actions;
 export default guildSlice.reducer;

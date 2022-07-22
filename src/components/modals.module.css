@@ -1,6 +1,7 @@
-.modalContainer, .menuContainer{
-    left:0%;
-    top:0%;
+.modalContainer,
+.menuContainer {
+    left: 0%;
+    top: 0%;
     position: absolute;
     width: 100%;
     height: 100%;
@@ -21,33 +22,36 @@
 }
 
 .modalContainer {
-    background: rgba(0,0,0,0.25);
+    background: rgba(0, 0, 0, 0.25);
     transition: 1s;
 }
 
-.modal, .modalContainer.hidden > .hidden {
- left: 50%;
- top: 50%;
- /*
+.modal,
+.modalContainer.hidden>.hidden {
+    left: 50%;
+    top: 50%;
+    /*
  width: 350px;
  height: 150px;
  */
- transform: translate(-50%, -50%);
- background: #FEFFFE;
- border-radius: 25px;
- position: absolute;
- box-shadow: 5px 4px 25px 5px; 
+    transform: translate(-50%, -50%);
+    background: #FEFFFE;
+    border-radius: 25px;
+    position: absolute;
+    box-shadow: 5px 4px 25px 5px;
 }
 
-.modalContainer.hidden > .hidden , .modalContainer.hidden > .hidden > *, .modalContainer.hidden > .hidden> .buttons > input[type='button'] {
+.modalContainer.hidden>.hidden,
+.modalContainer.hidden>.hidden>*,
+.modalContainer.hidden>.hidden>.buttons>input[type='button'] {
     width: 0px !important;
     height: 0px !important;
     font-size: 0px;
     transition: 1s !important;
 }
 
-.modalContainer.hidden > .hidden> .buttons > input[type='button'] {
-margin: 5px;
+.modalContainer.hidden>.hidden>.buttons>input[type='button'] {
+    margin: 5px;
 }
 
 .menuContainer.hidden {
@@ -61,6 +65,7 @@ margin: 5px;
     animation: coolmove 1s;
     transition: height 1s;
 }
+
 /*
 #menu {
     width: 750px;
@@ -72,12 +77,13 @@ margin: 5px;
     from {
         left: 50%;
         top: 0%;
-        transform: translate(-50%,0%);
+        transform: translate(-50%, 0%);
     }
+
     to {
-        top:50%;
+        top: 50%;
         left: 50%;
-        transform: translate(-50%,-50%);
+        transform: translate(-50%, -50%);
     }
 }
 
@@ -106,25 +112,27 @@ margin: 5px;
 }
 
 .content.hidden {
-    top: 50%; /* ass crack code*/
+    top: 50%;
+    /* ass crack code*/
     transform: translate(-50%, -50%);
     opacity: 0.0 !important;
     transition: 0.5s !important;
 }
 
-.modal > .buttons ~ .content {   
+.modal>.buttons~.content {
     height: calc(100% - 45px - 15%);
     width: 100%;
     text-align: center;
 }
 
-.modal > .buttons{
+.modal>.buttons {
     width: 100%;
     height: 45px;
 
 }
 
-.modal > .buttons, .hidden > .buttons {
+.modal>.buttons,
+.hidden>.buttons {
     position: absolute;
     top: 85%;
     left: 50%;
@@ -135,7 +143,8 @@ margin: 5px;
     align-items: center;
 }
 
-.modal> .buttons > input[type="button"], .hidden > .buttons >input[type="button"] {
+.modal>.buttons>input[type="button"],
+.hidden>.buttons>input[type="button"] {
     background: #6096BA;
     color: white;
     border: none;
@@ -156,11 +165,12 @@ margin: 5px;
     width: 350px;
     padding-left: calc(25% - 350px);
     height: 100%;
-    display:flex;
+    display: flex;
     flex-direction: column;
     flex: 1;
 
 }
+
 .optionHeading {
     font-weight: bold;
     border-bottom: 2px solid white;
@@ -168,30 +178,33 @@ margin: 5px;
 }
 
 .optionHeading p {
-    margin:0;
+    margin: 0;
 }
 
 .optionHeading:first-child {
     margin-top: 10px !important;
 }
 
-.optionHeading, .optionButton {
-    text-align:center;
-    color:white;
+.optionHeading,
+.optionButton {
+    text-align: center;
+    color: white;
     width: 120px;
-    margin-left: calc(100% - 350px + 210px); /*  I hate math 90px of margin basically */
+    margin-left: calc(100% - 350px + 210px);
+    /*  I hate math 90px of margin basically */
     height: 35px;
     flex-shrink: 0;
 
 }
 
 
-.optionHeading ,.optionButton {
+.optionHeading,
+.optionButton {
     margin-bottom: 10px;
 }
 
-.optionButton > input {
-    background: rgba(0,0,0,0.5);
+.optionButton>input {
+    background: rgba(0, 0, 0, 0.5);
     width: 100%;
     height: 100%;
     border: none;
@@ -201,14 +214,15 @@ margin: 5px;
     transition: 0.5s;
 }
 
-.optionButton.active > input{
+.optionButton.active>input {
     background: blueviolet;
 }
 
 .optionsContainer {
     flex: 2;
     background: #4F5D75;
-    width: 650px; /* unsure why it overwraps the options menu check later temp fix */
+    width: 650px;
+    /* unsure why it overwraps the options menu check later temp fix */
     padding-right: calc(75% - 650px);
     height: 100%;
     display: flex;
@@ -221,13 +235,7 @@ margin: 5px;
     width: 600px;
     height: 100%;
     overflow: auto;
-    flex-shrink:0;
-}
-
-.options > div {
-    overflow: clip;
-    opacity: 0.0;
-    transition: 1s;
+    flex-shrink: 0;
 }
 
 .exitButton {
@@ -239,7 +247,7 @@ margin: 5px;
     background: none;
 }
 
-.exitButton > label {
+.exitButton>label {
     margin-left: 6.5px;
     margin-top: 1px;
     font-weight: bolder;
@@ -247,7 +255,7 @@ margin: 5px;
     color: white !important;
 }
 
-.exitButton > input {
+.exitButton>input {
     border-radius: 25px !important;
     border: solid 2px black !important;
     width: 35px;
@@ -261,31 +269,32 @@ margin: 5px;
 }
 
 
-.exitButton > input:hover {
+.exitButton>input:hover {
     background: gray;
     transition: 0.5s;
 }
 
-.profileSettings {
+.settingsContainer {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 25px);
+    margin-top: 25px;
 }
 
 .profileContainer {
     position: relative;
-    display:flex;
+    display: flex;
     flex-direction: row;
     border: black solid 5px;
     border-radius: 15px;
-    margin: 15px 50px;
+    margin: 0px 50px 25px;
     gap: 15px;
     padding: 30px;
-    background: yellow;
+    background: #AEC3B0;
 }
 
-.profileContainer > img {
+.profileContainer>img {
     width: 100px;
     height: 100px;
     margin-top: 15px;
@@ -294,7 +303,7 @@ margin: 5px;
     box-shadow: 1px 1px 5px black;
 }
 
-.profileContainer > .profileSettingsInformation {
+.profileContainer>.profileSettingsInformation {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -314,23 +323,23 @@ margin: 5px;
     flex-direction: column;
 }
 
-.profileDetails > div > p {
+.profileDetails>div>p {
     margin: 0px;
     margin-left: 15px;
     color: white;
-    display:inline;
+    display: inline;
 }
 
-.profileDetails > label {
+.profileDetails>label {
     font-weight: bold;
     margin-top: 10px;
     padding: 0px;
 }
 
-.profileDetails > div > input {
+.profileDetails>div>input {
     display: inline;
     margin-left: 50px;
-    float:right;
+    float: right;
     margin-right: 10px;
     outline: none;
     border-radius: 4px;
@@ -345,47 +354,71 @@ margin: 5px;
     */
 }
 
-input[type='button'][id='logout'] {
-    background: rgba(255,0,0,0.25);
+input[type='button'][id='leaveButton'] {
+    background: rgba(255, 0, 0, 0.25);
     border: 2px solid red;
 }
 
-input[type='button'][id='logout']:hover {
+input[type='button'][id='leaveButton']:hover {
     background: red;
 }
 
 .optionBox {
-    border-top: 2px solid black;
-    margin: 5px 50px;
+    margin: 0px 50px 25px;
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
     color: white;
 }
 
-.optionBox > div {
-    width: 100%;
-    margin: 10px 5px;
-    align-items: center;
+.optionBox:not(:first-child) {
+    border-top: 2px solid black;
 }
 
-.optionBox > div > label {
+.optionBox:not(:first-child)>.optionTitle {
     margin-left: 25px;
 }
+
+.optionBoxRow,
+.optionBoxFlexRow {
+    width: 100%;
+    margin: 10px 5px;
+}
+
+.optionBoxRow {
+    align-items: center;
+
+}
+
+.optionBoxFlexRow {
+    display: flex;
+    flex-direction: row;
+}
+
+.optionBoxRow>label {
+    margin-left: 25px;
+}
+
+.optionBoxRow>input {
+    float: right;
+    margin-right: 25px;
+}
+
 
 .checkBox {
     float: right;
     margin-right: 25px;
 }
 
-.checkBox > input[type='checkbox'] {
-    opacity: 0; /* temp fix I hate css I want to die*/
+.checkBox>input[type='checkbox'] {
+    opacity: 0;
+    /* temp fix I hate css I want to die*/
     position: absolute;
     width: 45px;
     height: 20px;
     cursor: pointer;
 }
 
-.checkBox > div {
+.checkBox>div {
     margin-left: 5px;
     width: 45px;
     height: 20px;
@@ -397,15 +430,15 @@ input[type='button'][id='logout']:hover {
     vertical-align: middle;
 }
 
-.checkBox > input[type='checkbox']:disabled ~ div::after {
+.checkBox>input[type='checkbox']:disabled~div::after {
     opacity: 0.5;
-} 
-
-.checkBox > input[type='checkbox']:disabled ~ div {
-    background: rgba(0,0,0,0.25);
 }
 
-.checkBox > div::after {
+.checkBox>input[type='checkbox']:disabled~div {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.checkBox>div::after {
     width: 15px;
     height: 15px;
     background: #C81D25;
@@ -419,7 +452,7 @@ input[type='button'][id='logout']:hover {
     pointer-events: none;
 }
 
-.checkBox > input[type='checkbox']:checked + div::after {
+.checkBox>input[type='checkbox']:checked+div::after {
     transform: translateX(25px);
     background: #548C2F;
 }
@@ -428,21 +461,14 @@ input[type='button'][id='logout']:hover {
     from {
         opacity: 0.0;
     }
+
     to {
         opacity: 1.0;
     }
 }
 
-.appearanceSettings {
-    display: flex;
-}
 
-.appearanceSettings, .profileSettings {
-    opacity: 1.0 !important;
-    transition: 1s;
-}
-
-.appearanceSettings > p {
+.comingSoon {
     text-align: center;
     margin: 250px;
     font-size: 32px;
@@ -452,13 +478,10 @@ input[type='button'][id='logout']:hover {
 .optionTitle {
     font-weight: bolder;
     font-size: 20px;
-    margin-left: 25px;
 }
 
-div[id='passwordChange'] > input[type='button'] {
-     float: right;
-    margin-right: 25px;
-    border:none;
+div[id='passwordChange']>input[type='button'] {
+    border: none;
     background: green;
     border-radius: 5px;
     height: 25px;
@@ -467,31 +490,34 @@ div[id='passwordChange'] > input[type='button'] {
     transition: 0.1s;
 }
 
-div[id='passwordChange'] > input[type='button']:active {
+div[id='passwordChange']>input[type='button']:active {
     background: gray;
 }
 
-.changeUsernameModal, .changePasswordModal, .changeEmailModal {
+.changeUsernameModal,
+.changePasswordModal,
+.changeEmailModal {
     position: absolute;
     width: 400px;
     height: calc(100% - 35px - 15%);
 }
 
-.changeUsernameModal, .changeEmailModal {
+.changeUsernameModal,
+.changeEmailModal {
     top: 50%;
     left: 50%;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
 }
 
 .changePasswordModal {
     top: 35%;
     left: 50%;
-    transform: translate(-50%,-35%);
+    transform: translate(-50%, -35%);
 }
 
 .innerChangeContainer>input {
-    border:none;
-    outline:none;
+    border: none;
+    outline: none;
     border-bottom: black 2px solid;
     font-size: 16px;
     font-weight: bold;
@@ -504,72 +530,79 @@ div[id='passwordChange'] > input[type='button']:active {
     flex-direction: row;
     align-items: center;
 }
+
 .innerChangeContainer {
     display: flex;
     flex-direction: column;
     margin-left: auto;
 }
+
 .innerChangeContainer>label[id="name"] {
     font-size: 16px;
     font-weight: bold;
 }
+
 .innerChangeContainer>label[id="error"] {
     color: red;
-    font-size:0.50em;
-    flex:0;
-    text-align:left;
+    font-size: 0.50em;
+    flex: 0;
+    text-align: left;
     margin-top: 5px;
 }
-.innerChangeContainer > label[id="error"]:empty { /* keeps same height when no text*/
-    padding-top: calc(0.5em + 11px); /*TODO maybe look back at this code and re edit cause bad vibes*/
+
+.innerChangeContainer>label[id="error"]:empty {
+    /* keeps same height when no text*/
+    padding-top: 15px;
+    /* fixed I fucking hate css*/
     margin: 0px;
 }
 
-.innerChangeContainer > label[id="error"]:not(:empty)::before {
-    content:"⚠️ "
-  }
+.innerChangeContainer>label[id="error"]:not(:empty)::before {
+    content: "⚠️ "
+}
 
 .userBox {
     position: absolute;
-  }
+}
 
-.userBox > input:focus ~ .userBoxLabel, .userBox > input:not(:placeholder-shown) ~ .userBoxLabel {
+.userBox>input:focus~.userBoxLabel,
+.userBox>input:not(:placeholder-shown)~.userBoxLabel {
     top: 0%;
     left: 5%;
     color: burlywood;
     font-size: 10px;
 }
 
-.userBox > input {
+.userBox>input {
     border: none;
     border-bottom: 2px solid black;
     height: 35px;
     width: 250px;
     font-size: 16px;
-    background: rgba(0,0,0,0.45);
+    background: rgba(0, 0, 0, 0.45);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-    color:white;
+    color: white;
     outline: none;
     padding: 0 10px;
-    caret-color: rgba(0,0,0,0.5);
+    caret-color: rgba(0, 0, 0, 0.5);
     padding-top: 2.5px;
-  }
-  
-  .userBox > .userBoxLabel {
+}
+
+.userBox>.userBoxLabel {
     font-size: 15px;
     position: absolute;
     margin: auto;
-    left:15%;
+    left: 15%;
     top: 40%;
     color: white;
-    transform: translate(-15%,-40%);
+    transform: translate(-15%, -40%);
     pointer-events: none;
     transition: .5s;
     padding: 2.5px 1px;
-  }
+}
 
-  .userBox > .userBoxError {
+.userBox>.userBoxError {
     position: absolute;
     color: #cc0000;
     font-size: 10px;
@@ -577,32 +610,43 @@ div[id='passwordChange'] > input[type='button']:active {
     left: 0%;
     margin-left: 10px;
     transform: translate(0%, 10%);
-  }
+}
 
-  .userBox > .userBoxError:not(:empty)::before {
-    content:"⚠️ "
-  }
-  
-  .serverSettings {
-    display: flex;
-    flex-direction: column;
-    margin: 10px;
-    padding: 10px;
-    border-radius: 5px;
-    background: rgba(0,0,0,0.25);
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-  }
+.userBox>.userBoxError:not(:empty)::before {
+    content: "⚠️ "
+}
 
-  .pictureSelectorContainer > input[type='file'] {
+.pictureSelectorContainer>input[type='file'] {
     display: none;
-  }
+}
 
-  .pictureSelectorContainer > img {
+.pictureSelectorContainer>img {
     border-radius: 10%;
     margin: auto;
     margin-top: 10px;
     margin-bottom: 10px;
     border: black 2px solid;
-  }
+}
+
+.changeServerName {
+    flex: 1;
+    padding: 0px;
+}
+
+.changeServerName {
+    display: inline-block;
+
+}
+
+.changeServerName {
+    left: 50%;
+    top: 50%;
+}
+
+.changeServerNameInput>input {
+    width: 200px !important;
+}
+
+.changeServerIcon {
+ flex: 0;   
+}

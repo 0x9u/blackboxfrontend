@@ -626,17 +626,17 @@ input[id='leaveServerButton'] {
     transition: background 0.5s;
 }
 
-input[id='leaveServerButton']:active {
-    transition: 0s;
-    background: white !important;
-    color: white !important;
-}
-
 input[id='leaveServerButton']:hover {
-    background: white !important;
-    color: black;
+    background: #87161e !important;
+    color: white !important;
     border: #DF2935 2px solid;
     transition: background 0.5s;
+}
+
+input[id='leaveServerButton']:active { /* for some reason active only works after hover*/
+    transition: 0s;
+    color: black !important;
+    background: white !important;
 }
 
 .inviteContainer {

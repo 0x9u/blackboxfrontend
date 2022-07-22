@@ -209,8 +209,8 @@ function Chat() { //might turn into class
                         <p>{RenderChatName()}</p> {/* REPLACE WITH SOME COOL ASS FUNCTION */}
                     </div>
                     <div className={styles.topMenuServerButton}>
-                        <input type="button" value="server" onClick={() => { setServer(!server); setUserList(false) }} />
-                        <input type="button" value="user list" onClick={() => { setUserList(!userList); setServer(false) }} />
+                        <input type="button" value="Server" onClick={() => { setServer(!server); setUserList(false) }} />
+                        <input type="button" value="User List" onClick={() => { setUserList(!userList); setServer(false) }} />
                     </div>
                 </div>
                 <div className={styles.chatContentContainer}>

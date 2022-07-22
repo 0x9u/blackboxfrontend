@@ -24,7 +24,7 @@ function Modal(props) { //manual transition fix for now
 
 function InputBox(props) {
     return (
-        <div className={styles.userBox} id={props.id}>
+        <div className={`${styles.userBox} ${props.className}`} id={props.id}>
             <input type={props.type} value={props.value} {...props.register} placeholder=' ' spellCheck="false" />
             <label className={styles.userBoxLabel}>{props.label}</label>
             <label className={styles.userBoxError}>{props.errorMessage}</label>
@@ -43,7 +43,7 @@ function CheckBox(props) {
 
 function PictureSelector(props) {
     return (
-        <div className={styles.pictureSelectorContainer}>
+        <div className={`${styles.pictureSelectorContainer} ${props.className}`}>
             <input className={styles.pictureSelector} type="file" onChange={() => { props.onChange(); props.changeImage(); }} />
             <img src={props.src} width={props.width} height={props.height} onChange={props.onChange} />
         </div>
@@ -57,7 +57,7 @@ function ProfileSettings(props) {
     const icon = useSelector(state => state.userInfo.icon);
 
     return (
-        <div className={styles.profileSettings}>
+        <div className={styles.settingsContainer}>
             <div className={styles.profileContainer}>
                 <div className={styles.profileSettingsInformation}>
                     <div className={styles.profileDetails} id="username">
@@ -71,7 +71,7 @@ function ProfileSettings(props) {
             </div>
             <div className={styles.optionBox}>
                 <p className={styles.optionTitle}>Password</p>
-                <div id="passwordChange"><label>Change password</label> <input type="button" value="Change Password" onClick={() => props.passFunc(true)} /></div>
+                <div className={styles.optionBoxRow} id="passwordChange"><label>Change password</label> <input type="button" value="Change Password" onClick={() => props.passFunc(true)} /></div>
             </div>
         </div>
     );
@@ -79,8 +79,8 @@ function ProfileSettings(props) {
 
 function Appearance() {
     return (
-        <div className={styles.appearanceSettings}>
-            <p>
+        <div className={styles.settingsContainer}>
+            <p className={styles.comingSoon}>
                 Coming Soon!
             </p>
         </div>
@@ -89,10 +89,20 @@ function Appearance() {
 
 function ServerSettings() {
     return (
-        <div className={styles.serverSettings}>
-            <p>
-                Coming Soon!
-            </p>
+        <div className={styles.settingsContainer}>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Server Settings
+                </p>
+                <div className={styles.optionBoxFlexRow}>
+                    <div className={styles.changeServerName}>
+                        <InputBox className={styles.changeServerNameInput} label="Server Name"/>
+                    </div>
+                    <div className={styles.changeServerIcon}>
+                        <PictureSelector src="/profileImg.png" width="100" height="100"/>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
@@ -140,10 +150,10 @@ function UserMenu(props) {
 
     const schemaEmail = Yup.object().shape({
         email: Yup.string().notRequired().when( //this makes it optional copied and pasted from signin.js
-        {
-          is: (value) => value?.length,
-          then: (rule) => rule.email("Invalid email format")
-        }),
+            {
+                is: (value) => value?.length,
+                then: (rule) => rule.email("Invalid email format")
+            }),
         password: Yup.string().required("Password is required")
     })
 
@@ -197,14 +207,14 @@ function UserMenu(props) {
                     <div className={styles.changeContainer}>
                         <label>New Email</label>
                         <div className={styles.innerChangeContainer}>
-                            <input type="text" {...registerE("email")}/>
+                            <input type="text" {...registerE("email")} />
                             <label id="error">{errorsE?.email?.message}</label>
                         </div>
                     </div>
                     <div className={styles.changeContainer}>
                         <label>Current Password</label>
                         <div className={styles.innerChangeContainer}>
-                            <input type="password" {...registerE("password")}/>
+                            <input type="password" {...registerE("password")} />
                             <label id="error">{errorsE?.password?.message}</label>
                         </div>
                     </div>
@@ -215,21 +225,21 @@ function UserMenu(props) {
                     <div className={styles.changeContainer}>
                         <label>New Password</label>
                         <div className={styles.innerChangeContainer}>
-                            <input type="password" {...registerP("newPassword")}/>
+                            <input type="password" {...registerP("newPassword")} />
                             <label id="error">{errorsP?.newPassword?.message}</label>
                         </div>
                     </div>
                     <div className={styles.changeContainer}>
                         <label>Confirm Password</label>
                         <div className={styles.innerChangeContainer}>
-                            <input type="password" {...registerP("confirmPassword")}/>
+                            <input type="password" {...registerP("confirmPassword")} />
                             <label id="error">{errorsP?.confirmPassword?.message}</label>
                         </div>
                     </div>
                     <div className={styles.changeContainer}>
                         <label>Current Password</label>
                         <div className={styles.innerChangeContainer}>
-                            <input type="password" {...registerP("password")}/>
+                            <input type="password" {...registerP("password")} />
                             <label id="error">{errorsP?.password?.message}</label>
                         </div>
                     </div>
@@ -242,7 +252,7 @@ function UserMenu(props) {
             <div className={styles.optionHeading}><p>User Settings</p></div>
             <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
             <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Appearance" onClick={() => { setActive(1) }} /></div>
-            <div className={styles.optionButton}><input type="button" value="Log Out" id="logout" /></div>
+            <div className={styles.optionButton}><input type="button" value="Log Out" id="leaveButton" /></div>
         </Menu>
     )
 }
@@ -255,6 +265,8 @@ function ServerMenu(props) {
                 return <ServerSettings />;
             case 1:
                 return <p>Server Settings</p>;
+            case 2:
+                return <p>Manage Invites</p>;
             default:
                 return <p>Something is Wrong!</p>;
         }
@@ -264,6 +276,8 @@ function ServerMenu(props) {
             <div className={styles.optionHeading}><p>Server Settings</p></div>
             <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Server Settings" onClick={() => { setActive(0) }} /></div>
             <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
+            <div className={active === 2 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Manage Invites" onClick={() => { setActive(2) }} /></div>
+            <div className={styles.optionButton}><input type="button" value="Delete Server" id="leaveButton" /></div>
         </Menu>
     )
 }

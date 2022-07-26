@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import styles from './modals.module.css';
-import { EDITEMAIL, EDITPASS, UpdateUserInfo } from '../api/userInfoApi';
+import { EDITEMAIL, EDITPASS,EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
 
 
 //find better way to fix button shit
@@ -171,10 +171,11 @@ function UserMenu(props) {
 
     async function changeUsernameAPI(form) {
         const res = await dispatch(UpdateUserInfo({
-            change : EDITPASS,
+            change : EDITUSERNAME,
             password : form.password,
             newData : form.username
         }));
+        console.log(res);
         if (res.error) {
             setErrorU("username", {type : "custom", message : res.error});
             setErrorU("password", {type : "custom", message : res.error});
@@ -190,8 +191,8 @@ function UserMenu(props) {
             newData : form.email
         }));
         if (res.error) {
-            setErrorU("email", {type : "custom", message : res.error});
-            setErrorU("password", {type : "custom", message : res.error});
+            setErrorE("email", {type : "custom", message : res.error});
+            setErrorE("password", {type : "custom", message : res.error});
         } else {
             showChangeEmail(false);  
         };
@@ -204,9 +205,9 @@ function UserMenu(props) {
             newData : form.newPassword
         }));
         if (res.error) {
-            setErrorU("password", {type : "custom", message : res.error});
-            setErrorU("confirmPassword", {type : "custom", message : res.error});
-            setErrorU("newPassword", {type : "custom", message : res.error});
+            setErrorP("password", {type : "custom", message : res.error});
+            setErrorP("confirmPassword", {type : "custom", message : res.error});
+            setErrorP("newPassword", {type : "custom", message : res.error});
         } else {
             showChangePass(false);
         }

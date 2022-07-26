@@ -17,7 +17,7 @@ const GetUserInfo = createAsyncThunk("userInfo/get", async (args, api) => {
 
 const UpdateUserInfo = createAsyncThunk("userInfo/put", async (args, api) => { //no dispatch needed
     const { password, change, newData } = args
-    await putApi("user/info", {
+    await putApi("user", {
         password,
         change,
         newData

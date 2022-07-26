@@ -643,10 +643,13 @@ div[id='passwordChange']>input[type='button']:active {
     top: 50%;
 }
 
-.changeServerNameInput>input {
-    width: 200px !important;
+.changeServerNameInput {
+    position: relative;
+    left: 35%;
+    top: 45%;
+    transform: translate(-25%, -45%);
 }
 
 .changeServerIcon {
- flex: 0;   
+ width: 150px;
 }

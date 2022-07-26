@@ -1,7 +1,7 @@
 const gateway = "http://localhost:8090/api/";
 
 //change this to use rxjs as new api soon
-async function requestApi(endpoint, type, { data, urlParams, ...customConfig } = {}) {
+async function requestApi(endpoint, type, { data, urlParams, ...customConfig } = {}) { //replace later with RTK
     try {
         const response = await fetch(`${gateway}${endpoint}${Object.keys(urlParams).length !== 0 ? "?" + new URLSearchParams(urlParams) : ""}`, 
             {
@@ -14,7 +14,11 @@ async function requestApi(endpoint, type, { data, urlParams, ...customConfig } =
             body: data ? JSON.stringify(data) : undefined
         })
         console.log(response);
-        const resJson = await response.json()
+        try { //temp
+            var resJson = await response.json();
+        } catch (error) {
+            var resJson = {};
+        }
 
         if (!response.ok) {
             console.log("activating")

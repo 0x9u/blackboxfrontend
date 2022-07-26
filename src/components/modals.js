@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import styles from './modals.module.css';
-import { UpdateUserInfo } from '../api/userInfoApi';
+import { EDITEMAIL, EDITPASS, UpdateUserInfo } from '../api/userInfoApi';
 
 
 //find better way to fix button shit
@@ -126,18 +126,6 @@ function UserMenu(props) {
         }
     }
 
-    function changeUsernameAPI() {
-        dispatch(UpdateUserInfo());
-    }
-
-    function changeEmailAPI() {
-
-    }
-
-    function changePasswordAPI() {
-
-    }
-
     const schemaUsername = Yup.object().shape({
         username: Yup.string()
             .required("Username is required")
@@ -180,6 +168,49 @@ function UserMenu(props) {
     const { handleSubmit: handleSubmitP, register: registerP, setError: setErrorP, reset: resetP, formState: { errors: errorsP } } = useForm({
         resolver: yupResolver(schemaPassword)
     });
+
+    async function changeUsernameAPI(form) {
+        const res = await dispatch(UpdateUserInfo({
+            change : EDITPASS,
+            password : form.password,
+            newData : form.username
+        }));
+        if (res.error) {
+            setErrorU("username", {type : "custom", message : res.error});
+            setErrorU("password", {type : "custom", message : res.error});
+        } else {
+            showChangeUser(false);
+        };
+    }
+
+    async function changeEmailAPI(form) {
+        const res = await dispatch(UpdateUserInfo({
+            change  : EDITEMAIL,
+            password : form.password,
+            newData : form.email
+        }));
+        if (res.error) {
+            setErrorU("email", {type : "custom", message : res.error});
+            setErrorU("password", {type : "custom", message : res.error});
+        } else {
+            showChangeEmail(false);  
+        };
+    }
+
+    async function changePasswordAPI(form) {
+        const res = await dispatch(UpdateUserInfo({
+            change : EDITPASS,
+            password : form.password,
+            newData : form.newPassword
+        }));
+        if (res.error) {
+            setErrorU("password", {type : "custom", message : res.error});
+            setErrorU("confirmPassword", {type : "custom", message : res.error});
+            setErrorU("newPassword", {type : "custom", message : res.error});
+        } else {
+            showChangePass(false);
+        }
+    }
 
     function modals() {
         return <>

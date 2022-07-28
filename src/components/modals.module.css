@@ -605,9 +605,11 @@ div[id='passwordChange']>input[type='button']:active {
 .userBox>.userBoxError {
     position: absolute;
     color: #cc0000;
-    font-size: 10px;
+    font-size: 0.45em;
+    text-align: left;
     bottom: -10%;
     left: 0%;
+    white-space: nowrap;
     margin-left: 10px;
     transform: translate(0%, 10%);
 }

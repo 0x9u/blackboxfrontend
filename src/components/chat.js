@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
+import * as Yup from 'yup';
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { startSocket } from '../api/websocket';
 import { GetMsgs, SendMsgs } from '../api/msgApi';
-import { GetGuilds, GetGuildUsers, GenInvite, GetInvite } from '../api/guildApi';
+import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
 import { GetUserInfo } from '../api/userInfoApi';
 import { guildCurrentSet } from '../app/reducers/guilds';
@@ -64,7 +67,7 @@ function Guild(props) {
 function RenderGuilds() {
     const guildInfo = useSelector(state => state.guilds.guildInfo);
     const guildOrder = useSelector(state => state.guilds.guildOrder);
-    return guildOrder.map((guild, index) => <Guild key={index} guildId={guild} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} />);
+    return guildOrder.map((guild, index) => <Guild key={guild} guildId={guild} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} />);
 }
 
 function RenderChatName() {
@@ -104,7 +107,7 @@ function Chat() { //might turn into class
     const [chatTxt, setChatTxt] = React.useState(""); //for type in chat
 
 
-    const [serverImage, setServerImage] = React.useState(null);
+    const [serverImage, setServerImage] = React.useState("/profileImg.png");
 
     const dummyMsgBottomRef = React.useRef(null); //used to scroll down to bottom of chat when new message appears (CHANGE LATER NOT GOOD DESIGN!!!)
 
@@ -121,6 +124,28 @@ function Chat() { //might turn into class
     function GetData() {
         dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite()));
     }
+
+    const schemaCreateChat = Yup.object().shape({
+        serverName : Yup.string()
+            .required("Server name is required")
+            .min(6, "Has to be at least 6 characters")
+            .max(16, "Cannot be longer than 16 characters"),
+        saveChat : Yup.bool()
+    });
+
+    const schemaJoinChat = Yup.object().shape({
+        invite : Yup.string()
+            .required("Invite is required")
+            .test("len", "Must be exactly 10 characters", val => val.length === 10),
+    })
+
+    const { handleSubmit: handleSubmitC, register: registerC, setError: setErrorC, reset: resetC, formState: { errors: errorsC } } = useForm({
+        resolver: yupResolver(schemaCreateChat)
+    });
+
+    const { handleSubmit: handleSubmitJ, register: registerJ, setError: setErrorJ, reset: resetJ, formState: { errors: errorsJ } } = useForm({
+        resolver: yupResolver(schemaJoinChat)
+    });
 
     function prepareSendMsg() {
         dispatch(SendMsgs({
@@ -159,15 +184,33 @@ function Chat() { //might turn into class
 
     const userInfo = useSelector(state => state.userInfo);
 
-    function saveChatHistoryOption() {
-        console.log("save chat history");
-    }
-
     function handleInviteChange(e) {
         setInviteTxt(e.target.value);
     }
 
-    function createGuild() {
+    async function joinGuild(form) {
+        const res = await dispatch(JoinGuild({
+            invite : form.invite //being explicit for now
+        }))
+        if (res.error)
+        {
+            setErrorJ("invite", {type : "custom", message : res.error.message});
+            return;
+        }
+        resetJ();
+        setCreate(0);
+        setChat(false);
+    }
+
+    async function createGuild(form) {
+        const res = await dispatch(CreateGuild({
+            name: form.serverName,
+        }));
+        if (res.error) {
+            setErrorC("serverName", {type : "custom", message : res.error.message});
+            return;
+        }
+        resetC();
         setCreate(0);
         setChat(false);
     }
@@ -254,7 +297,7 @@ function Chat() { //might turn into class
                                 <label >Public Server?</label><CheckBox disabled />
                             </div>
                             <div className={styles.createInfoOption} id="saveHistoryOption">
-                                <label>Save Chat History?</label><CheckBox onChange={saveChatHistoryOption} />
+                                <label>Save Chat History?</label><CheckBox register={registerC("saveChat")}/>
                             </div>
                         </div>
                         <div className={styles.createAppearance}>
@@ -267,16 +310,16 @@ function Chat() { //might turn into class
                                 <PictureSelector src={serverImage} height="150" width="150" />
                             </div>
                             <div className={styles.createInfoOption}>
-                                <InputBox id="serverNameInput" label="Server Name" onChange={handleInviteChange} type="text" maxLength={16} />
+                                <InputBox id="serverNameInput" label="Server Name" type="text" maxLength={16} register={registerC("serverName")} errorMessage={errorsC?.serverName?.message} />
                             </div>
                             <div className={styles.createInfoOption}>
-                                <input className="default" type="button" value="Create" id="createChatButton" />
+                                <input className="default" type="button" value="Create" id="createChatButton" onClick={handleSubmitC(createGuild)}/>
                             </div>
                         </div>
                     </div>
                     <div className={create === 2 ? styles.chatJoinContainer : `${styles.hatJoinContainer} ${styles.hidden}`}>
-                        <InputBox id="inviteInput" label="Invite Code" onChange={handleInviteChange} type="text" maxLength={16} />
-                        <input className="default" type="button" value="Join" onClick={createGuild} />
+                        <InputBox id="inviteInput" label="Invite Code" type="text" register={registerJ("invite")} errorMessage={errorsJ?.invite?.message}/>
+                        <input className="default" type="button" value="Join" onClick={handleSubmitJ(joinGuild)} />
                     </div>
                 </div>
             </Modal>

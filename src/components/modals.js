@@ -35,7 +35,7 @@ function InputBox(props) {
 function CheckBox(props) {
     return ( //I want to die css is so hard go damn it
         <div className={styles.checkBox}>
-            <input id="toggle" type="checkbox" disabled={props.disabled} onChange={props.onChange} />
+            <input id="toggle" type="checkbox" disabled={props.disabled} onChange={props.onChange} {...props.register} />
             <div></div>
         </div>
     );
@@ -177,8 +177,8 @@ function UserMenu(props) {
         }));
         console.log(res);
         if (res.error) {
-            setErrorU("username", {type : "custom", message : res.error});
-            setErrorU("password", {type : "custom", message : res.error});
+            setErrorU("username", {type : "custom", message : res.error.message});
+            setErrorU("password", {type : "custom", message : res.error.message});
         } else {
             showChangeUser(false);
         };
@@ -191,8 +191,8 @@ function UserMenu(props) {
             newData : form.email
         }));
         if (res.error) {
-            setErrorE("email", {type : "custom", message : res.error});
-            setErrorE("password", {type : "custom", message : res.error});
+            setErrorE("email", {type : "custom", message : res.error.message});
+            setErrorE("password", {type : "custom", message : res.error.message});
         } else {
             showChangeEmail(false);  
         };
@@ -205,9 +205,9 @@ function UserMenu(props) {
             newData : form.newPassword
         }));
         if (res.error) {
-            setErrorP("password", {type : "custom", message : res.error});
-            setErrorP("confirmPassword", {type : "custom", message : res.error});
-            setErrorP("newPassword", {type : "custom", message : res.error});
+            setErrorP("password", {type : "custom", message : res.error.message});
+            setErrorP("confirmPassword", {type : "custom", message : res.error.message});
+            setErrorP("newPassword", {type : "custom", message : res.error.message});
         } else {
             showChangePass(false);
         }

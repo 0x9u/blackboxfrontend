@@ -50,7 +50,7 @@ const ChangeGuild = createAsyncThunk("guilds/update", async (args, api) => {
 });
 
 const JoinGuild = createAsyncThunk("guilds/join/get", async (args,api) => {
-    await getApi("guild/join",{
+    await postApi("guild/join",{
         invite : args.invite
     }, {
         headers: {

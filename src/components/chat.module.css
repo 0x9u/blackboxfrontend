@@ -437,19 +437,18 @@
     font-weight: 600;
 }
 
+div[id='serverNameInput'] {
+    left: 52.5%;
+}
+
 div[id='serverNameInput'] > input {
-    width: 215px;
+    width: 200px;
 }
 
 .createInfoOption > *:not(label) {
     align-self: center;
     flex: 1 0;
     margin: 0px;
-}
-
-.createInfoOption > input[type='button'] {
-    flex: 0 0;
-    margin: auto;
 }
 
 .createAppearance {
@@ -549,7 +548,12 @@ input[id='createInviteButton'] {
 }
 
 input[id='createChatButton'] {
+    height: 25px;
     transition: 0.5s;
+    margin: auto;
+    flex-basis: 250px;
+    width: 100px;
+    flex: 0 0 auto;
 }
 
 .chatUserList {

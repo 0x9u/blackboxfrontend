@@ -1,15 +1,19 @@
 import { webSocket } from 'rxjs/webSocket';
 import { map, mergeMap } from 'rxjs';
 import { ofType } from 'redux-observable';
+import { msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildUpdateUserList } from '../app/reducers/guilds';
 
 const WEBSOCKET_URL = 'ws://localhost:8090/api/ws';
 
 const
     PING = 0,
     MSGADD = 1,
-    MSGREMOVE = 2,
-    GUILDADD = 3,
-    GUILDREMOVE = 4;
+    MSGREMOVE = 2, // also not used as of yet
+    MSGEDIT = 3, //not used as of yet
+    CHANGEGUILD = 4, // new server info
+    JOINGUILD = 5,
+    LEAVEGUILD = 6,
+    UPDATEUSERLIST = 7;
 
 const WS_START = "WS_START";
 const WS_PING = "WS_PING";
@@ -22,6 +26,7 @@ const startSocket = (token) => ({
     }
 });
 
+/*
 const msgAdd = msgData => ({
     type: 'guilds/msgAdd',
     payload: msgData
@@ -34,17 +39,13 @@ const msgRemove = id => ({
     }
 });
 
-const guildAdd = guildData => ({
-    type: 'guilds/guildAdd',
+*/
+/*
+const guildChange = guildData => ({
+    type: 'guilds/guildChange',
     payload: guildData
-});
-
-const guildRemove = id => ({
-    type: 'guilds/guildRemove',
-    payload: {
-        id
-    },
-});
+})
+*/
 
 const DONOTHING = () => ({ //temporary fix
     type: "DONOTHING",
@@ -102,10 +103,19 @@ const wsEpic = action$ => action$.pipe( //not working needs to be fixed
                                 return msgAdd(data);
                             case MSGREMOVE:
                                 return msgRemove(data);
-                            case GUILDADD:
+                            //case MSGEDIT:
+                            //    return msgEdit(data);
+                            case CHANGEGUILD:
+                                return guildChange(data);
+                            case JOINGUILD:
+                                console.log("join/created server");
                                 return guildAdd(data);
-                            case GUILDREMOVE:
+                            case LEAVEGUILD:
                                 return guildRemove(data);
+                            case UPDATEUSERLIST:
+                                console.log("Updating user list");
+                                return guildUpdateUserList(data);
+                            //return guildAction(data); //TODO REPLACE WITH SWITCH CASE
                             default:
                                 console.log("Unidenified data type: " + dataType);
                                 return DONOTHING();

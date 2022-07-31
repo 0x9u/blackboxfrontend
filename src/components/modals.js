@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import styles from './modals.module.css';
-import { EDITEMAIL, EDITPASS,EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
+import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
 
 
 //find better way to fix button shit
@@ -41,6 +41,22 @@ function CheckBox(props) {
     );
 }
 
+function OptionSelector(props) {
+    return (
+        <div className={`${styles.optionSelector} ${props.className}`} id={props.id}>
+            {props.children}
+        </div>
+    )
+}
+
+function OptionSelectorChild(props) {
+    return (
+        <div className={`${styles.optionSelectorChild} ${props.active ? styles.active : ""} ${props.className}`} id={props.id} onClick={() => props.onClick(props.value)} >
+            {props.children}
+        </div>
+    )
+}
+
 function PictureSelector(props) {
     return (
         <div className={`${styles.pictureSelectorContainer} ${props.className}`}>
@@ -54,7 +70,7 @@ function PictureSelector(props) {
 function ProfileSettings(props) {
     const username = useSelector(state => state.userInfo.username);
     const email = useSelector(state => state.userInfo.email);
-    const icon = useSelector(state => state.userInfo.icon);
+    //const icon = useSelector(state => state.userInfo.icon);
 
     return (
         <div className={styles.settingsContainer}>
@@ -96,11 +112,52 @@ function ServerSettings() {
                 </p>
                 <div className={styles.optionBoxFlexRow}>
                     <div className={styles.changeServerName}>
-                        <InputBox className={styles.changeServerNameInput} label="Server Name"/>
+                        <InputBox className={styles.changeServerNameInput} label="Server Name" />
                     </div>
                     <div className={styles.changeServerIcon}>
-                        <PictureSelector src="/profileImg.png" width="100" height="100"/>
+                        <PictureSelector src="/profileImg.png" width="100" height="100" />
                     </div>
+                </div>
+            </div>
+            <div className={styles.optionBox}>
+                <div className={styles.optionBoxRow} id="passwordChange"><label>Save Chat History?</label> <CheckBox /></div>
+            </div>
+        </div>
+    );
+}
+
+function BanOrKickSettings() {
+    const [chosen, setChosen] = React.useState(-1);
+    const userList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Users ?? []);
+    const ownId = useSelector(state => state.auth.userId);
+
+    function banUser() {
+        
+    }
+
+    function kickUser() {
+
+    }
+    return (
+        <div className={styles.settingsContainer}>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Ban or Kick
+                </p>
+                <OptionSelector>
+                    {userList.map((user, idx) => user.Id !== ownId  && <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
+                        <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" />
+                        <p className={styles.optionSelectorUsername}>{user.Username}</p>
+                    </OptionSelectorChild>)}
+                </OptionSelector>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    {chosen !== -1 ? `You have chosen ${userList?.[chosen]?.Username}` : "Choose a member to ban/kick"}
+                </p>
+                <div className={styles.optionBoxFlexRow}>
+                    <input value="Ban User" type="button" className={styles.banKickUserButton} onClick={banUser}/>
+                    <input value="Kick User" type="button" className={styles.banKickUserButton} onClick={kickUser}/>
                 </div>
             </div>
         </div>
@@ -171,44 +228,47 @@ function UserMenu(props) {
 
     async function changeUsernameAPI(form) {
         const res = await dispatch(UpdateUserInfo({
-            change : EDITUSERNAME,
-            password : form.password,
-            newData : form.username
+            change: EDITUSERNAME,
+            password: form.password,
+            newData: form.username
         }));
         console.log(res);
         if (res.error) {
-            setErrorU("username", {type : "custom", message : res.error.message});
-            setErrorU("password", {type : "custom", message : res.error.message});
+            setErrorU("username", { type: "custom", message: res.error.message });
+            setErrorU("password", { type: "custom", message: res.error.message });
         } else {
+            resetU();
             showChangeUser(false);
         };
     }
 
     async function changeEmailAPI(form) {
         const res = await dispatch(UpdateUserInfo({
-            change  : EDITEMAIL,
-            password : form.password,
-            newData : form.email
+            change: EDITEMAIL,
+            password: form.password,
+            newData: form.email
         }));
         if (res.error) {
-            setErrorE("email", {type : "custom", message : res.error.message});
-            setErrorE("password", {type : "custom", message : res.error.message});
+            setErrorE("email", { type: "custom", message: res.error.message });
+            setErrorE("password", { type: "custom", message: res.error.message });
         } else {
-            showChangeEmail(false);  
+            resetE();
+            showChangeEmail(false);
         };
     }
 
     async function changePasswordAPI(form) {
         const res = await dispatch(UpdateUserInfo({
-            change : EDITPASS,
-            password : form.password,
-            newData : form.newPassword
+            change: EDITPASS,
+            password: form.password,
+            newData: form.newPassword
         }));
         if (res.error) {
-            setErrorP("password", {type : "custom", message : res.error.message});
-            setErrorP("confirmPassword", {type : "custom", message : res.error.message});
-            setErrorP("newPassword", {type : "custom", message : res.error.message});
+            setErrorP("password", { type: "custom", message: res.error.message });
+            setErrorP("confirmPassword", { type: "custom", message: res.error.message });
+            setErrorP("newPassword", { type: "custom", message: res.error.message });
         } else {
+            resetP();
             showChangePass(false);
         }
     }
@@ -296,7 +356,7 @@ function ServerMenu(props) {
             case 0:
                 return <ServerSettings />;
             case 1:
-                return <p>Server Settings</p>;
+                return <BanOrKickSettings />;
             case 2:
                 return <p>Manage Invites</p>;
             default:

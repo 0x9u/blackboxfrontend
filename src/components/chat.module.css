@@ -202,11 +202,11 @@
     border-radius: 15px;
 }
 
-.guildContainer:hover > img{
+.guildContainer:not(.active):hover > img{
     opacity: 0.5;
 }
 
-.guildContainer img {
+.guildContainer > img {
     height: 75px;
     width: 35%;
     border-top-right-radius: 15px;
@@ -224,14 +224,18 @@
     transition: 0.5s;
 }
 
-.guildOption p {
+.guildContainer.active > .guildOption {
+    background: #21b6a8;
+}
+
+.guildOption > p {
     text-align:center;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
 }
 
-.menuOption p, .guildOption p{
+.menuOption > p, .guildOption > p{
     text-align: center;
     top: 50%;
     position:relative;
@@ -302,16 +306,16 @@
     display:block;
     margin: 15px 20px 0px;
 }
-.msg p, .msg img {
+.msg > p, .msg > img {
     display: inline-block;
 }
 
-.msg img {
+.msg > img {
     border-radius: 5px;
     user-select: none;
 }
 
-.msg p {
+.msg > p {
     margin-left: 15px;
     position: absolute;
     font-weight:500;
@@ -321,13 +325,18 @@
     word-wrap: break-word;
 }
 
-.msg label {
+.msg > label {
     vertical-align: top;
     top: 0%;
     margin-left: 15px;
     position: absolute;
     color: #9FB1BC;
     font-weight: bolder;
+}
+
+.msg > label > span {
+    font-size : 10px;
+    color: #91aebe;
 }
 
 .addChatOptions {
@@ -594,7 +603,7 @@ input[id='createChatButton'] {
 }
 
 .serverMiniOptions {
-    height: 150px;
+    max-height: 150px;
 }
 
 .serverMiniOptions, .serverMiniOptionsHidden {
@@ -614,7 +623,7 @@ input[id='createChatButton'] {
 
 
 .serverMiniOptionsHidden {
-    height: 0px;
+    max-height: 0px;
 }
 
 input[id='leaveServerButton'], input[id='serverSettingsButton'],input[id='createInviteButton'] {
@@ -663,6 +672,16 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
     border-radius : 2.5px;
     font-size: 16px;
     font-weight: 600;
+}
+
+.inviteBoxError {
+    color: red;
+    font-size: 0.75em;
+    text-align:left;
+}
+
+.inviteBoxError:not(:empty)::before {
+    content: "⚠️ ";
 }
 
 .genInviteButton {

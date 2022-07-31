@@ -18,7 +18,7 @@ function Msg(props) { //TODO add id to return in backend
     return (
         <div className={styles.msg}>
             <img src={props.img} width="50" height="50" alt="pfp" />
-            <label>{props.username}</label>
+            <label>{props.username} <span>{props.time}</span></label>
             <p>{props.msg}</p>
         </div>
     );
@@ -26,7 +26,7 @@ function Msg(props) { //TODO add id to return in backend
 
 function RenderChatMsgs() {
     const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
-    return msgsList.map((msg, index) => <Msg key={index} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} />);
+    return msgsList.map((msg, index) => <Msg key={index} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={(new Date(msg.Time)).toLocaleDateString()}/>);
 }
 
 function User(props) {
@@ -55,7 +55,7 @@ function MenuOption(props) {
 function Guild(props) {
     const dispatch = useDispatch();
     return (
-        <div className={styles.guildContainer} onClick={() => dispatch(guildCurrentSet({Guild : props.guildId}))}>
+        <div className={`${styles.guildContainer} ${props.active ? styles.active : ""}`} onClick={() => dispatch(guildCurrentSet({Guild : props.guildId}))}>
             <div className={styles.guildOption}>
                 <p>{props.name}</p>
             </div>
@@ -67,7 +67,8 @@ function Guild(props) {
 function RenderGuilds() {
     const guildInfo = useSelector(state => state.guilds.guildInfo);
     const guildOrder = useSelector(state => state.guilds.guildOrder);
-    return guildOrder.map((guild, index) => <Guild key={guild} guildId={guild} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} />);
+    const currentGuild = useSelector(state => state.guilds.currentGuild);
+    return guildOrder.map((guild, index) => <Guild key={guild} guildId={guild} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} active={guild === currentGuild}/>);
 }
 
 function RenderChatName() {
@@ -77,7 +78,18 @@ function RenderChatName() {
 
 function InviteModal(props) {
     const genInvite = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.invite ?? "");
+    const [errInvite, setErrInvite] = React.useState("");
     const dispatch = useDispatch();
+
+    React.useEffect(() => {
+        setErrInvite("")
+    }, [props.show]); //clear error message when the modal closes
+
+    async function getInvite() {
+        const res = await dispatch(GenInvite());
+        //these operators are overkill lmao
+        setErrInvite(res?.error?.message ?? ""); //should be ok
+    }
     return (
         <Modal show={props.show} height="250" width="400" buttons={[{ value: "Exit", function: props.exit }]}>
             <h1>Create Invite</h1>
@@ -85,9 +97,10 @@ function InviteModal(props) {
                 <div className={styles.inviteBox}>
                     <label>Your Invite</label>
                     <input value={genInvite} type="text" readOnly />
+                    <label className={styles.inviteBoxError}>{errInvite}</label>
                 </div>
                 <div>
-                    <input type="button" value="Create" className={`default ${styles.genInviteButton}`} onClick={(() => dispatch(GenInvite()))} />
+                    <input type="button" value="Create" className={`default ${styles.genInviteButton}`} onClick={getInvite} />
                 </div>
             </div>
         </Modal>
@@ -103,7 +116,6 @@ function Chat() { //might turn into class
     const [userList, setUserList] = React.useState(false); //for userlist
     const [invite, setInvite] = React.useState(false); //show invite dialog
 
-    const [inviteTxt, setInviteTxt] = React.useState(""); //for type in invite
     const [chatTxt, setChatTxt] = React.useState(""); //for type in chat
 
 
@@ -120,6 +132,7 @@ function Chat() { //might turn into class
 
     const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory); //maybe temp?
     const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded); //maybe temp?
+    const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner);
 
     function GetData() {
         dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite()));
@@ -167,6 +180,9 @@ function Chat() { //might turn into class
 
     React.useEffect(
         () => {
+            //looks better with these
+            setServer(false);
+            setUserList(false);
             if (!guildLoaded) {
                 console.log("loading data");
                 GetData();
@@ -183,10 +199,6 @@ function Chat() { //might turn into class
     )
 
     const userInfo = useSelector(state => state.userInfo);
-
-    function handleInviteChange(e) {
-        setInviteTxt(e.target.value);
-    }
 
     async function joinGuild(form) {
         const res = await dispatch(JoinGuild({
@@ -229,7 +241,7 @@ function Chat() { //might turn into class
             <div className={styles.menuUserContainer}>
                 <div className={styles.userModal}>
                     <div className={styles.userModalUsername}>
-                        <p> {userInfo.username} </p>
+                        <p> {userInfo.username ?? "NO NAME"} </p>
                         <div>
                             <input type="button" value="settings" onClick={() => setMenu(true)} />
                         </div>
@@ -271,8 +283,14 @@ function Chat() { //might turn into class
                     </div>
                     <div className={server ? styles.serverMiniOptions : styles.serverMiniOptionsHidden}>
                         <input className="default" type="button" value="Create Invite" id="createInviteButton" onClick={() => { setInvite(true); setServer(false); }} />
-                        <input className="default" type="button" value="Server Settings" id="serverSettingsButton" onClick={() => { setServerSettings(true); setServer(false) }} />
-                        <input className="default" type="button" value="Leave Server" id="leaveServerButton" />
+                        {
+                            isOwner && 
+                            <input className="default" type="button" value="Server Settings" id="serverSettingsButton" onClick={() => { setServerSettings(true); setServer(false) }} />
+                        }
+                        {
+                            !isOwner &&
+                            <input className="default" type="button" value="Leave Server" id="leaveServerButton" />
+                        }
                     </div>
                 </div>
                 <div className={styles.chatControl}>

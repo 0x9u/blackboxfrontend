@@ -23,7 +23,6 @@
 
 .modalContainer {
     background: rgba(0, 0, 0, 0.25);
-    transition: 1s;
 }
 
 .modal,
@@ -41,13 +40,13 @@
     box-shadow: 5px 4px 25px 5px;
 }
 
-.modalContainer.hidden>.hidden,
+.modalContainer.hidden>.hidden, /* WTF */
 .modalContainer.hidden>.hidden>*,
 .modalContainer.hidden>.hidden>.buttons>input[type='button'] {
     width: 0px !important;
     height: 0px !important;
     font-size: 0px;
-    transition: 1s !important;
+    transition: 1s!important; /* slow as fuck replace with one time animation*/
 }
 
 .modalContainer.hidden>.hidden>.buttons>input[type='button'] {
@@ -266,6 +265,7 @@
     text-align: center;
     line-height: 32px;
     padding: 0px;
+    outline: none;
 }
 
 
@@ -381,7 +381,12 @@ input[type='button'][id='leaveButton']:hover {
 .optionBoxRow,
 .optionBoxFlexRow {
     width: 100%;
-    margin: 10px 5px;
+}
+
+.optionBoxRow:first-child,
+.optionBoxFlexRow:first-child
+{
+    margin-top: 30px;
 }
 
 .optionBoxRow {
@@ -654,4 +659,74 @@ div[id='passwordChange']>input[type='button']:active {
 
 .changeServerIcon {
  width: 150px;
+}
+
+.optionSelector {
+    margin: 25px;
+    width: calc(100% - 50x);
+    height: 250px;
+    background: white;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+}
+
+.optionSelectorChild {
+    flex: 0 0;
+    padding: 1em 2em;
+    border-bottom: 2px solid black;
+    color: black;
+    word-wrap: break-word;
+    display:flex;
+}
+
+.optionSelectorChild.active {
+    background: green;
+}
+
+.optionSelectorChild:not(.active):hover {
+    background: red;
+}
+
+.optionSelectorPFP {
+    border-radius: 5px;
+    box-shadow: black 1px 1px 5px;
+    height: 50px;
+    width:50px
+}
+
+.optionSelectorUsername {
+    flex: 1 0;
+    margin: 0px;
+    text-align: left;
+    margin: auto 50px;
+    font-size: 1.25em;
+}
+
+.banKickUserButton {
+    flex: 0 0 auto;
+    background: red;
+    border: none;
+    outline: none;
+    margin: auto;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    width: 125px;
+    height: 25px;
+    border-radius: 5px;
+}
+
+.banKickUserButton:disabled {
+    opacity: 0.75;
+}
+
+.bankickUserButton:active {
+    background: white;
+}
+
+.banKickUserButton:hover {
+    transition: 0.5s background;
+    background: rgba(255, 0, 0, 0.7);
 }

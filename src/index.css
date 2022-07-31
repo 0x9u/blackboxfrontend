@@ -37,4 +37,5 @@ input[type='button'].default:hover {
 }
 input[type='button'].default:active {
   background: white;
+  transition: 0.01s background;
 }

@@ -5,6 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import styles from './modals.module.css';
 import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
+import { BanUser, KickUser, UnbanUser } from '../api/guildApi';
 
 
 //find better way to fix button shit
@@ -128,15 +129,34 @@ function ServerSettings() {
 
 function BanOrKickSettings() {
     const [chosen, setChosen] = React.useState(-1);
+    const [error, setError] = React.useState("");
     const userList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Users ?? []);
     const ownId = useSelector(state => state.auth.userId);
 
-    function banUser() {
-        
+    const dispatch = useDispatch();
+
+    async function banUser() {
+        const res = await dispatch(BanUser({
+            id: userList[chosen].Id
+        }));
+        if (res.error) {
+            setError(res.error.message);
+        } else {
+            setChosen(-1);
+            setError("");
+        }
     }
 
-    function kickUser() {
-
+    async function kickUser() {
+        const res = await dispatch(KickUser({
+            id: userList[chosen].Id
+        }));
+        if (res.error) {
+            setError(res.error.message);
+        } else {
+            setChosen(-1);
+            setError("");
+        }
     }
     return (
         <div className={styles.settingsContainer}>
@@ -145,7 +165,7 @@ function BanOrKickSettings() {
                     Ban or Kick
                 </p>
                 <OptionSelector>
-                    {userList.map((user, idx) => user.Id !== ownId  && <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
+                    {userList.map((user, idx) => user.Id !== ownId && <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
                         <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" />
                         <p className={styles.optionSelectorUsername}>{user.Username}</p>
                     </OptionSelectorChild>)}
@@ -156,12 +176,60 @@ function BanOrKickSettings() {
                     {chosen !== -1 ? `You have chosen ${userList?.[chosen]?.Username}` : "Choose a member to ban/kick"}
                 </p>
                 <div className={styles.optionBoxFlexRow}>
-                    <input value="Ban User" type="button" className={styles.banKickUserButton} onClick={banUser}/>
-                    <input value="Kick User" type="button" className={styles.banKickUserButton} onClick={kickUser}/>
+                    <input value="Ban User" type="button" className={styles.banKickUserButton} onClick={banUser} disabled={chosen === -1} />
+                    <input value="Kick User" type="button" className={styles.banKickUserButton} onClick={kickUser} disabled={chosen === -1} />
                 </div>
+                <p className={`${styles.optionDescription} ${styles.error}`}>{error}</p>
             </div>
         </div>
     );
+}
+
+function BannedUsersSettings() {
+    const [chosen, setChosen] = React.useState(-1);
+    const [error, setError] = React.useState("");
+
+    const bannedList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Banned);
+
+    const dispatch = useDispatch();
+
+    async function unbanUser() {
+        const res = await dispatch(UnbanUser({
+            id: bannedList[chosen].Id
+        }));
+        if (res.error) {
+            setError(res.error.message);
+        } else {
+            setChosen(-1);
+            setError("");
+        }
+    }
+
+    return (
+        <div className={styles.settingsContainer}>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Banned Users
+                </p>
+                <OptionSelector>
+                    {bannedList.map((user, idx) =>
+                        <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
+                            <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" />
+                            <p className={styles.optionSelectorUsername}>{user.Username}</p>
+                        </OptionSelectorChild>)}
+                </OptionSelector>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    {chosen !== -1 ? `You have chosen ${bannedList?.[chosen]?.Username}` : "Choose a member to ban/kick"}
+                </p>
+                <div className={styles.optionBoxFlexRow}>
+                    <input value="Unban User" type="button" className={styles.banKickUserButton} onClick={unbanUser} disabled={chosen === -1} />
+                </div>
+                <p className={`${styles.optionDescription} ${styles.error}`}>{error}</p>
+            </div>
+        </div>
+    )
 }
 
 function UserMenu(props) {
@@ -278,18 +346,18 @@ function UserMenu(props) {
             <Modal show={changeUser} buttons={[{ value: "Exit", function: () => showChangeUser(false) }, { value: "Done", function: handleSubmitU(changeUsernameAPI) }]} width="450" height="300">
                 <form className={styles.changeUsernameModal}>
                     <div className={styles.changeContainer}>
-                        <label id="name">New Username</label>
+                        <label>New Username</label>
                         <div className={styles.innerChangeContainer}>
                             <input type="text" id="changeUsernameInput" {...registerU("username")} />
-                            <label id="error">{errorsU?.username?.message}</label>
+                            <label className={styles.error}>{errorsU?.username?.message}</label>
                         </div>
                     </div>
                     <div className={styles.changeContainer}>
-                        <label id="name">Current Password</label>
+                        <label>Current Password</label>
                         <div className={styles.innerChangeContainer}>
                             <input type="password" id="confirmPass" {...registerU("password")} />
                             <div></div>
-                            <label id="error">{errorsU?.password?.message}</label>
+                            <label className={styles.error}>{errorsU?.password?.message}</label>
                         </div>
                     </div>
                 </form>
@@ -300,14 +368,14 @@ function UserMenu(props) {
                         <label>New Email</label>
                         <div className={styles.innerChangeContainer}>
                             <input type="text" {...registerE("email")} />
-                            <label id="error">{errorsE?.email?.message}</label>
+                            <label className={styles.error}>{errorsE?.email?.message}</label>
                         </div>
                     </div>
                     <div className={styles.changeContainer}>
                         <label>Current Password</label>
                         <div className={styles.innerChangeContainer}>
                             <input type="password" {...registerE("password")} />
-                            <label id="error">{errorsE?.password?.message}</label>
+                            <label className={styles.error}>{errorsE?.password?.message}</label>
                         </div>
                     </div>
                 </form>
@@ -318,21 +386,21 @@ function UserMenu(props) {
                         <label>New Password</label>
                         <div className={styles.innerChangeContainer}>
                             <input type="password" {...registerP("newPassword")} />
-                            <label id="error">{errorsP?.newPassword?.message}</label>
+                            <label className={styles.error}>{errorsP?.newPassword?.message}</label>
                         </div>
                     </div>
                     <div className={styles.changeContainer}>
                         <label>Confirm Password</label>
                         <div className={styles.innerChangeContainer}>
                             <input type="password" {...registerP("confirmPassword")} />
-                            <label id="error">{errorsP?.confirmPassword?.message}</label>
+                            <label className={styles.error}>{errorsP?.confirmPassword?.message}</label>
                         </div>
                     </div>
                     <div className={styles.changeContainer}>
                         <label>Current Password</label>
                         <div className={styles.innerChangeContainer}>
                             <input type="password" {...registerP("password")} />
-                            <label id="error">{errorsP?.password?.message}</label>
+                            <label className={styles.error}>{errorsP?.password?.message}</label>
                         </div>
                     </div>
                 </form>
@@ -358,6 +426,8 @@ function ServerMenu(props) {
             case 1:
                 return <BanOrKickSettings />;
             case 2:
+                return <BannedUsersSettings />;
+            case 3:
                 return <p>Manage Invites</p>;
             default:
                 return <p>Something is Wrong!</p>;
@@ -368,7 +438,8 @@ function ServerMenu(props) {
             <div className={styles.optionHeading}><p>Server Settings</p></div>
             <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Server Settings" onClick={() => { setActive(0) }} /></div>
             <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
-            <div className={active === 2 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Manage Invites" onClick={() => { setActive(2) }} /></div>
+            <div className={active === 2 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Banned Users" onClick={() => { setActive(2) }} /></div>
+            <div className={active === 3 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Manage Invites" onClick={() => { setActive(3) }} /></div>
             <div className={styles.optionButton}><input type="button" value="Delete Server" id="leaveButton" /></div>
         </Menu>
     )

@@ -1,7 +1,7 @@
 import { webSocket } from 'rxjs/webSocket';
 import { map, mergeMap } from 'rxjs';
 import { ofType } from 'redux-observable';
-import { msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildUpdateUserList } from '../app/reducers/guilds';
+import { msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildUpdateUserList, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList } from '../app/reducers/guilds';
 
 const WEBSOCKET_URL = 'ws://localhost:8090/api/ws';
 
@@ -13,7 +13,10 @@ const
     CHANGEGUILD = 4, // new server info
     JOINGUILD = 5,
     LEAVEGUILD = 6,
-    UPDATEUSERLIST = 7;
+    UPDATEUSERLIST = 7,
+    REMOVEUSERLIST = 8,//remove user from userlist
+    UPDATEBANNEDLIST = 9,
+    REMOVEBANNEDLIST = 10;
 
 const WS_START = "WS_START";
 const WS_PING = "WS_PING";
@@ -115,6 +118,12 @@ const wsEpic = action$ => action$.pipe( //not working needs to be fixed
                             case UPDATEUSERLIST:
                                 console.log("Updating user list");
                                 return guildUpdateUserList(data);
+                            case REMOVEUSERLIST:
+                                return guildRemoveUserList(data);
+                            case UPDATEBANNEDLIST:
+                                return guildUpdateBannedList(data);
+                            case REMOVEBANNEDLIST:
+                                return guildRemoveBannedList(data);
                             //return guildAction(data); //TODO REPLACE WITH SWITCH CASE
                             default:
                                 console.log("Unidenified data type: " + dataType);

@@ -378,6 +378,21 @@ input[type='button'][id='leaveButton']:hover {
     margin-left: 25px;
 }
 
+.optionDescription {
+    font-size: 12px;
+    margin-left: 25px;
+}
+
+.optionDescription.error {
+    color: red;
+    text-align: center;
+    margin-left: 0px;
+}
+
+.optionDescription.error:not(:empty)::before {
+    content: "⚠️ "
+}
+
 .optionBoxRow,
 .optionBoxFlexRow {
     width: 100%;
@@ -542,12 +557,7 @@ div[id='passwordChange']>input[type='button']:active {
     margin-left: auto;
 }
 
-.innerChangeContainer>label[id="name"] {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.innerChangeContainer>label[id="error"] {
+.innerChangeContainer>label.error {
     color: red;
     font-size: 0.50em;
     flex: 0;
@@ -555,14 +565,14 @@ div[id='passwordChange']>input[type='button']:active {
     margin-top: 5px;
 }
 
-.innerChangeContainer>label[id="error"]:empty {
+.innerChangeContainer>label.error:empty {
     /* keeps same height when no text*/
     padding-top: 15px;
     /* fixed I fucking hate css*/
     margin: 0px;
 }
 
-.innerChangeContainer>label[id="error"]:not(:empty)::before {
+.innerChangeContainer>label.error:not(:empty)::before {
     content: "⚠️ "
 }
 
@@ -722,11 +732,11 @@ div[id='passwordChange']>input[type='button']:active {
     opacity: 0.75;
 }
 
-.bankickUserButton:active {
-    background: white;
-}
-
-.banKickUserButton:hover {
+.banKickUserButton:not(:disabled):hover {
     transition: 0.5s background;
     background: rgba(255, 0, 0, 0.7);
+}
+
+.bankickUserButton:active { /* doesnt work */
+    background: white !important;
 }

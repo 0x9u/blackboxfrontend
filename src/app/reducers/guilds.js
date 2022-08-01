@@ -1,28 +1,35 @@
 import { createSlice, current, isAsyncThunkAction } from "@reduxjs/toolkit";
-import { GetGuilds, GetGuildUsers } from "../../api/guildApi";
+import { GetBannedUsers, GetGuilds, GetGuildUsers } from "../../api/guildApi";
 import { GetMsgs } from "../../api/msgApi";
 
 /*
 format for guilds (guildInfo)
 {
-    name : string,
-    icon : id, // will be unused for now so its 0
-    invite : "",
-    loaded : bool,
-    users : [
+    Name : string,
+    Icon : id, // will be unused for now so its 0
+    Invite : "",
+    Loaded : bool,
+    Users : [
         {
-            userId : int,
-            username : string,
-            profileId : int, //unused so its 0
+            Id : int,
+            Username : string,
+            Icon : int, //unused so its 0 old: profileId
         }
     ],
-    msgHistory : [
+    Banned : [ //basically banned users
         {
-            userId : int,
-            username : string,
-            profileId : int, //unused so its 0
-            msg : string,
-            time : int,
+            Id : int,
+            Username : string,
+            Icon : int.
+        }
+    ],
+    MsgHistory : [
+        {
+            UserId : int,
+            Username : string,
+            Icon : int, //unused so its 0 old: profileId
+            Msg : string,
+            Time : int,
         }
     ]
     
@@ -41,6 +48,7 @@ const guildSlice = createSlice({
             state.guildInfo[action.payload.Id] = { //update the user list later i cant be fucked (backend and frontend)
                 MsgHistory : [],
                 Users : [],
+                Banned : [],
                 Loaded : false,
                 Name : action.payload.Name,
                 Icon : action.payload.Icon,
@@ -73,7 +81,16 @@ const guildSlice = createSlice({
             state.currentGuild = action.payload.Guild;
         },
         guildUpdateUserList: (state, action) => { //accepts guild : int, userList : array<int>
-            state.guildInfo[action.payload.Guild].Users.push(action.payload.username)
+            state.guildInfo[action.payload.Guild].Users.push(action.payload.User)
+        },
+        guildRemoveUserList: (state, action) => { //accepts guild : int
+            state.guildInfo[action.payload.Guild].Users = state.guildInfo[action.payload.Guild].Users.filter(user => user.Id !== action.payload.Id)
+        },
+        guildUpdateBannedList: (state,action) => {
+            state.guildInfo[action.payload.Guild].Banned.push(action.payload.User);
+        },
+        guildRemoveBannedList: (state,action) => {
+            state.guildInfo[action.payload.Guild].Banned = state.guildInfo[action.payload.Guild].Banned.filter(user => user.Id !== action.payload.Id);
         },
         msgAdd: (state, action) => { //accepts guild : int, msg : object
             console.log("adding msg");
@@ -100,22 +117,29 @@ const guildSlice = createSlice({
                         Invite: "",
                         Loaded: false,
                         Users: [],
+                        Banned : [],
                         MsgHistory: []
                     };
                     state.guildOrder.push(guild.Id);
                 });
             })
-            .addCase(GetMsgs.fulfilled, (state, action) => {
+            .addCase(GetMsgs.fulfilled, (state, action) => {// using unshift since we are also grabbing info from guilds not loaded in
+               console.log(action.payload);
                 action.payload.map(msg =>
-                    state.guildInfo[state.currentGuild].MsgHistory.push(msg)
+                    state.guildInfo[state.currentGuild].MsgHistory.unshift(msg)
                 );
             })
             .addCase(GetGuildUsers.fulfilled, (state, action) => {
                 action.payload.map(user => {
-                    state.guildInfo?.[state.currentGuild]?.Users.push(user);
+                    state.guildInfo?.[state.currentGuild]?.Users.unshift(user);
                     state.guildInfo[state.currentGuild].Loaded = true;
                 });
 
+            })
+            .addCase(GetBannedUsers.fulfilled, (state, action) => {
+                action.payload.map(user => {
+                    state.guildInfo?.[state.currentGuild]?.Banned.unshift(user);
+                })
             })
             .addMatcher((action) => action.type.match(/guilds\/invite\/[a-z]*\/fulfilled/), (state, action) => {
                 state.guildInfo[state.currentGuild].invite = action.payload.Invite;
@@ -125,6 +149,6 @@ const guildSlice = createSlice({
     }
 
 });
-
-export const { guildAdd, guildRemove, guildSet, guildChange, guildCurrentSet, guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove } = guildSlice.actions;
+//use ellipsis later
+export const { guildAdd, guildRemove, guildSet, guildChange, guildCurrentSet, guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList } = guildSlice.actions;
 export default guildSlice.reducer;

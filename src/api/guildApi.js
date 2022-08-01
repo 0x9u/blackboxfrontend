@@ -1,4 +1,4 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, current } from "@reduxjs/toolkit";
 import { putApi, getApi, postApi } from "./client";
 
 const GetGuilds = createAsyncThunk("guilds/get", async (args, api) => {
@@ -85,7 +85,7 @@ const GetInvite = createAsyncThunk("guilds/invite/get", async (args, api) => {
 const BanUser = createAsyncThunk("guilds/users/ban", async (args, api) => {
     await postApi("guild/ban", {
         guild: api.getState().guilds.currentGuild,
-        user: args.user
+        id: args.id
     }, {
         headers: {
             "Auth-Token": api.getState().auth.token
@@ -97,7 +97,7 @@ const BanUser = createAsyncThunk("guilds/users/ban", async (args, api) => {
 const KickUser = createAsyncThunk("guilds/users/kick", async (args, api) => {
     await postApi("guild/kick", {
         guild: api.getState().guilds.currentGuild,
-        user: args.user
+        id: args.id
     }, {
         headers: {
             "Auth-Token": api.getState().auth.token
@@ -106,7 +106,34 @@ const KickUser = createAsyncThunk("guilds/users/kick", async (args, api) => {
     );
 });
 
+const GetBannedUsers = createAsyncThunk("guilds/users/ban/get", async (args, api) => {
+    const currentGuild = api.getState().guilds.currentGuild
+    //if user is not owner skip
+    if (api.getState().guilds.guildInfo[currentGuild].Owner !== api.getState().auth.userId) {
+        return;
+    }
+    const response = await getApi("guild/ban", {
+        guild: currentGuild
+    }, {
+        headers: {
+            "Auth-Token": api.getState().auth.token
+        }
+    }
+    );
+    return response;
+});
 
 
+const UnbanUser = createAsyncThunk("guilds/users/ban/put", async (args, api) => {
+    await putApi("guild/ban", {
+        guild: api.getState().guilds.currentGuild,
+        id: args.id
+    }, {
+        headers: {
+            "Auth-Token": api.getState().auth.token
+        }
+    });
+});
 
-export { GetGuilds, GetGuildUsers, CreateGuild, ChangeGuild, JoinGuild, GenInvite, GetInvite, BanUser, KickUser };
+
+export { GetGuilds, GetGuildUsers, CreateGuild, ChangeGuild, JoinGuild, GenInvite, GetInvite, BanUser, KickUser, GetBannedUsers, UnbanUser };

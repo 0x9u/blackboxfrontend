@@ -8,7 +8,7 @@ import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { startSocket } from '../api/websocket';
 import { GetMsgs, SendMsgs } from '../api/msgApi';
-import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild } from '../api/guildApi';
+import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
 import { GetUserInfo } from '../api/userInfoApi';
 import { guildCurrentSet } from '../app/reducers/guilds';
@@ -16,17 +16,21 @@ import { guildCurrentSet } from '../app/reducers/guilds';
 
 function Msg(props) { //TODO add id to return in backend
     return (
-        <div className={styles.msg}>
-            <img src={props.img} width="50" height="50" alt="pfp" />
-            <label>{props.username} <span>{props.time}</span></label>
-            <p>{props.msg}</p>
+        <div className={`${styles.msg} ${props.hideUserTime ? styles.hideUserTime : ""}`}>
+            {!props.hideUserTime && <><img src={props.img} width="40" height="40" alt="pfp" /><label>{props.username} <span>{props.time}</span></label></>}
+            <p className={props.hideUserTime ? styles.hideUserTime : ""}>{props.msg}</p>
         </div>
     );
 }
 
 function RenderChatMsgs() {
     const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
-    return msgsList.map((msg, index) => <Msg key={index} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={(new Date(msg.Time)).toLocaleDateString()}/>);
+    return msgsList.map((msg, index) => {
+        const time = new Date(msg.Time)
+        const beforeTime = new Date(msgsList?.[index-1]?.Time)
+        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours()
+        return <Msg key={index} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime}/>
+    });
 }
 
 function User(props) {
@@ -132,10 +136,10 @@ function Chat() { //might turn into class
 
     const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory); //maybe temp?
     const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded); //maybe temp?
-    const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner);
+    const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
 
     function GetData() {
-        dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite()));
+        dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite())).then(() => dispatch(GetBannedUsers()));
     }
 
     const schemaCreateChat = Yup.object().shape({
@@ -165,6 +169,13 @@ function Chat() { //might turn into class
             msg: chatTxt
         }));
         setChatTxt("");
+    }
+
+    function handleKeySend(e) {
+        if (e.keyCode === 13 && !e.shiftKey) {
+            prepareSendMsg();
+        }
+
     }
 
     React.useEffect(
@@ -273,7 +284,7 @@ function Chat() { //might turn into class
                         {
                             RenderChatMsgs()
                         }
-                        <div ref={dummyMsgBottomRef}></div> {/* used to scroll automatically down at bottom of chat lmao*/}
+                        <div ref={dummyMsgBottomRef} className={styles.endMsgDiv}></div> {/* used to scroll automatically down at bottom of chat lmao*/}
                     </div>
                     <div className={userList ? styles.chatUserList : styles.chatUserListHidden}>
                         {
@@ -295,7 +306,7 @@ function Chat() { //might turn into class
                 </div>
                 <div className={styles.chatControl}>
                     <div className={styles.userInput}>
-                        <textarea placeholder="type here!" value={chatTxt} onChange={(e) => setChatTxt(e.target.value)} />
+                        <textarea placeholder="type here!" value={chatTxt} onKeyUp={handleKeySend} onChange={(e) => setChatTxt(e.target.value)} />
                         <input type="button" value="Send!" onClick={prepareSendMsg} />
                     </div>
                 </div>
@@ -320,11 +331,6 @@ function Chat() { //might turn into class
                         </div>
                         <div className={styles.createAppearance}>
                             <div className={styles.createInfoOption} id="changeProfile">
-                                {/*<div className={styles.changeProfile}>
-                                    <img src="https://www.pngitem.com/pimgs/m/661-6619328_default-avatar-png-blank-person-transparent-png.png"/>
-                                    <input type="file"/>
-                                </div>
-                                */}
                                 <PictureSelector src={serverImage} height="150" width="150" />
                             </div>
                             <div className={styles.createInfoOption}>

@@ -301,11 +301,12 @@
     overflow-x: auto;
 }
 
-.msg {
+.msg:not(.hideUserTime) {
     position: relative;
     display:block;
     margin: 15px 20px 0px;
 }
+
 .msg > p, .msg > img {
     display: inline-block;
 }
@@ -313,6 +314,21 @@
 .msg > img {
     border-radius: 5px;
     user-select: none;
+}
+
+.endMsgDiv ~ .msg {
+    margin-bottom: 15px;
+}
+
+.msg.hideUserTime {
+    margin: 0px;
+    margin-left: 75px;
+    margin-bottom: 5px;
+    position: relative !important;
+}
+
+.endMsgDiv {
+    margin-top: 5px;
 }
 
 .msg > p {
@@ -323,6 +339,11 @@
     top: 15%;
     transform: translateY(-15%);
     word-wrap: break-word;
+}
+
+.msg > p.hideUserTime {
+    margin: 0px;
+    position: relative !important;
 }
 
 .msg > label {

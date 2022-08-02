@@ -5,7 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import styles from './modals.module.css';
 import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
-import { BanUser, KickUser, UnbanUser } from '../api/guildApi';
+import { BanUser, KickUser, UnbanUser, DeleteInvite } from '../api/guildApi';
 
 
 //find better way to fix button shit
@@ -232,6 +232,52 @@ function BannedUsersSettings() {
     )
 }
 
+function ManageInvitesSettings() {
+    const [chosen, setChosen] = React.useState(-1);
+    const [error, setError] = React.useState("");
+
+    const inviteList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Invites);
+
+    const dispatch = useDispatch();
+
+    async function deleteInvite() {
+        const res = await dispatch(DeleteInvite({
+            invite : inviteList[chosen]
+        }));
+        if (res.error) {
+            setError(res.error.message);
+        } else {
+            setChosen(-1);
+            setError("");
+        }
+    }
+
+    return (
+        <div className={styles.settingsContainer}>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Manage Invites
+                </p>
+                <OptionSelector>
+                {inviteList.map((invite, idx) =>
+                        <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
+                            {invite}
+                        </OptionSelectorChild>)}
+                </OptionSelector>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    {chosen !== -1 ? `You have chosen ${inviteList[chosen]}` : "Choose a Invite to Delete"}
+                </p>
+                <div className={styles.optionBoxFlexRow}>
+                    <input value="Delete Invite" type="button" className={styles.banKickUserButton} onClick={deleteInvite} disabled={chosen === -1} />
+                </div>
+                <p className={`${styles.optionDescription} ${styles.error}`}>{error}</p>
+            </div>
+        </div>
+    )
+}
+
 function UserMenu(props) {
     const [active, setActive] = React.useState(0);
     const [changeUser, showChangeUser] = React.useState(false);
@@ -277,7 +323,7 @@ function UserMenu(props) {
             .max(32, "Maximum is 32 characters"),
         confirmPassword: Yup.string()
             .required("Password is required")
-            .oneOf([Yup.ref('password'), null], "Passwords must match"),
+            .oneOf([Yup.ref('newPassword'), null], "Passwords must match"),
         password: Yup.string().required("Password is required")
     })
 
@@ -428,7 +474,7 @@ function ServerMenu(props) {
             case 2:
                 return <BannedUsersSettings />;
             case 3:
-                return <p>Manage Invites</p>;
+                return <ManageInvitesSettings />;
             default:
                 return <p>Something is Wrong!</p>;
         }

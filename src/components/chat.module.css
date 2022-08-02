@@ -710,3 +710,19 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
     height: 25px;
     margin: 15px 0px;
 }
+
+.chatNoSelected {
+    position:absolute;
+    width: calc(100% - 250px);
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    pointer-events: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chatNoSelected > p {
+    color: white;
+    font-size: 2em;
+}

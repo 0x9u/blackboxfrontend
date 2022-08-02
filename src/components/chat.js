@@ -8,7 +8,7 @@ import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { startSocket } from '../api/websocket';
 import { GetMsgs, SendMsgs } from '../api/msgApi';
-import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, GetBannedUsers } from '../api/guildApi';
+import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
 import { GetUserInfo } from '../api/userInfoApi';
 import { guildCurrentSet } from '../app/reducers/guilds';
@@ -27,9 +27,9 @@ function RenderChatMsgs() {
     const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
     return msgsList.map((msg, index) => {
         const time = new Date(msg.Time)
-        const beforeTime = new Date(msgsList?.[index-1]?.Time)
+        const beforeTime = new Date(msgsList?.[index - 1]?.Time)
         const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours()
-        return <Msg key={index} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime}/>
+        return <Msg key={index} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
     });
 }
 
@@ -44,7 +44,7 @@ function User(props) {
 
 function RenderUserList() {
     const userList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Users ?? []);
-    return userList.map((user,index) => <User key={index} img="/profileImg.png" username={user.Username} />);
+    return userList.map((user, index) => <User key={index} img="/profileImg.png" username={user.Username} />);
 }
 
 
@@ -59,7 +59,7 @@ function MenuOption(props) {
 function Guild(props) {
     const dispatch = useDispatch();
     return (
-        <div className={`${styles.guildContainer} ${props.active ? styles.active : ""}`} onClick={() => dispatch(guildCurrentSet({Guild : props.guildId}))}>
+        <div className={`${styles.guildContainer} ${props.active ? styles.active : ""}`} onClick={() => dispatch(guildCurrentSet({ Guild: props.guildId }))}>
             <div className={styles.guildOption}>
                 <p>{props.name}</p>
             </div>
@@ -72,7 +72,7 @@ function RenderGuilds() {
     const guildInfo = useSelector(state => state.guilds.guildInfo);
     const guildOrder = useSelector(state => state.guilds.guildOrder);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
-    return guildOrder.map((guild, index) => <Guild key={guild} guildId={guild} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} active={guild === currentGuild}/>);
+    return guildOrder.map((guild, index) => <Guild key={guild} guildId={guild} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} active={guild === currentGuild} />);
 }
 
 function RenderChatName() {
@@ -81,7 +81,7 @@ function RenderChatName() {
 }
 
 function InviteModal(props) {
-    const genInvite = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.invite ?? "");
+    const genInvite = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Invites?.at(-1) ?? "");
     const [errInvite, setErrInvite] = React.useState("");
     const dispatch = useDispatch();
 
@@ -132,26 +132,25 @@ function Chat() { //might turn into class
 
     const { expires, userId, token } = useSelector(state => state.auth);
 
-    const { currentGuild } = useSelector(state => state.guilds);
-
     const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory); //maybe temp?
     const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded); //maybe temp?
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
+    const currentGuild = useSelector(state => state.guilds.currentGuild);
 
     function GetData() {
         dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite())).then(() => dispatch(GetBannedUsers()));
     }
 
     const schemaCreateChat = Yup.object().shape({
-        serverName : Yup.string()
+        serverName: Yup.string()
             .required("Server name is required")
             .min(6, "Has to be at least 6 characters")
             .max(16, "Cannot be longer than 16 characters"),
-        saveChat : Yup.bool()
+        saveChat: Yup.bool()
     });
 
     const schemaJoinChat = Yup.object().shape({
-        invite : Yup.string()
+        invite: Yup.string()
             .required("Invite is required")
             .test("len", "Must be exactly 10 characters", val => val.length === 10),
     })
@@ -175,7 +174,6 @@ function Chat() { //might turn into class
         if (e.keyCode === 13 && !e.shiftKey) {
             prepareSendMsg();
         }
-
     }
 
     React.useEffect(
@@ -194,30 +192,29 @@ function Chat() { //might turn into class
             //looks better with these
             setServer(false);
             setUserList(false);
-            if (!guildLoaded) {
+            if (!guildLoaded && currentGuild !== 0) {
                 console.log("loading data");
                 GetData();
             }
         }
         , [dispatch, currentGuild]);
 
-    
+
 
     React.useEffect( //maybe temp?
         () => {
             dummyMsgBottomRef.current?.scrollIntoView();
-        }, [messages] 
+        }, [messages]
     )
 
     const userInfo = useSelector(state => state.userInfo);
 
     async function joinGuild(form) {
         const res = await dispatch(JoinGuild({
-            invite : form.invite //being explicit for now
+            invite: form.invite //being explicit for now
         }))
-        if (res.error)
-        {
-            setErrorJ("invite", {type : "custom", message : res.error.message});
+        if (res.error) {
+            setErrorJ("invite", { type: "custom", message: res.error.message });
             return;
         }
         resetJ();
@@ -230,12 +227,20 @@ function Chat() { //might turn into class
             name: form.serverName,
         }));
         if (res.error) {
-            setErrorC("serverName", {type : "custom", message : res.error.message});
+            setErrorC("serverName", { type: "custom", message: res.error.message });
             return;
         }
         resetC();
         setCreate(0);
         setChat(false);
+    }
+
+    async function leaveGuild() {
+        const res = await dispatch(LeaveGuild());
+        if (res.error) {
+            console.log(res.error);
+            return;
+        }
     }
 
     function exitCreateChat() {
@@ -252,7 +257,7 @@ function Chat() { //might turn into class
             <div className={styles.menuUserContainer}>
                 <div className={styles.userModal}>
                     <div className={styles.userModalUsername}>
-                        <p> {userInfo.username ?? "NO NAME"} </p>
+                        <p> {userInfo.username || "NO NAME"} </p>
                         <div>
                             <input type="button" value="settings" onClick={() => setMenu(true)} />
                         </div>
@@ -270,6 +275,12 @@ function Chat() { //might turn into class
                 </div>
             </div>
             <div className={styles.chat}>
+                    { 
+                        currentGuild === 0 &&
+                        <div className={styles.chatNoSelected}>
+                            <p>No Chat Selected</p>
+                        </div>
+                    }
                 <div className={styles.chatTopMenu}>
                     <div className={styles.topMenuServerName}>
                         <p>{RenderChatName()}</p> {/* REPLACE WITH SOME COOL ASS FUNCTION */}
@@ -295,12 +306,12 @@ function Chat() { //might turn into class
                     <div className={server ? styles.serverMiniOptions : styles.serverMiniOptionsHidden}>
                         <input className="default" type="button" value="Create Invite" id="createInviteButton" onClick={() => { setInvite(true); setServer(false); }} />
                         {
-                            isOwner && 
+                            isOwner &&
                             <input className="default" type="button" value="Server Settings" id="serverSettingsButton" onClick={() => { setServerSettings(true); setServer(false) }} />
                         }
                         {
                             !isOwner &&
-                            <input className="default" type="button" value="Leave Server" id="leaveServerButton" />
+                            <input className="default" type="button" value="Leave Server" id="leaveServerButton" onClick={leaveGuild} />
                         }
                     </div>
                 </div>
@@ -326,7 +337,7 @@ function Chat() { //might turn into class
                                 <label >Public Server?</label><CheckBox disabled />
                             </div>
                             <div className={styles.createInfoOption} id="saveHistoryOption">
-                                <label>Save Chat History?</label><CheckBox register={registerC("saveChat")}/>
+                                <label>Save Chat History?</label><CheckBox register={registerC("saveChat")} />
                             </div>
                         </div>
                         <div className={styles.createAppearance}>
@@ -337,12 +348,12 @@ function Chat() { //might turn into class
                                 <InputBox id="serverNameInput" label="Server Name" type="text" maxLength={16} register={registerC("serverName")} errorMessage={errorsC?.serverName?.message} />
                             </div>
                             <div className={styles.createInfoOption}>
-                                <input className="default" type="button" value="Create" id="createChatButton" onClick={handleSubmitC(createGuild)}/>
+                                <input className="default" type="button" value="Create" id="createChatButton" onClick={handleSubmitC(createGuild)} />
                             </div>
                         </div>
                     </div>
                     <div className={create === 2 ? styles.chatJoinContainer : `${styles.hatJoinContainer} ${styles.hidden}`}>
-                        <InputBox id="inviteInput" label="Invite Code" type="text" register={registerJ("invite")} errorMessage={errorsJ?.invite?.message}/>
+                        <InputBox id="inviteInput" label="Invite Code" type="text" register={registerJ("invite")} errorMessage={errorsJ?.invite?.message} />
                         <input className="default" type="button" value="Join" onClick={handleSubmitJ(joinGuild)} />
                     </div>
                 </div>

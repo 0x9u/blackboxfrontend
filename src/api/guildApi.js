@@ -1,5 +1,5 @@
 import { createAsyncThunk, current } from "@reduxjs/toolkit";
-import { putApi, getApi, postApi } from "./client";
+import { putApi, getApi, postApi, deleteApi } from "./client";
 
 const GetGuilds = createAsyncThunk("guilds/get", async (args, api) => {
     const response = await getApi("guild", {}, {
@@ -60,15 +60,24 @@ const JoinGuild = createAsyncThunk("guilds/join/get", async (args, api) => {
     });
 });
 
+const LeaveGuild = createAsyncThunk("guilds/leave/post", async (args, api) => {
+    await postApi("guild/leave", {
+        guild: api.getState().guilds.currentGuild
+    }, {
+        headers: {
+            "Auth-Token": api.getState().auth.token
+        }
+    })
+});
+
 const GenInvite = createAsyncThunk("guilds/invite/post", async (args, api) => {
-    const response = await postApi("invite", {
+    await postApi("invite", {
         guild: api.getState().guilds.currentGuild
     }, {
         headers: {
             "Auth-Token": api.getState().auth.token
         }
     });
-    return response;
 });
 
 const GetInvite = createAsyncThunk("guilds/invite/get", async (args, api) => {
@@ -80,6 +89,17 @@ const GetInvite = createAsyncThunk("guilds/invite/get", async (args, api) => {
         }
     });
     return response;
+});
+
+const DeleteInvite = createAsyncThunk("guilds/invite/delete", async (args, api) => {
+    await deleteApi("invite", {
+        guild: api.getState().guilds.currentGuild,
+        invite: args.invite
+    }, {
+        headers: {
+            "Auth-Token": api.getState().auth.token
+        }
+    })
 });
 
 const BanUser = createAsyncThunk("guilds/users/ban", async (args, api) => {
@@ -110,7 +130,8 @@ const GetBannedUsers = createAsyncThunk("guilds/users/ban/get", async (args, api
     const currentGuild = api.getState().guilds.currentGuild
     //if user is not owner skip
     if (api.getState().guilds.guildInfo[currentGuild].Owner !== api.getState().auth.userId) {
-        return;
+        console.log("skipping")
+        return [];
     }
     const response = await getApi("guild/ban", {
         guild: currentGuild
@@ -136,4 +157,4 @@ const UnbanUser = createAsyncThunk("guilds/users/ban/put", async (args, api) => 
 });
 
 
-export { GetGuilds, GetGuildUsers, CreateGuild, ChangeGuild, JoinGuild, GenInvite, GetInvite, BanUser, KickUser, GetBannedUsers, UnbanUser };
+export { GetGuilds, GetGuildUsers, CreateGuild, ChangeGuild, JoinGuild,LeaveGuild, GenInvite, GetInvite, DeleteInvite, BanUser, KickUser, GetBannedUsers, UnbanUser };

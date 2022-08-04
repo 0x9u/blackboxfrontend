@@ -306,10 +306,6 @@
     margin: 15px 20px 0px;
 }
 
-.msg > p, .msg > img {
-    display: inline-block;
-}
-
 .msg > img {
     border-radius: 5px;
     user-select: none;
@@ -331,13 +327,14 @@
 }
 
 .msg > p {
-    margin-left: 15px;
-    position: absolute;
+    position: relative;
+    margin-top: -20px;
+    margin-left: 55px;
+    margin-bottom: 5px;
     font-weight:500;
     color:white;
-    top: 15%;
-    transform: translateY(-15%);
     word-wrap: break-word;
+    line-height: 25px;
 }
 
 .msg > p.hideUserTime {
@@ -349,7 +346,7 @@
     vertical-align: top;
     top: 0%;
     margin-left: 15px;
-    position: absolute;
+    position: relative;
     color: #9FB1BC;
     font-weight: bolder;
 }

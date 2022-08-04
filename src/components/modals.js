@@ -5,7 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import styles from './modals.module.css';
 import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
-import { BanUser, KickUser, UnbanUser, DeleteInvite } from '../api/guildApi';
+import { BanUser, KickUser, UnbanUser, DeleteInvite, DeleteGuild } from '../api/guildApi';
 
 
 //find better way to fix button shit
@@ -466,6 +466,9 @@ function UserMenu(props) {
 function ServerMenu(props) {
     const [active, setActive] = React.useState(0);
     const [showDelete, setShowDelete] = React.useState(false);
+
+    const dispatch = useDispatch();
+
     function renderServerSettings() {
         switch (active) {
             case 0:
@@ -481,6 +484,10 @@ function ServerMenu(props) {
         }
     }
     function deleteServer() {
+        const res = dispatch(DeleteGuild());
+        if (res.error) {
+            console.log(res.error);
+        }
         setShowDelete(false);
     }
     function modals() {

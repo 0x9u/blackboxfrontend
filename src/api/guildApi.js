@@ -34,9 +34,19 @@ const CreateGuild = createAsyncThunk("guilds/post", async (args, api) => {
     }); /* return is unnessary this will be handled in the websockets*/
 });
 
+const DeleteGuild = createAsyncThunk("guilds/delete", async (args, api) => {
+    await deleteApi("guild", {
+        guild: api.getState().guilds.currentGuild
+    }, {
+        headers : {
+            "Auth-Token": api.getState().auth.token
+        }
+    })
+})
+
 const ChangeGuild = createAsyncThunk("guilds/update", async (args, api) => {
     await putApi("guild", {
-        guild: args.guildId,
+        guild: api.getState().guilds.currentGuild,
         name: args.name,
         icon: 0, //placeholder
         keepHistory: false, //placeholder
@@ -157,4 +167,4 @@ const UnbanUser = createAsyncThunk("guilds/users/ban/put", async (args, api) => 
 });
 
 
-export { GetGuilds, GetGuildUsers, CreateGuild, ChangeGuild, JoinGuild,LeaveGuild, GenInvite, GetInvite, DeleteInvite, BanUser, KickUser, GetBannedUsers, UnbanUser };
+export { GetGuilds, GetGuildUsers, CreateGuild, DeleteGuild, ChangeGuild, JoinGuild,LeaveGuild, GenInvite, GetInvite, DeleteInvite, BanUser, KickUser, GetBannedUsers, UnbanUser };

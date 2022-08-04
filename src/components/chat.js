@@ -192,6 +192,7 @@ function Chat() { //might turn into class
             //looks better with these
             setServer(false);
             setUserList(false);
+            setServerSettings(false);
             console.log(currentGuild);
             if (!guildLoaded && currentGuild !== 0) {
                 console.log("loading data");

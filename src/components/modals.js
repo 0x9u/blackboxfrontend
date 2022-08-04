@@ -465,6 +465,7 @@ function UserMenu(props) {
 
 function ServerMenu(props) {
     const [active, setActive] = React.useState(0);
+    const [showDelete, setShowDelete] = React.useState(false);
     function renderServerSettings() {
         switch (active) {
             case 0:
@@ -479,14 +480,24 @@ function ServerMenu(props) {
                 return <p>Something is Wrong!</p>;
         }
     }
+    function deleteServer() {
+        setShowDelete(false);
+    }
+    function modals() {
+        return (
+            <Modal show={showDelete} buttons={[{ value: "Exit", function: () => setShowDelete(false) }, { value: "Done", function: deleteServer }]} >
+                <p style={{fontSize: "22px" }}>Are you sure?</p>
+            </Modal>
+        )
+    }
     return (
-        <Menu show={props.show} exit={() => { setActive(0); props.exit() }} render={renderServerSettings()}>
+        <Menu show={props.show} exit={() => { setActive(0); props.exit() }} render={renderServerSettings()} modals={modals()}>
             <div className={styles.optionHeading}><p>Server Settings</p></div>
             <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Server Settings" onClick={() => { setActive(0) }} /></div>
             <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
             <div className={active === 2 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Banned Users" onClick={() => { setActive(2) }} /></div>
             <div className={active === 3 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Manage Invites" onClick={() => { setActive(3) }} /></div>
-            <div className={styles.optionButton}><input type="button" value="Delete Server" id="leaveButton" /></div>
+            <div className={styles.optionButton}><input type="button" value="Delete Server" id="leaveButton" onClick={() => setShowDelete(true)} /></div>
         </Menu>
     )
 }

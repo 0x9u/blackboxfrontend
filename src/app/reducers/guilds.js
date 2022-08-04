@@ -41,7 +41,7 @@ const guildSlice = createSlice({
     initialState: {
         guildInfo: {},
         guildOrder: [], //order list of guilds
-        currentGuild: 1, //keep track of current guild in view
+        currentGuild: 0, //keep track of current guild in view
     }
     , reducers: {
         guildAdd: (state, action) => { //accepts guild : int
@@ -57,7 +57,7 @@ const guildSlice = createSlice({
             state.guildOrder.push(action.payload.Id);
         },
         guildRemove: (state, action) => { //accepts guild : int
-            console.log("removing guild user left")
+            console.log("removing guild user left");
             state.guildInfo[action.payload.Guild] = undefined;
             state.guildOrder = state.guildOrder.filter(guild => guild !== action.payload.Guild)
             state.currentGuild = state.currentGuild !== action.payload.Guild ? state.currentGuild : 0;
@@ -88,9 +88,11 @@ const guildSlice = createSlice({
             state.guildInfo[action.payload.Guild].Users = state.guildInfo[action.payload.Guild].Users.filter(user => user.Id !== action.payload.Id)
         },
         guildUpdateBannedList: (state,action) => {
+            console.log("got pinged add",action.payload)
             state.guildInfo[action.payload.Guild].Banned.push(action.payload.User);
         },
         guildRemoveBannedList: (state,action) => {
+            console.log("got pinged remove",action.payload)
             state.guildInfo[action.payload.Guild].Banned = state.guildInfo[action.payload.Guild].Banned.filter(user => user.Id !== action.payload.Id);
         },
         msgAdd: (state, action) => { //accepts guild : int, msg : object
@@ -117,8 +119,8 @@ const guildSlice = createSlice({
         },*/
     },
     extraReducers: (builder) => {
-        builder
-            .addCase(GetGuilds.fulfilled, (state, action) => {
+        builder.addCase(GetGuilds.fulfilled, (state, action) => {
+            console.log(action.payload)
                 action.payload.map(guild => {
                     state.guildInfo[guild.Id] = {
                         Name: guild.Name,
@@ -132,6 +134,7 @@ const guildSlice = createSlice({
                     };
                     state.guildOrder.push(guild.Id);
                 });
+		state.currentGuild = state.guildOrder[0] ? state.guildOrder[0] : 0;
             })
             .addCase(GetMsgs.fulfilled, (state, action) => {// using unshift since we are also grabbing info from guilds not loaded in
                console.log(action.payload);
@@ -140,11 +143,14 @@ const guildSlice = createSlice({
                 );
             })
             .addCase(GetGuildUsers.fulfilled, (state, action) => {
+                /*
                 action.payload.map(user => {
                     state.guildInfo?.[state.currentGuild]?.Users.unshift(user);
                     state.guildInfo[state.currentGuild].Loaded = true;
                 });
-
+                */
+                state.guildInfo[state.currentGuild].Users = action.payload; //fixed double user list
+                state.guildInfo[state.currentGuild].Loaded = true;
             })
             .addCase(GetBannedUsers.fulfilled, (state, action) => {
                 console.log(action.payload)

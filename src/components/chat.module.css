@@ -42,15 +42,14 @@
     background: #8896AB;
 }
 .userInput {
-    position:relative;
     width: calc(100% - 15px);
     height: calc( 75% - 15px);
-    left: 15px;
-    top: 15px;
-    display:inline-block;
+    padding-top: 15px;/* Note to self: this used to be position:relative but was changed to this in order to render behind the no chat selected element*/
+    padding-left: 15px;
+    /*display:inline-block;*/
 }
 
-.userInput textarea {
+.userInput > textarea {
     width: calc(100% - 115px);
     border: none;
     outline: none;
@@ -66,7 +65,7 @@
     font-size: 16px;
 }
 
-.userInput input[type="button"] {
+.userInput > input[type="button"] {
     border: none;
     outline: none;
     background: #598392;
@@ -80,11 +79,11 @@
     margin-bottom: 7.5px;
 }
 
-.userInput input[type="button"]:hover, .menuOption:hover, .guildContainer:hover > .guildOption {
+.userInput input[type="button"]:hover, .menuOption:hover, .guildContainer:not(.active):hover > .guildOption {
     background: #124559;
 }
 
-.userInput input[type="button"]:active, .menuOption:active, .guildContainer:active > .guildOption {
+.userInput input[type="button"]:active, .menuOption:active, .guildContainer:not(.active):active > .guildOption {
     background: white;
     color: black;
     transition: 0s;
@@ -533,7 +532,8 @@ div[id='Input'] {
 }
 
 
-div[id='serverNameInput'] > input:focus ~ label, div[id='serverNameInput'] > input:not(:placeholder-shown) ~ label, div[id='inviteInput']  > input:focus ~ label, div[id='inviteInput'] > input:not(:placeholder-shown) ~ label {
+div[id='serverNameInput'] > input:focus ~ label, div[id='serverNameInput'] > input:not(:placeholder-shown) ~ label, div[id='inviteInput']  > input:focus ~ label, div[id='inviteInput'] > input:not(:placeholder-shown) ~ label,
+div[id='serverNameInput'] > input ~ label ~ label, div[id='serverNameInput'] > input ~ label ~ label, div[id='inviteInput']  > input ~ label ~ label, div[id='inviteInput'] > input ~ label ~ label {
     color: white !important;
     text-shadow: 2px 2px 5px black;
 } /* brah long ass code*/
@@ -711,18 +711,21 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
     margin: 15px 0px;
 }
 
-.chatNoSelected {
+.chatNoSelected:not(.chat) {
     position:absolute;
     width: calc(100% - 250px);
     height: 100%;
     background: rgba(0,0,0,0.5);
-    pointer-events: none !important;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.chatNoSelected > p {
+.chatNoSelected:not(.chat) > p {
     color: white;
     font-size: 2em;
+}
+
+.chatNoSelected.chat {
+    pointer-events: none;
 }

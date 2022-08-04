@@ -28,7 +28,7 @@ function RenderChatMsgs() {
     return msgsList.map((msg, index) => {
         const time = new Date(msg.Time)
         const beforeTime = new Date(msgsList?.[index - 1]?.Time)
-        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours()
+        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && msg.Author.Username === msgsList?.[index - 1]?.Author.Username
         return <Msg key={index} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
     });
 }
@@ -192,6 +192,7 @@ function Chat() { //might turn into class
             //looks better with these
             setServer(false);
             setUserList(false);
+            console.log(currentGuild);
             if (!guildLoaded && currentGuild !== 0) {
                 console.log("loading data");
                 GetData();
@@ -274,7 +275,7 @@ function Chat() { //might turn into class
                     }
                 </div>
             </div>
-            <div className={styles.chat}>
+            <div className={`${styles.chat} ${currentGuild === 0 ? styles.chatNoSelected : ""}`}>
                     { 
                         currentGuild === 0 &&
                         <div className={styles.chatNoSelected}>

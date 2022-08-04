@@ -16,3 +16,8 @@
 - fix modals - after prototype is done
     - made first animation faster
     - replace shitty transitions with one time animations moving up and down or some shit
+
+**AFTER FINISH**
+- seperate code into own files - est 5 days
+- convert code to type script - est 5 days
+- migrate rxjs and asyncthunk to createapi - est 3 days

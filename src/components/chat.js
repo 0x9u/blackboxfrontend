@@ -8,7 +8,7 @@ import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { startSocket } from '../api/websocket';
 import { GetMsgs, SendMsgs } from '../api/msgApi';
-import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetBannedUsers } from '../api/guildApi';
+import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
 import { GetUserInfo } from '../api/userInfoApi';
 import { guildCurrentSet } from '../app/reducers/guilds';
@@ -72,7 +72,7 @@ function RenderGuilds() {
     const guildInfo = useSelector(state => state.guilds.guildInfo);
     const guildOrder = useSelector(state => state.guilds.guildOrder);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
-    return guildOrder.map((guild, index) => <Guild key={guild} guildId={guild} img="/profileImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} active={guild === currentGuild} />);
+    return guildOrder.map((guild, index) => <Guild key={guild} guildId={guild} img="/guildImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} active={guild === currentGuild} />);
 }
 
 function RenderChatName() {
@@ -138,7 +138,7 @@ function Chat() { //might turn into class
     const currentGuild = useSelector(state => state.guilds.currentGuild);
 
     function GetData() {
-        dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite())).then(() => dispatch(GetBannedUsers()));
+        dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite())).then(() => dispatch(GetBannedUsers())).then(() => dispatch(GetGuildSettings()));
     }
 
     const schemaCreateChat = Yup.object().shape({
@@ -227,6 +227,7 @@ function Chat() { //might turn into class
     async function createGuild(form) {
         const res = await dispatch(CreateGuild({
             name: form.serverName,
+            saveChat : form.saveChat
         }));
         if (res.error) {
             setErrorC("serverName", { type: "custom", message: res.error.message });

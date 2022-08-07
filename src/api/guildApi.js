@@ -26,7 +26,7 @@ const CreateGuild = createAsyncThunk("guilds/post", async (args, api) => {
     //const {icon, name} = args; //uncomment when implement profile picture uploading
     await postApi("guild", {
         name: args.name,
-        //icon : icon,
+        save: args.saveChat
     }, {
         headers: {
             "Auth-Token": api.getState().auth.token
@@ -38,7 +38,7 @@ const DeleteGuild = createAsyncThunk("guilds/delete", async (args, api) => {
     await deleteApi("guild", {
         guild: api.getState().guilds.currentGuild
     }, {
-        headers : {
+        headers: {
             "Auth-Token": api.getState().auth.token
         }
     })
@@ -79,6 +79,22 @@ const LeaveGuild = createAsyncThunk("guilds/leave/post", async (args, api) => {
         }
     })
 });
+
+const GetGuildSettings = createAsyncThunk("guilds/settings/get", async (args, api) => {
+    const currentGuild = api.getState().guilds.currentGuild
+    if (api.getState().guilds.guildInfo[currentGuild].Owner !== api.getState().auth.userId) {
+        console.log("skipping")
+        return {};
+    }
+    const response = await getApi("guild/setting", {
+        guild: currentGuild
+    }, {
+        headers: {
+            "Auth-Token": api.getState().auth.token
+        }
+    });
+    return response;
+})
 
 const GenInvite = createAsyncThunk("guilds/invite/post", async (args, api) => {
     await postApi("invite", {
@@ -167,4 +183,4 @@ const UnbanUser = createAsyncThunk("guilds/users/ban/put", async (args, api) => 
 });
 
 
-export { GetGuilds, GetGuildUsers, CreateGuild, DeleteGuild, ChangeGuild, JoinGuild,LeaveGuild, GenInvite, GetInvite, DeleteInvite, BanUser, KickUser, GetBannedUsers, UnbanUser };
+export { GetGuilds, GetGuildUsers, CreateGuild, DeleteGuild, ChangeGuild, JoinGuild, LeaveGuild, GetGuildSettings, GenInvite, GetInvite, DeleteInvite, BanUser, KickUser, GetBannedUsers, UnbanUser };

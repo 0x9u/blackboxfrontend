@@ -235,6 +235,7 @@
     height: 100%;
     overflow: auto;
     flex-shrink: 0;
+    margin-right: 25px;
 }
 
 .exitButton {
@@ -476,17 +477,6 @@ input[type='button'][id='leaveButton']:hover {
     transform: translateX(25px);
     background: #548C2F;
 }
-
-@keyframes coolthing {
-    from {
-        opacity: 0.0;
-    }
-
-    to {
-        opacity: 1.0;
-    }
-}
-
 
 .comingSoon {
     text-align: center;
@@ -739,4 +729,47 @@ div[id='passwordChange']>input[type='button']:active {
 
 .bankickUserButton:active { /* doesnt work */
     background: white !important;
+}
+
+.fixedMiniSettingsConfirm {
+    position:sticky;
+    display: flex;
+    background: red;
+    margin: 15px;
+    bottom: 15px;
+    width: calc( 100% - 30px);
+    min-height: 50px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 10px;
+    box-shadow: black 2px 4px 10px;
+    transform-origin: 0% 0%;
+}
+
+.fixedMiniSettingsConfirm > label {
+    color: white;
+    font-weight: 600;
+    line-height: 27px;
+}
+
+.miniSettingsButtons {
+    margin-left: auto;
+}
+
+.miniSettingsCancel, .miniSettingsSave {
+    width: 75px;
+    height: 30px;
+    float: right;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.miniSettingsSave {
+    margin-right: 10px;
+    background: darkgreen;
+}
+
+.miniSettingsCancel {
+    background: darkred;
 }

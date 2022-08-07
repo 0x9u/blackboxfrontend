@@ -10,18 +10,17 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 10px;
   height: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #488286;
-  border-radius: 5px;
-  transition: 1s;
 }
 
 ::-webkit-scrollbar-track {
   background: #373E40;
+  margin: 15px 0px;
 }
 
 input[type='button'].default {

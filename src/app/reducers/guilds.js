@@ -1,5 +1,5 @@
 import { createSlice, current, isAsyncThunkAction } from "@reduxjs/toolkit";
-import { GetBannedUsers, GetGuilds, GetGuildUsers, GetInvite } from "../../api/guildApi";
+import { GetBannedUsers, GetGuilds, GetGuildSettings, GetGuildUsers, GetInvite } from "../../api/guildApi";
 import { GetMsgs } from "../../api/msgApi";
 
 /*
@@ -23,6 +23,11 @@ format for guilds (guildInfo)
             Icon : int.
         }
     ],
+    Settings : {
+        SaveChat : bool,
+        Name : string,
+        Icon : int,
+    },
     MsgHistory : [
         {
             UserId : int,
@@ -129,6 +134,7 @@ const guildSlice = createSlice({
                         Invites: [],
                         Loaded: false,
                         Users: [],
+                        Settings : {}, 
                         Banned : [],
                         MsgHistory: []
                     };
@@ -160,6 +166,9 @@ const guildSlice = createSlice({
             })
             .addCase(GetInvite.fulfilled, (state, action) => {
                 state.guildInfo[state.currentGuild].Invites = action.payload;
+            })
+            .addCase(GetGuildSettings.fulfilled, (state,action) => {
+                state.guildInfo[state.currentGuild].Settings = action.payload;
             })
             /*
             .addMatcher((action) => action.type.match(/guilds\/invite\/[a-z]*\/fulfilled/), (state, action) => {

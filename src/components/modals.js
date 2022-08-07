@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -23,7 +23,7 @@ function Modal(props) { //manual transition fix for now
 }
 
 
-function InputBox(props) {
+function InputBox(props) { //MAKE A NEW INPUT BOX FOR LATER
     return (
         <div className={`${styles.userBox} ${props.className}`} id={props.id}>
             <input type={props.type} value={props.value} {...props.register} placeholder=' ' spellCheck="false" />
@@ -105,6 +105,31 @@ function Appearance() {
 }
 
 function ServerSettings() {
+    const dispatch = useDispatch();
+    const Name = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Name);
+    const Settings = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Settings);
+
+    const schemaServerSettings = Yup.object().shape({
+        serverName: Yup.string()
+            .required("Server name cannot be empty")
+            .min(6, "Has to be at least 6 characters")
+            .max(16, "Cannot be longer than 16 characters"),
+        saveChat: Yup.bool()
+    })
+
+    const { handleSubmit, register, setError, reset, formState: { errors, isDirty } } = useForm({
+        //defaultValues : schemaServerSettings.cast(),
+        resolver: yupResolver(schemaServerSettings)
+    });
+
+    React.useEffect(() => { //temp fix unless there is no other way
+        let defaultValues = {};
+        defaultValues.serverName = Name;
+        defaultValues.saveChat = Settings?.SaveChat;
+        reset({ ...defaultValues });
+    }, [Name, Settings]);
+
+
     return (
         <div className={styles.settingsContainer}>
             <div className={styles.optionBox}>
@@ -113,15 +138,62 @@ function ServerSettings() {
                 </p>
                 <div className={styles.optionBoxFlexRow}>
                     <div className={styles.changeServerName}>
-                        <InputBox className={styles.changeServerNameInput} label="Server Name" />
+                        <InputBox className={styles.changeServerNameInput} label="Server Name" errorMessage={errors?.serverName?.message} register={register("serverName")} />
                     </div>
                     <div className={styles.changeServerIcon}>
-                        <PictureSelector src="/profileImg.png" width="100" height="100" />
+                        <PictureSelector src="/guildImg.png" width="100" height="100" />
                     </div>
                 </div>
             </div>
             <div className={styles.optionBox}>
-                <div className={styles.optionBoxRow} id="passwordChange"><label>Save Chat History?</label> <CheckBox /></div>
+                <div className={styles.optionBoxRow} id="passwordChange"><label>Save Chat History?</label> <CheckBox register={register("saveChat")} /></div>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Server Settings
+                </p>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Server Settings
+                </p>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Server Settings
+                </p>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Server Settings
+                </p>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Server Settings
+                </p>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Server Settings
+                </p>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Server Settings
+                </p>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Server Settings
+                </p>
+            </div>
+            <div className={`${styles.fixedMiniSettingsConfirm}`}>
+                <label>Save Changes?</label>
+                <div className={styles.miniSettingsButtons}>
+                <input type="button" value="Cancel" className={styles.miniSettingsCancel} />
+                <input type="button" value="Save" className={styles.miniSettingsSave} />
+                </div>
             </div>
         </div>
     );
@@ -242,7 +314,7 @@ function ManageInvitesSettings() {
 
     async function deleteInvite() {
         const res = await dispatch(DeleteInvite({
-            invite : inviteList[chosen]
+            invite: inviteList[chosen]
         }));
         if (res.error) {
             setError(res.error.message);
@@ -259,7 +331,7 @@ function ManageInvitesSettings() {
                     Manage Invites
                 </p>
                 <OptionSelector>
-                {inviteList.map((invite, idx) =>
+                    {inviteList.map((invite, idx) =>
                         <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
                             {invite}
                         </OptionSelectorChild>)}
@@ -493,7 +565,7 @@ function ServerMenu(props) {
     function modals() {
         return (
             <Modal show={showDelete} buttons={[{ value: "Exit", function: () => setShowDelete(false) }, { value: "Done", function: deleteServer }]} >
-                <p style={{fontSize: "22px" }}>Are you sure?</p>
+                <p style={{ fontSize: "22px" }}>Are you sure?</p>
             </Modal>
         )
     }

@@ -222,7 +222,7 @@
     background: #4F5D75;
     width: 650px;
     /* unsure why it overwraps the options menu check later temp fix */
-    padding-right: calc(75% - 650px);
+    padding-right: calc(75% - 650px - 25px);
     height: 100%;
     display: flex;
     flex-direction: row;

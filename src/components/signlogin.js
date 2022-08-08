@@ -10,11 +10,6 @@ import { Modal, InputBox } from './modals.js';
 import { postAuth, getAuth } from '../api/authApi.js';
 import { authSet, authClear } from '../app/reducers/auth.js';
 
-//import { postSignup, getLogin } from '../api/client.js'; //api call to signin and login
-//import Cookies from 'universal-cookie';
-
-//const cookies = new Cookies();
-
 /*
 Current bugs:
 errors change when user types but only after they press the submit button

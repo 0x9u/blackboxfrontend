@@ -188,7 +188,7 @@ function ServerSettings() {
                     Server Settings
                 </p>
             </div>
-            <div className={`${styles.fixedMiniSettingsConfirm}`}>
+            <div className={`${styles.fixedMiniSettingsConfirm} ${!isDirty ? styles.hidden : ""}`}>
                 <label>Save Changes?</label>
                 <div className={styles.miniSettingsButtons}>
                 <input type="button" value="Cancel" className={styles.miniSettingsCancel} />

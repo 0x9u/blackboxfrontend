@@ -167,7 +167,6 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-
 }
 
 .optionHeading {
@@ -732,24 +731,31 @@ div[id='passwordChange']>input[type='button']:active {
 }
 
 .fixedMiniSettingsConfirm {
-    position:sticky;
+    position: fixed;
+    /* FIX LATER WHEN SCREEN RESOLUTION CHANGES*/
     display: flex;
     background: red;
-    margin: 15px;
+    margin: 0px 15px;
     bottom: 15px;
-    width: calc( 100% - 30px);
+    /* this is going to be hell to migrate to scss*/
+    /* replace 590px with options variable later on*/
+    width: calc(590px - 30px);
     min-height: 50px;
     border-radius: 5px;
     box-sizing: border-box;
     padding: 10px;
     box-shadow: black 2px 4px 10px;
-    transform-origin: 0% 0%;
+    transition: 0.5s bottom;
 }
 
 .fixedMiniSettingsConfirm > label {
     color: white;
     font-weight: 600;
     line-height: 27px;
+}
+
+.fixedMiniSettingsConfirm.hidden {
+   bottom: -50px;
 }
 
 .miniSettingsButtons {

@@ -1,7 +1,10 @@
 import { webSocket } from 'rxjs/webSocket';
 import { map, mergeMap } from 'rxjs';
 import { ofType } from 'redux-observable';
-import { msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildUpdateUserList, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove } from '../app/reducers/guilds';
+import { msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildSettingsChange,
+     guildUpdateUserList, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList,
+      inviteAdd, inviteRemove } from '../app/reducers/guilds';
+import { userChange } from '../app/reducers/userInfo';
 
 const WEBSOCKET_URL = 'ws://localhost:8090/api/ws';
 
@@ -18,7 +21,9 @@ const
     UPDATEBANNEDLIST = 9,
     REMOVEBANNEDLIST = 10,
     INVITEADDED = 11,
-    INVITEREMOVED = 12;
+    INVITEREMOVED = 12,
+    CHANGECLIENTDATA = 13,
+    CHANGESETTINGGUILD = 14;
 
 const WS_START = "WS_START";
 const WS_PING = "WS_PING";
@@ -66,10 +71,8 @@ const wsEpic = action$ => action$.pipe( //not working needs to be fixed
                 + new URLSearchParams({
                     token: action.payload.token
                 }))
-            wsSubject$.subscribe({
+            wsSubject$.subscribe({/*
                 next: action => {
-                    console.log("Got pinged a packet");
-                    /*
                     console.log(action);
                     wsSubject$.next({
                         dataType: 0,
@@ -77,8 +80,7 @@ const wsEpic = action$ => action$.pipe( //not working needs to be fixed
                             Data: "ping"
                         }
                     });
-                    */
-                },
+                },*/
                 error: err => {
                     console.log(err);
                     console.log(err.error);
@@ -91,10 +93,8 @@ const wsEpic = action$ => action$.pipe( //not working needs to be fixed
                 map(
                     (payload) => {
                         const { dataType, data } = payload;
-                        console.log(payload);
                         switch (dataType) {
                             case PING: //pings back to server to let it know its alive
-                                console.log("pinging");
                                 wsSubject$.next({
                                     dataType: 0,
                                     data: {
@@ -130,6 +130,10 @@ const wsEpic = action$ => action$.pipe( //not working needs to be fixed
                                 return inviteAdd(data);
                             case INVITEREMOVED:
                                 return inviteRemove(data);
+                            case CHANGECLIENTDATA:
+                                return userChange(data);
+                            case CHANGESETTINGGUILD:
+                                return guildSettingsChange(data);
                             //return guildAction(data); //TODO REPLACE WITH SWITCH CASE
                             default:
                                 console.log("Unidenified data type: " + dataType);

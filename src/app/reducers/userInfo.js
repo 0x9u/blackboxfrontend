@@ -14,12 +14,26 @@ const userInfoSlice = createSlice({
             state.email = action.payload.Email;
             state.username = action.payload.Username;
             state.icon = action.payload.Icon;
-        }
-        , userClear: (state, action) => {
+        },
+        userClear: (state, action) => {
             state.email = "";
             state.username = "";
             state.icon = 0;
+        },
+        userChange: (state, action) => {
+            switch (action.payload.Change) {
+                case 1:
+                    state.email = action.payload.NewData;
+                    break;
+                case 2:
+                    state.username = action.payload.NewData;
+                    break;
+                default:
+                    console.log("unidentified change");
+                    break;
+            }
         }
+
     }
     , extraReducers: (builder) => {
         builder.addCase(GetUserInfo.fulfilled, (state, action) => {
@@ -30,5 +44,5 @@ const userInfoSlice = createSlice({
     }
 });
 
-export const { userSet, userClear } = userInfoSlice.actions;
+export const { userSet, userClear, userChange } = userInfoSlice.actions;
 export default userInfoSlice.reducer;

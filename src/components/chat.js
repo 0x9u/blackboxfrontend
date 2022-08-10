@@ -193,9 +193,7 @@ function Chat() { //might turn into class
             setServer(false);
             setUserList(false);
             setServerSettings(false);
-            console.log(currentGuild);
             if (!guildLoaded && currentGuild !== 0) {
-                console.log("loading data");
                 GetData();
             }
         }
@@ -241,7 +239,7 @@ function Chat() { //might turn into class
     async function leaveGuild() {
         const res = await dispatch(LeaveGuild());
         if (res.error) {
-            console.log(res.error);
+            console.log("Error occurred when leaving guild", res.error);
             return;
         }
     }

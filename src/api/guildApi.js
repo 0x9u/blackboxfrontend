@@ -49,8 +49,8 @@ const ChangeGuild = createAsyncThunk("guilds/update", async (args, api) => {
         guild: api.getState().guilds.currentGuild,
         name: args.name,
         icon: 0, //placeholder
-        keepHistory: false, //placeholder
-        public: false, //placeholder
+        saveChat: args.saveChat
+        //public: false, //placeholder
     }, {
         headers: {
             "Auth-Token": api.getState().auth.token

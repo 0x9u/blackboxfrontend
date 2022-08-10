@@ -35,10 +35,9 @@ input[type='button'].default {
   font-weight: bold;
 }
 input[type='button'].default:hover {
-  background: #4AB7FF;
-  color: black;
+  filter: brightness(85%);
 }
 input[type='button'].default:active {
-  background: white;
-  transition: 0.01s background;
+  filter: brightness(50%);
+  transition: 0.1s filter;
 }

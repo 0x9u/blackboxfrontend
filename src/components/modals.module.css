@@ -155,8 +155,11 @@
 }
 
 .buttons>input[type="button"]:hover {
-    background: #4AB7FF;
-    color: black;
+    filter: brightness(85%);
+}
+
+.buttons>input[type="button"]:active {
+    filter: brightness(50%);
 }
 
 .optionsMenu {
@@ -762,7 +765,7 @@ div[id='passwordChange']>input[type='button']:active {
     margin-left: auto;
 }
 
-.miniSettingsCancel, .miniSettingsSave {
+.miniSettingsReset, .miniSettingsSave {
     width: 75px;
     height: 30px;
     float: right;
@@ -771,11 +774,19 @@ div[id='passwordChange']>input[type='button']:active {
     border-radius: 5px;
 }
 
+.miniSettingsSave:hover, .miniSettingsReset:hover {
+    filter:brightness(85%);
+}
+
+.miniSettingsSave:active, .miniSettingsReset:active {
+    filter:brightness(50%);
+}
+
 .miniSettingsSave {
     margin-right: 10px;
     background: darkgreen;
 }
 
-.miniSettingsCancel {
+.miniSettingsReset {
     background: darkred;
 }

@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import styles from './modals.module.css';
 import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
-import { BanUser, KickUser, UnbanUser, DeleteInvite, DeleteGuild } from '../api/guildApi';
+import { BanUser, KickUser, UnbanUser, DeleteInvite, DeleteGuild, ChangeGuild } from '../api/guildApi';
 
 
 //find better way to fix button shit
@@ -62,7 +62,7 @@ function PictureSelector(props) {
     return (
         <div className={`${styles.pictureSelectorContainer} ${props.className}`}>
             <input className={styles.pictureSelector} type="file" onChange={() => { props.onChange(); props.changeImage(); }} />
-            <img src={props.src} width={props.width} height={props.height} onChange={props.onChange} />
+            <img src={props.src} width={props.width} height={props.height} onChange={props.onChange} alt="Select your pfp" />
         </div>
     );
 }
@@ -84,7 +84,7 @@ function ProfileSettings(props) {
                         <label>Email:</label><div><p>{email}</p><input className="default" type="button" value="Change" onClick={() => props.emailFunc(true)} /></div>
                     </div>
                 </div>
-                <img src="/profileImg.png" />
+                <img src="/profileImg.png" alt="Your pfp"/>
             </div>
             <div className={styles.optionBox}>
                 <p className={styles.optionTitle}>Password</p>
@@ -107,7 +107,7 @@ function Appearance() {
 function ServerSettings() {
     const dispatch = useDispatch();
     const Name = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Name);
-    const Settings = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Settings);
+    const {SaveChat } = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Settings ?? {});
 
     const schemaServerSettings = Yup.object().shape({
         serverName: Yup.string()
@@ -122,12 +122,26 @@ function ServerSettings() {
         resolver: yupResolver(schemaServerSettings)
     });
 
-    React.useEffect(() => { //temp fix unless there is no other way
+    function resetForm() {
         let defaultValues = {};
         defaultValues.serverName = Name;
-        defaultValues.saveChat = Settings?.SaveChat;
+        defaultValues.saveChat = SaveChat;
         reset({ ...defaultValues });
-    }, [Name, Settings]);
+    }
+
+    async function updateGuildSettings(form) {
+        const res = await dispatch(ChangeGuild({
+            name : form.serverName,
+            saveChat : form.saveChat
+        }));
+        if (res.error) {
+            setError("serverName", { type: "custom", message: res.error.message });
+        }
+    }
+
+    React.useEffect(() => { //temp fix unless there is no other way
+       resetForm();
+    }, [Name, SaveChat]); //transition effect bug fix later
 
 
     return (
@@ -148,51 +162,11 @@ function ServerSettings() {
             <div className={styles.optionBox}>
                 <div className={styles.optionBoxRow} id="passwordChange"><label>Save Chat History?</label> <CheckBox register={register("saveChat")} /></div>
             </div>
-            <div className={styles.optionBox}>
-                <p className={styles.optionTitle}>
-                    Server Settings
-                </p>
-            </div>
-            <div className={styles.optionBox}>
-                <p className={styles.optionTitle}>
-                    Server Settings
-                </p>
-            </div>
-            <div className={styles.optionBox}>
-                <p className={styles.optionTitle}>
-                    Server Settings
-                </p>
-            </div>
-            <div className={styles.optionBox}>
-                <p className={styles.optionTitle}>
-                    Server Settings
-                </p>
-            </div>
-            <div className={styles.optionBox}>
-                <p className={styles.optionTitle}>
-                    Server Settings
-                </p>
-            </div>
-            <div className={styles.optionBox}>
-                <p className={styles.optionTitle}>
-                    Server Settings
-                </p>
-            </div>
-            <div className={styles.optionBox}>
-                <p className={styles.optionTitle}>
-                    Server Settings
-                </p>
-            </div>
-            <div className={styles.optionBox}>
-                <p className={styles.optionTitle}>
-                    Server Settings
-                </p>
-            </div>
             <div className={`${styles.fixedMiniSettingsConfirm} ${!isDirty ? styles.hidden : ""}`}>
                 <label>Save Changes?</label>
                 <div className={styles.miniSettingsButtons}>
-                <input type="button" value="Cancel" className={styles.miniSettingsCancel} />
-                <input type="button" value="Save" className={styles.miniSettingsSave} />
+                <input type="button" value="Reset" className={styles.miniSettingsReset} onClick={resetForm}/>
+                <input type="button" value="Save" className={styles.miniSettingsSave} onClick={handleSubmit(updateGuildSettings)}/>
                 </div>
             </div>
         </div>

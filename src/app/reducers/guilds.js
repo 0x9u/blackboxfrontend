@@ -25,8 +25,8 @@ format for guilds (guildInfo)
     ],
     Settings : {
         SaveChat : bool,
-        Name : string,
-        Icon : int,
+        Name : string, //not used
+        Icon : int, // not used
     },
     MsgHistory : [
         {
@@ -53,7 +53,9 @@ const guildSlice = createSlice({
             state.guildInfo[action.payload.Id] = { //update the user list later i cant be fucked (backend and frontend)
                 MsgHistory : [],
                 Users : [],
+                Invites: [],
                 Banned : [],
+                Settings : {}, 
                 Loaded : false,
                 Name : action.payload.Name,
                 Icon : action.payload.Icon,
@@ -73,15 +75,21 @@ const guildSlice = createSlice({
             //state.currentGuild = action.payload.currentGuild; //most likely will not be stored in database
         },
         guildChange: (state, action) => {
-            state.guildInfo[action.payload.guild].name = action.payload.Name;
+            console.log(action.payload)
+            state.guildInfo[action.payload.Guild].Name = action.payload.Name;
+            state.guildInfo[action.payload.Guild].Icon = action.payload.Icon;
             //will impliment later
             //state.guildInfo[action.payload.guild].Icon = action.payload.Icon;
         },
+        guildSettingsChange : (state, action) => {
+            console.log(action.payload);
+            state.guildInfo[action.payload.Guild].Settings = action.payload.Settings;
+        },
         guildSetInvite: (state, action) => { //accepts invite : string
-            state.guildInfo[state.currentGuild].invite = action.payload.Invite;
+            state.guildInfo[state.currentGuild].Invites = action.payload.Invite;
         },
         guildRemoveInvite: (state, action) => { //accepts invite : string
-            state.guildInfo[state.currentGuild].invite = "";
+            state.guildInfo[state.currentGuild].Invites = state.guildInfo[state.currentGuild].Invites.filter(action.payload.Invite);
         },
         guildCurrentSet: (state, action) => { //accepts guild : int
             state.currentGuild = action.payload.Guild;
@@ -180,5 +188,5 @@ const guildSlice = createSlice({
 
 });
 //use ellipsis later
-export const { guildAdd, guildRemove, guildSet, guildChange, guildCurrentSet, guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove } = guildSlice.actions;
+export const { guildAdd, guildRemove, guildSet, guildChange, guildSettingsChange, guildCurrentSet, guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove } = guildSlice.actions;
 export default guildSlice.reducer;

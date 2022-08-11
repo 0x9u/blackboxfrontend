@@ -271,12 +271,6 @@
     outline: none;
 }
 
-
-.exitButton>input:hover {
-    background: gray;
-    transition: 0.5s;
-}
-
 .settingsContainer {
     display: flex;
     flex-direction: column;

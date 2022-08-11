@@ -13,7 +13,6 @@ async function requestApi(endpoint, type, { data, urlParams, ...customConfig } =
             },
             body: data ? JSON.stringify(data) : undefined
         })
-        console.log(response);
         try { //temp
             var resJson = await response.json();
         } catch (error) {
@@ -21,7 +20,6 @@ async function requestApi(endpoint, type, { data, urlParams, ...customConfig } =
         }
 
         if (!response.ok) {
-            console.log("activating")
             //throw new Error(response.status.toString());
             throw {message : resJson.error, status : response.status}
         }

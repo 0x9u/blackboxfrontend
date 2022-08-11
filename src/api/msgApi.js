@@ -7,7 +7,7 @@ const GetMsgs = createAsyncThunk("msgs/get", async (args, api) => {
     const currentGuild = api.getState().guilds.currentGuild;
     const currentGuildMsgs = api.getState().guilds.guildInfo[currentGuild].MsgHistory
     const response = await getApi("msg", {
-        time: currentGuildMsgs[currentGuildMsgs.length-1]?.time ?? Date.now(),
+        time: currentGuildMsgs[0]?.Time ?? Date.now(),
         guild: currentGuild
     }, {
         headers: {
@@ -19,7 +19,6 @@ const GetMsgs = createAsyncThunk("msgs/get", async (args, api) => {
 
 const SendMsgs = createAsyncThunk("msgs/post", async (args, api) => { // no dispatch needed
     const { msg } = args;
-    console.log("sending msg");
     await postApi("msg", {
         content: msg,
         guild: api.getState().guilds.currentGuild
@@ -29,7 +28,6 @@ const SendMsgs = createAsyncThunk("msgs/post", async (args, api) => { // no disp
         }
     }
     );
-    console.log("msg sent!")
 
     //no need can use websockets to broadcast for all users
     //    return response

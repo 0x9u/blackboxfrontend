@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
+import { useInView } from 'react-intersection-observer';
 import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { startSocket } from '../api/websocket';
@@ -11,7 +12,8 @@ import { GetMsgs, SendMsgs } from '../api/msgApi';
 import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
 import { GetUserInfo } from '../api/userInfoApi';
-import { guildCurrentSet } from '../app/reducers/guilds';
+import { guildCurrentSet, guildReset } from '../app/reducers/guilds';
+import { userClear } from '../app/reducers/userInfo';
 
 
 function Msg(props) { //TODO add id to return in backend
@@ -126,6 +128,22 @@ function Chat() { //might turn into class
     const [serverImage, setServerImage] = React.useState("/profileImg.png");
 
     const dummyMsgBottomRef = React.useRef(null); //used to scroll down to bottom of chat when new message appears (CHANGE LATER NOT GOOD DESIGN!!!)
+    const loadMoreMsgRef = React.useRef(null); //used to load more messages when scrolled to top of chat
+    const chatContentRef = React.useRef(null); //scroll down to hide loadmoremsg element
+    const {ref: inViewRef} = useInView({onChange : (inView, entry) => {
+        if (inView) {
+            dispatch(GetMsgs());
+            //there might be another way but idk man
+            //no margin for the beginning chat msg element because i dont want another variable
+            chatContentRef.current.scrollBy(0, loadMoreMsgRef.current?.offsetHeight ?? 0);
+        } //function only works once when changed since its on change
+    }});
+
+    const combinedRef = React.useCallback((node) => {
+        loadMoreMsgRef.current = node;
+        inViewRef(node);
+    },
+    [inViewRef]);
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -135,6 +153,7 @@ function Chat() { //might turn into class
     const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory); //maybe temp?
     const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded); //maybe temp?
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
+    const msgLimitReached = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgLimitReached);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
 
     function GetData() {
@@ -181,7 +200,12 @@ function Chat() { //might turn into class
             if (Date.now() > expires) {
                 dispatch(authClear());
             }
-            if (![token, userId, expires].every(Boolean)) navigate("../login", { "replace": false });
+            if (![token, userId, expires].every(Boolean)) {
+                navigate("../login", { "replace": false });
+                dispatch(guildReset());
+                dispatch(userClear());
+                return;
+            }
             dispatch(GetGuilds()).then(() => dispatch(GetUserInfo()))
 
             dispatch(startSocket(token)); //start da websocket brah
@@ -197,14 +221,14 @@ function Chat() { //might turn into class
                 GetData();
             }
         }
-        , [dispatch, currentGuild]);
+        , [currentGuild]);
 
 
 
     React.useEffect( //maybe temp?
-        () => {
+        () => { //fix (chat scrolls to bottom when getting old messages)
             dummyMsgBottomRef.current?.scrollIntoView();
-        }, [messages]
+        }, [messages?.[messages?.length-1]] //temp fix
     )
 
     const userInfo = useSelector(state => state.userInfo);
@@ -292,7 +316,12 @@ function Chat() { //might turn into class
                     </div>
                 </div>
                 <div className={styles.chatContentContainer}>
-                    <div className={styles.chatContent}>
+                    <div ref={chatContentRef} className={styles.chatContent}>
+                        {
+                            !msgLimitReached
+                            &&
+                            <div ref={combinedRef} className={styles.startMsgDiv}>Loading...</div>
+                        }
                         {
                             RenderChatMsgs()
                         }

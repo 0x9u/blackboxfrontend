@@ -57,6 +57,7 @@ const guildSlice = createSlice({
                 Banned : [],
                 Settings : {}, 
                 Loaded : false,
+                MsgLimitReached : false,
                 Name : action.payload.Name,
                 Icon : action.payload.Icon,
                 Owner : action.payload.Owner
@@ -64,7 +65,6 @@ const guildSlice = createSlice({
             state.guildOrder.push(action.payload.Id);
         },
         guildRemove: (state, action) => { //accepts guild : int
-            console.log("removing guild user left");
             state.guildInfo[action.payload.Guild] = undefined;
             state.guildOrder = state.guildOrder.filter(guild => guild !== action.payload.Guild)
             state.currentGuild = state.currentGuild !== action.payload.Guild ? state.currentGuild : 0;
@@ -80,6 +80,11 @@ const guildSlice = createSlice({
             state.guildInfo[action.payload.Guild].Icon = action.payload.Icon;
             //will impliment later
             //state.guildInfo[action.payload.guild].Icon = action.payload.Icon;
+        },
+        guildReset: (state, action) => {
+            state.guildInfo = {};
+            state.guildOrder = [];
+            state.currentGuild = 0;
         },
         guildSettingsChange : (state, action) => {
             console.log(action.payload);
@@ -101,17 +106,13 @@ const guildSlice = createSlice({
             state.guildInfo[action.payload.Guild].Users = state.guildInfo[action.payload.Guild].Users.filter(user => user.Id !== action.payload.Id)
         },
         guildUpdateBannedList: (state,action) => {
-            console.log("got pinged add",action.payload)
             state.guildInfo[action.payload.Guild].Banned.push(action.payload.User);
         },
         guildRemoveBannedList: (state,action) => {
-            console.log("got pinged remove",action.payload)
             state.guildInfo[action.payload.Guild].Banned = state.guildInfo[action.payload.Guild].Banned.filter(user => user.Id !== action.payload.Id);
         },
         msgAdd: (state, action) => { //accepts guild : int, msg : object
-            console.log("adding msg");
             state.guildInfo[action.payload.Guild].MsgHistory.push(action.payload);
-            console.log("current is ", current(state.guildInfo[action.payload.Guild].MsgHistory));
         },
         msgRemove: (state, action) => { //accepts guild : int, msg : object
             state.guildInfo[action.payload.guild].MsgHistory = state.guildInfo[action.payload.guild]
@@ -121,9 +122,6 @@ const guildSlice = createSlice({
             state.guildInfo[action.payload.Guild].Invites.push(action.payload.Invite);
         },
         inviteRemove: (state,action) => {
-            console.log(action.payload);
-            console.log("removing invites");
-            console.log(state.guildInfo[action.payload.Guild].Invites);
             state.guildInfo[action.payload.Guild].Invites = state.guildInfo[action.payload.Guild].Invites.filter(invite => invite !== action.payload.Invite);
         }
         /*
@@ -141,6 +139,7 @@ const guildSlice = createSlice({
                         Owner: guild.Owner,
                         Invites: [],
                         Loaded: false,
+                        MsgLimitReached : false,
                         Users: [],
                         Settings : {}, 
                         Banned : [],
@@ -155,6 +154,11 @@ const guildSlice = createSlice({
                 action.payload.map(msg =>
                     state.guildInfo[state.currentGuild].MsgHistory.unshift(msg)
                 );
+                if (action.payload.length < 50) {
+                    console.log(action.payload);
+                    console.log(action.payload.length);
+                    state.guildInfo[state.currentGuild].MsgLimitReached = true;
+                }
             })
             .addCase(GetGuildUsers.fulfilled, (state, action) => {
                 /*
@@ -188,5 +192,5 @@ const guildSlice = createSlice({
 
 });
 //use ellipsis later
-export const { guildAdd, guildRemove, guildSet, guildChange, guildSettingsChange, guildCurrentSet, guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove } = guildSlice.actions;
+export const { guildAdd, guildRemove, guildSet, guildChange, guildReset, guildSettingsChange, guildCurrentSet, guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove } = guildSlice.actions;
 export default guildSlice.reducer;

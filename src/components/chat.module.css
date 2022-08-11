@@ -325,6 +325,14 @@
     margin-top: 5px;
 }
 
+.startMsgDiv {
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.5em;
+    padding: 15px 0px;
+}
+
 .msg > p {
     position: relative;
     margin-top: -20px;

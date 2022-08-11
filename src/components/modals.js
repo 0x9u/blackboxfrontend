@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import styles from './modals.module.css';
 import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
 import { BanUser, KickUser, UnbanUser, DeleteInvite, DeleteGuild, ChangeGuild } from '../api/guildApi';
+import { authClear } from '../app/reducers/auth';
 
 
 //find better way to fix button shit
@@ -433,6 +434,10 @@ function UserMenu(props) {
         }
     }
 
+    function clearAuth() {
+        dispatch(authClear());
+    }
+
     function modals() {
         return <>
             <Modal show={changeUser} buttons={[{ value: "Exit", function: () => showChangeUser(false) }, { value: "Done", function: handleSubmitU(changeUsernameAPI) }]} width="450" height="300">
@@ -504,7 +509,7 @@ function UserMenu(props) {
             <div className={styles.optionHeading}><p>User Settings</p></div>
             <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
             <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Appearance" onClick={() => { setActive(1) }} /></div>
-            <div className={styles.optionButton}><input type="button" value="Log Out" id="leaveButton" /></div>
+            <div className={styles.optionButton}><input type="button" value="Log Out" id="leaveButton" onClick={clearAuth} /></div>
         </Menu>
     )
 }

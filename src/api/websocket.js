@@ -1,6 +1,7 @@
 import { webSocket } from 'rxjs/webSocket';
 import { map, mergeMap } from 'rxjs';
 import { ofType } from 'redux-observable';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildSettingsChange,
      guildUpdateUserList, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList,
       inviteAdd, inviteRemove } from '../app/reducers/guilds';
@@ -145,5 +146,107 @@ const wsEpic = action$ => action$.pipe( //not working needs to be fixed
         }
     )
 )
+
+export const websocketApi = createApi({
+    baseQuery : fetchBaseQuery({ baseUrl: "http://localhost:8090" }),
+    endpoints : (build) => ({
+        startWS: build.query({
+            queryFn : () => ({data : null}), //bypasses the need to ping the server
+            onCacheEntryAdded : async (
+                arg,
+                { getState, dispatch ,updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+            ) => {
+                console.log('aaaaaaaaaaaaatest');
+                const ws = new WebSocket(WEBSOCKET_URL + "?" + new URLSearchParams({ token: arg.token }));
+                try {
+                    await cacheDataLoaded
+                    const listener = (event) => {
+                        const payload = JSON.parse(event.data)
+                        const { dataType, data } = payload;
+                        console.log(payload);
+                        switch (dataType) {
+                            case PING: //pings back to server to let it know its alive
+                                ws.send(JSON.stringify({
+                                    dataType: 0,
+                                    data: {
+                                        Data: "ping"
+                                    }
+                                }));
+                                break;
+                            case MSGADD:
+                                console.log("got a message!");
+                                console.log(payload);
+                                dispatch(msgAdd(data));
+                                break;
+                            case MSGREMOVE:
+                                dispatch(msgRemove(data));
+                                break;
+
+                            //case MSGEDIT:
+                            //    return msgEdit(data);
+                            case CHANGEGUILD:
+                                dispatch(guildChange(data));
+                                break;
+
+                            case JOINGUILD:
+                                console.log("join/created server");
+                                dispatch(guildAdd(data));
+                                break;
+
+                            case LEAVEGUILD:
+                                dispatch(guildRemove(data));
+                                break;
+
+                            case UPDATEUSERLIST:
+                                console.log("Updating user list");
+                                dispatch(guildUpdateUserList(data));
+                                break;
+
+                            case REMOVEUSERLIST:
+                                dispatch(guildRemoveUserList(data));
+                                break;
+
+                            case UPDATEBANNEDLIST:
+                                dispatch(guildUpdateBannedList(data));
+                                break;
+
+                            case REMOVEBANNEDLIST:
+                                dispatch(guildRemoveBannedList(data));
+                                break;
+
+                            case INVITEADDED:
+                                dispatch(inviteAdd(data));
+                                break;
+
+                            case INVITEREMOVED:
+                                dispatch(inviteRemove(data));
+                                break;
+
+                            case CHANGECLIENTDATA:
+                                dispatch(userChange(data));
+                                break;
+
+                            case CHANGESETTINGGUILD:
+                                dispatch(guildSettingsChange(data));
+                                break;
+
+                            //return guildAction(data); //TODO REPLACE WITH SWITCH CASE
+                            default:
+                                console.log("Unidenified data type: " + dataType);
+                    }
+                }
+                ws.addEventListener('message', listener)
+                } catch (err) {
+                    console.log(err);
+                }
+                await cacheEntryRemoved
+                console.log("removed")
+                ws.close()
+                }
+            }),
+    })
+});
+
+export const { useStartWSQuery } = websocketApi;
 
 export { startSocket, wsEpic };

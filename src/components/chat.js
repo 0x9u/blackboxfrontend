@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useInView } from 'react-intersection-observer';
 import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
-import { startSocket } from '../api/websocket';
+import { startSocket, useStartWSQuery } from '../api/websocket';
 import { GetMsgs, SendMsgs } from '../api/msgApi';
 import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
@@ -150,6 +150,13 @@ function Chat() { //might turn into class
 
     const { expires, userId, token } = useSelector(state => state.auth);
 
+    const { data, error, isLoading } = useStartWSQuery({token})
+
+    React.useEffect(() => {
+        console.log(data, error, isLoading)
+    } ,[token])
+
+
     const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory); //maybe temp?
     const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded); //maybe temp?
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
@@ -209,6 +216,7 @@ function Chat() { //might turn into class
             dispatch(GetGuilds()).then(() => dispatch(GetUserInfo()))
 
             dispatch(startSocket(token)); //start da websocket brah
+            console.log(token);
         }, [dispatch, navigate, token, userId, expires])
 
     React.useEffect(

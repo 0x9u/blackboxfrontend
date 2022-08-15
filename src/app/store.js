@@ -15,11 +15,12 @@ import { createEpicMiddleware, combineEpics } from 'redux-observable';
 import { default as authReducer } from './reducers/auth';
 import { default as userInfoReducer } from './reducers/userInfo';
 import { default as guildReducer } from './reducers/guilds';
+import {websocketApi} from '../api/websocket';
 import { wsEpic } from '../api/websocket';
 
 const epicMiddleware = createEpicMiddleware();
 
-const middlewares = [thunk, epicMiddleware];
+const middlewares = [thunk, epicMiddleware, websocketApi.middleware];
 
 const rootEpic = combineEpics(
     wsEpic
@@ -29,6 +30,7 @@ const rootReducer = combineReducers({
     guilds: guildReducer,
     auth: authReducer,
     userInfo: userInfoReducer,
+    [websocketApi.reducerPath]: websocketApi.reducer,
     //    wsChat: wsChatReducer
 });
 

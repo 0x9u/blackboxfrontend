@@ -150,7 +150,7 @@ function Chat() { //might turn into class
 
     const { expires, userId, token } = useSelector(state => state.auth);
 
-    const { data, error, isLoading } = useStartWSQuery({token})
+    const { data, error, isLoading, abort : wsSTOP } = useStartWSQuery({token}, {skip : !token})
 
     React.useEffect(() => {
         console.log(data, error, isLoading)
@@ -208,6 +208,7 @@ function Chat() { //might turn into class
                 dispatch(authClear());
             }
             if (![token, userId, expires].every(Boolean)) {
+                console.log("wsstop",wsSTOP);
                 navigate("../login", { "replace": false });
                 dispatch(guildReset());
                 dispatch(userClear());
@@ -215,8 +216,8 @@ function Chat() { //might turn into class
             }
             dispatch(GetGuilds()).then(() => dispatch(GetUserInfo()))
 
-            dispatch(startSocket(token)); //start da websocket brah
-            console.log(token);
+            //dispatch(startSocket(token)); //start da websocket brah
+            //console.log(token);
         }, [dispatch, navigate, token, userId, expires])
 
     React.useEffect(

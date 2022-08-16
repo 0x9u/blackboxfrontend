@@ -156,7 +156,6 @@ export const websocketApi = createApi({
                 arg,
                 { getState, dispatch ,updateCachedData, cacheDataLoaded, cacheEntryRemoved }
             ) => {
-                console.log('aaaaaaaaaaaaatest');
                 const ws = new WebSocket(WEBSOCKET_URL + "?" + new URLSearchParams({ token: arg.token }));
                 try {
                     await cacheDataLoaded

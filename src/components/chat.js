@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useInView } from 'react-intersection-observer';
 import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
-import { startSocket, useStartWSQuery } from '../api/websocket';
+import { useStartWSQuery } from '../api/websocket';
 import { GetMsgs, SendMsgs } from '../api/msgApi';
 import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
@@ -130,6 +130,7 @@ function Chat() { //might turn into class
     const dummyMsgBottomRef = React.useRef(null); //used to scroll down to bottom of chat when new message appears (CHANGE LATER NOT GOOD DESIGN!!!)
     const loadMoreMsgRef = React.useRef(null); //used to load more messages when scrolled to top of chat
     const chatContentRef = React.useRef(null); //scroll down to hide loadmoremsg element
+
     const {ref: inViewRef} = useInView({onChange : (inView, entry) => {
         if (inView) {
             dispatch(GetMsgs());
@@ -150,12 +151,10 @@ function Chat() { //might turn into class
 
     const { expires, userId, token } = useSelector(state => state.auth);
 
-    const { data, error, isLoading, abort : wsSTOP } = useStartWSQuery({token}, {skip : !token})
+    useStartWSQuery({token}, {skip : !token})
+    //this is programmed to cancel once this component is unmounted
 
-    React.useEffect(() => {
-        console.log(data, error, isLoading)
-    } ,[token])
-
+    const isLoading = useSelector(state => state.guilds.isLoading);
 
     const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory); //maybe temp?
     const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded); //maybe temp?
@@ -190,10 +189,11 @@ function Chat() { //might turn into class
     });
 
     function prepareSendMsg() {
-        dispatch(SendMsgs({
-            msg: chatTxt
-        }));
-        setChatTxt("");
+        const preparedTxt = chatTxt.trim();
+        if (preparedTxt.length > 0 && preparedTxt.length < 1024) {
+            dispatch(SendMsgs({msg:preparedTxt}));
+            setChatTxt("");
+        }
     }
 
     function handleKeySend(e) {
@@ -208,16 +208,12 @@ function Chat() { //might turn into class
                 dispatch(authClear());
             }
             if (![token, userId, expires].every(Boolean)) {
-                console.log("wsstop",wsSTOP);
                 navigate("../login", { "replace": false });
                 dispatch(guildReset());
                 dispatch(userClear());
                 return;
             }
             dispatch(GetGuilds()).then(() => dispatch(GetUserInfo()))
-
-            //dispatch(startSocket(token)); //start da websocket brah
-            //console.log(token);
         }, [dispatch, navigate, token, userId, expires])
 
     React.useEffect(
@@ -398,7 +394,14 @@ function Chat() { //might turn into class
                 </div>
             </Modal>
             <InviteModal show={invite} exit={() => setInvite(false)} />
-            <div className={styles.pageChange}></div>
+            {
+                !isLoading &&
+                <div className={styles.pageChange}></div>
+            }
+            {
+                isLoading &&
+                <div className={styles.loadingScreen}>Loading...</div>
+            }
         </div>
 
     );

@@ -47,6 +47,7 @@ const guildSlice = createSlice({
         guildInfo: {},
         guildOrder: [], //order list of guilds
         currentGuild: 0, //keep track of current guild in view
+        isLoading: false, //keep track of whether or not we are loading from websocket
     }
     , reducers: {
         guildAdd: (state, action) => { //accepts guild : int
@@ -123,6 +124,9 @@ const guildSlice = createSlice({
         },
         inviteRemove: (state,action) => {
             state.guildInfo[action.payload.Guild].Invites = state.guildInfo[action.payload.Guild].Invites.filter(invite => invite !== action.payload.Invite);
+        },
+        setLoading : (state,action) => {
+            state.isLoading = action.payload;
         }
         /*
         msgEdit : (state, action) => { //accepts guild : int, msg : object
@@ -192,5 +196,7 @@ const guildSlice = createSlice({
 
 });
 //use ellipsis later
-export const { guildAdd, guildRemove, guildSet, guildChange, guildReset, guildSettingsChange, guildCurrentSet, guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove } = guildSlice.actions;
+export const { guildAdd, guildRemove, guildSet, guildChange, guildReset, guildSettingsChange, guildCurrentSet,
+    guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, guildRemoveUserList,
+    guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove, setLoading } = guildSlice.actions;
 export default guildSlice.reducer;

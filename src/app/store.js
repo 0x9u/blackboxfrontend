@@ -16,15 +16,16 @@ import { default as authReducer } from './reducers/auth';
 import { default as userInfoReducer } from './reducers/userInfo';
 import { default as guildReducer } from './reducers/guilds';
 import {websocketApi} from '../api/websocket';
-import { wsEpic } from '../api/websocket';
+//import { wsEpic } from '../api/websocket';
 
 const epicMiddleware = createEpicMiddleware();
 
-const middlewares = [thunk, epicMiddleware, websocketApi.middleware];
-
+const middlewares = [thunk, /*epicMiddleware,*/ websocketApi.middleware];
+/*
 const rootEpic = combineEpics(
     wsEpic
 );
+*/
 
 const rootReducer = combineReducers({
     guilds: guildReducer,
@@ -54,7 +55,7 @@ const store = configureStore({
     devTools: true
 });
 
-epicMiddleware.run(rootEpic);
+//epicMiddleware.run(rootEpic);
 
 const persistor = persistStore(store)
 

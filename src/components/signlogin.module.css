@@ -58,7 +58,7 @@ white-space: nowrap;
 }
 
 .title>h1{
-  font-size: 12.5vmin;
+  font-size: 3.5em;
 }
 
 .registerForm > div[id='password'] {

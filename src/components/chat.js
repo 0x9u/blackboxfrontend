@@ -8,7 +8,7 @@ import { useInView } from 'react-intersection-observer';
 import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { useStartWSQuery } from '../api/websocket';
-import { GetMsgs, SendMsgs } from '../api/msgApi';
+import { GetMsgs, SendMsgs, DeleteMsgs } from '../api/msgApi';
 import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
 import { GetUserInfo } from '../api/userInfoApi';
@@ -17,21 +17,39 @@ import { userClear } from '../app/reducers/userInfo';
 
 
 function Msg(props) { //TODO add id to return in backend
+    const dispatch = useDispatch();
+
     return (
         <div className={`${styles.msg} ${props.hideUserTime ? styles.hideUserTime : ""}`}>
-            {!props.hideUserTime && <><img src={props.img} width="40" height="40" alt="pfp" /><label>{props.username} <span>{props.time}</span></label></>}
+            {!props.hideUserTime && <>
+                <img src={props.img} width="40" height="40" alt="pfp" />
+                    <label>{props.username} <span>{props.time}</span></label>
+                </>}
             <p className={props.hideUserTime ? styles.hideUserTime : ""}>{props.msg}</p>
+            
+            <div className={styles.msgButtons}>
+                <input className={`${styles.msgButtonChild} ${styles.msgButtonDelete}`}
+                    type="button" value="Delete" onClick={() => {dispatch(DeleteMsgs({Id:props.Id}))}}/>
+                <input className={`${styles.msgButtonChild} ${styles.msgButtonEdit}`} type="button" value="Edit"/>
+            </div>
         </div>
     );
 }
 
 function RenderChatMsgs() {
     const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
+    const currentGuild = useSelector(state => state.guilds.currentGuild);
+    if (currentGuild == 0) {
+        return;
+    }
+    if (msgsList?.length == 0) {
+        return (<div className={styles.noMessages}>Start the chat with a message!</div>)
+    }
     return msgsList.map((msg, index) => {
         const time = new Date(msg.Time)
         const beforeTime = new Date(msgsList?.[index - 1]?.Time)
         const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && msg.Author.Username === msgsList?.[index - 1]?.Author.Username
-        return <Msg key={index} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
+        return <Msg key={index} Id={msg.Id} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
     });
 }
 
@@ -133,7 +151,8 @@ function Chat() { //might turn into class
 
     const {ref: inViewRef} = useInView({onChange : (inView, entry) => {
         if (inView) {
-            dispatch(GetMsgs());
+            //double msg bug
+            dispatch(GetMsgs()); 
             //there might be another way but idk man
             //no margin for the beginning chat msg element because i dont want another variable
             chatContentRef.current.scrollBy(0, loadMoreMsgRef.current?.offsetHeight ?? 0);
@@ -213,7 +232,6 @@ function Chat() { //might turn into class
                 dispatch(userClear());
                 return;
             }
-            dispatch(GetGuilds()).then(() => dispatch(GetUserInfo()))
         }, [dispatch, navigate, token, userId, expires])
 
     React.useEffect(
@@ -324,6 +342,8 @@ function Chat() { //might turn into class
                     <div ref={chatContentRef} className={styles.chatContent}>
                         {
                             !msgLimitReached
+                            &&
+                            currentGuild !== 0
                             &&
                             <div ref={combinedRef} className={styles.startMsgDiv}>Loading...</div>
                         }

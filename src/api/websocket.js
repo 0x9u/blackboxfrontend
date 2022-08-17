@@ -5,9 +5,11 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
     msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildSettingsChange,
     guildUpdateUserList, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList,
-    inviteAdd, inviteRemove, setLoading
+    inviteAdd, inviteRemove, setLoading, guildReset
 } from '../app/reducers/guilds';
 import { userChange } from '../app/reducers/userInfo';
+import {GetGuilds} from './guildApi';
+import {GetUserInfo} from './userInfoApi';
 
 const WEBSOCKET_URL = 'ws://localhost:8090/api/ws';
 
@@ -133,6 +135,9 @@ export const websocketApi = createApi({
             ) => {
                 async function connectWS() { //recursive so if its disconnected we can reconnect is unsuccessful
                     dispatch(setLoading(true));
+                    await dispatch(guildReset());
+                    await dispatch(GetGuilds());
+                    await dispatch(GetUserInfo());
                     const ws = new WebSocket(WEBSOCKET_URL + "?" + new URLSearchParams({ token: arg.token }));
                     try {
                         await cacheDataLoaded
@@ -151,8 +156,8 @@ export const websocketApi = createApi({
                                     }));
                                     break;
                                 case MSGADD:
-                                    console.log("got a message!");
-                                    console.log(payload);
+                                    //console.log("got a message!");
+                                    //console.log(payload);
                                     dispatch(msgAdd(data));
                                     break;
                                 case MSGREMOVE:

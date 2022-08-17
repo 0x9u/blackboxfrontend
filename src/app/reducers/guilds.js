@@ -116,8 +116,13 @@ const guildSlice = createSlice({
             state.guildInfo[action.payload.Guild].MsgHistory.push(action.payload);
         },
         msgRemove: (state, action) => { //accepts guild : int, msg : object
-            state.guildInfo[action.payload.guild].MsgHistory = state.guildInfo[action.payload.guild]
-                .MsgHistory.filter(msg => msg.id !== action.payload.id);
+            if (action.payload.Author == 0) {
+                state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild]
+                    .MsgHistory.filter(msg => msg.Id !== action.payload.Id);
+            } else {
+                state.GuildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild]
+                    .MsgHistory.filter(msg => msg.Author !== action.payload.Author);
+            }
         },
         inviteAdd: (state,action) => {
             state.guildInfo[action.payload.Guild].Invites.push(action.payload.Invite);

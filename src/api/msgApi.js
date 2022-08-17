@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { postApi, getApi } from "./client";
+import { postApi, getApi, deleteApi } from "./client";
 
 
 //this function will be called when user is at max scroll height
@@ -33,4 +33,17 @@ const SendMsgs = createAsyncThunk("msgs/post", async (args, api) => { // no disp
     //    return response
 });
 
-export {GetMsgs, SendMsgs};
+const DeleteMsgs = createAsyncThunk("msgs/delete", async(args, api) => {
+    const { Id, Author } = args;
+    await deleteApi("msg", {
+        Id : Id,
+        Guild : api.getState().guilds.currentGuild,
+        Author : Author ?? 0
+    }, {
+        headers : {
+            "Auth-Token" : api.getState().auth.token
+        }
+    })
+})
+
+export {GetMsgs, SendMsgs, DeleteMsgs};

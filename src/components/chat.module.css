@@ -270,14 +270,20 @@
     height: 25px;
     margin-left: 10px;
     transition: 0.5s;
-    background: #7AA095;
-    color: white;
+    font-weight: 700;
+    background: white;
+    color: black;
     border: none;
     border-radius: 5px;
 }
 
 .topMenuServerButton > input[type='button']:hover {
-    background: #40531B;
+    filter: brightness(85%);
+}
+
+.topMenuServerButton > input[type='button']:active {
+    filter: brightness(50%);
+    transition: 0.1s filter;
 }
 
 .chatContent {
@@ -302,7 +308,7 @@
 .msg:not(.hideUserTime) {
     position: relative;
     display:block;
-    margin: 15px 20px 0px;
+    padding: 15px 75px 0px 20px;
 }
 
 .msg > img {
@@ -316,14 +322,70 @@
 
 .msg.hideUserTime {
     margin: 0px;
-    margin-left: 75px;
-    margin-bottom: 5px;
+    padding-left: 75px;
+    padding-bottom: 5px;
+    padding-right: 75px;
     position: relative !important;
 }
 
 .msg:hover {
-    filter: brightness(0.8);
+    background: rgba(0,0,0,0.25);
 }
+
+.msg:hover > *:not(.msgButtons) {
+    filter: brightness(85%);
+}
+
+.msgButtons {
+    display:flex;
+    flex-direction: row;
+    padding: 0px;
+    position: absolute;
+    right: 0.5%;
+    top: 5%;
+    transition: 0.5s opacity;
+    border-radius: 10px;
+    overflow: hidden;
+
+}
+
+.msg:not(.hideUserTime) > .msgButtons {
+    margin-top: 35px;
+}
+
+.msgButtonChild {
+    border-radius: 0px;
+    border: black 2px;
+    padding: 5px 20px;
+    color: white;
+    font-weight: 600;
+}
+
+.msgButtonDelete {
+    background: #E34234;
+}
+
+.msgButtonEdit {
+    background: blue;
+}
+
+.msgButtonChild:hover {
+    filter: brightness(85%);
+}
+
+.msgButtonChild:active {
+    filter: brightness(50%);
+}
+
+.msg:not(:hover) > .msgButtons {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.msg:hover > .msgButtons {
+    opacity: 1;
+    pointer-events: all;
+} 
 
 .endMsgDiv {
     margin-top: 5px;
@@ -759,4 +821,12 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
     align-items: center;
     animation: loadingScreen 1s;
     animation-fill-mode: forwards;
+}
+
+.noMessages {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    padding-left: 10px;
+    padding-top: 10px;
 }

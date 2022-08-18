@@ -4,20 +4,22 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { useInView } from 'react-intersection-observer';
+//import { useInView } from 'react-intersection-observer';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { useStartWSQuery } from '../api/websocket';
 import { GetMsgs, SendMsgs, DeleteMsgs } from '../api/msgApi';
-import { GetGuilds, GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
+import { GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
-import { GetUserInfo } from '../api/userInfoApi';
 import { guildCurrentSet, guildReset } from '../app/reducers/guilds';
 import { userClear } from '../app/reducers/userInfo';
 
 
 function Msg(props) { //TODO add id to return in backend
     const dispatch = useDispatch();
+    const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
+    const userId = useSelector(state => state.auth.userId);
 
     return (
         <div className={`${styles.msg} ${props.hideUserTime ? styles.hideUserTime : ""}`}>
@@ -26,12 +28,14 @@ function Msg(props) { //TODO add id to return in backend
                     <label>{props.username} <span>{props.time}</span></label>
                 </>}
             <p className={props.hideUserTime ? styles.hideUserTime : ""}>{props.msg}</p>
-            
+            { (isOwner || userId === props.AuthorId)
+            &&
             <div className={styles.msgButtons}>
                 <input className={`${styles.msgButtonChild} ${styles.msgButtonDelete}`}
-                    type="button" value="Delete" onClick={() => {dispatch(DeleteMsgs({Id:props.Id}))}}/>
+                    type="button" value="Delete" onClick={() => {dispatch(DeleteMsgs({Id:props.Id, Author:props.AuthorId}))}}/>
                 <input className={`${styles.msgButtonChild} ${styles.msgButtonEdit}`} type="button" value="Edit"/>
             </div>
+            }
         </div>
     );
 }
@@ -47,9 +51,9 @@ function RenderChatMsgs() {
     }
     return msgsList.map((msg, index) => {
         const time = new Date(msg.Time)
-        const beforeTime = new Date(msgsList?.[index - 1]?.Time)
-        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && msg.Author.Username === msgsList?.[index - 1]?.Author.Username
-        return <Msg key={index} Id={msg.Id} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
+        const beforeTime = new Date(msgsList?.[index + 1]?.Time)
+        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && msg.Author.Username === msgsList?.[index + 1]?.Author.Username
+        return <Msg key={index} Id={msg.Id} AuthorId={msg.Author.Id} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
     });
 }
 
@@ -146,9 +150,9 @@ function Chat() { //might turn into class
     const [serverImage, setServerImage] = React.useState("/profileImg.png");
 
     const dummyMsgBottomRef = React.useRef(null); //used to scroll down to bottom of chat when new message appears (CHANGE LATER NOT GOOD DESIGN!!!)
-    const loadMoreMsgRef = React.useRef(null); //used to load more messages when scrolled to top of chat
+//    const loadMoreMsgRef = React.useRef(null); //used to load more messages when scrolled to top of chat
     const chatContentRef = React.useRef(null); //scroll down to hide loadmoremsg element
-
+/*
     const {ref: inViewRef} = useInView({onChange : (inView, entry) => {
         if (inView) {
             //double msg bug
@@ -158,13 +162,13 @@ function Chat() { //might turn into class
             chatContentRef.current.scrollBy(0, loadMoreMsgRef.current?.offsetHeight ?? 0);
         } //function only works once when changed since its on change
     }});
-
-    const combinedRef = React.useCallback((node) => {
+*/
+    /*const combinedRef = React.useCallback((node) => {
         loadMoreMsgRef.current = node;
         inViewRef(node);
     },
     [inViewRef]);
-
+*/
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -175,13 +179,14 @@ function Chat() { //might turn into class
 
     const isLoading = useSelector(state => state.guilds.isLoading);
 
-    const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory); //maybe temp?
+    const messages = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []); //maybe temp?
     const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded); //maybe temp?
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
     const msgLimitReached = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgLimitReached);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
 
     function GetData() {
+        console.log("loading messages")
         dispatch(GetGuildUsers()).then(() => dispatch(GetMsgs())).then(() => dispatch(GetInvite())).then(() => dispatch(GetBannedUsers())).then(() => dispatch(GetGuildSettings()));
     }
 
@@ -251,7 +256,13 @@ function Chat() { //might turn into class
     React.useEffect( //maybe temp?
         () => { //fix (chat scrolls to bottom when getting old messages)
             dummyMsgBottomRef.current?.scrollIntoView();
-        }, [messages?.[messages?.length-1]] //temp fix
+        }, [messages?.[0]] //temp fix
+    )
+
+    React.useEffect(
+    () => {
+        console.log(msgLimitReached)
+    }, [msgLimitReached]
     )
 
     const userInfo = useSelector(state => state.userInfo);
@@ -338,19 +349,22 @@ function Chat() { //might turn into class
                         <input type="button" value="User List" onClick={() => { setUserList(!userList); setServer(false) }} />
                     </div>
                 </div>
-                <div className={styles.chatContentContainer}>
-                    <div ref={chatContentRef} className={styles.chatContent}>
-                        {
-                            !msgLimitReached
-                            &&
-                            currentGuild !== 0
-                            &&
-                            <div ref={combinedRef} className={styles.startMsgDiv}>Loading...</div>
-                        }
+                <div className={styles.chatContentContainer} >
+                    <div ref={chatContentRef} className={styles.chatContent} id="Iwanttodie">
+                        <InfiniteScroll
+                            dataLength={messages.length}
+                            next={async () => {console.log("getting more");await dispatch(GetMsgs());}}
+                            hasMore={!msgLimitReached && guildLoaded}
+                            inverse={true}
+                            style={{ display: 'flex', flexDirection: 'column-reverse' }}
+                            loader={<div className={styles.startMsgDiv}>Loading...</div>}
+                            scrollableTarget={"Iwanttodie"}
+                        >
+                        <div ref={dummyMsgBottomRef} className={styles.endMsgDiv}></div> {/* used to scroll automatically down at bottom of chat lmao*/}
                         {
                             RenderChatMsgs()
                         }
-                        <div ref={dummyMsgBottomRef} className={styles.endMsgDiv}></div> {/* used to scroll automatically down at bottom of chat lmao*/}
+                        </InfiniteScroll>
                     </div>
                     <div className={userList ? styles.chatUserList : styles.chatUserListHidden}>
                         {

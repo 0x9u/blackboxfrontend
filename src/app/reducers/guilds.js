@@ -30,10 +30,14 @@ format for guilds (guildInfo)
     },
     MsgHistory : [
         {
-            UserId : int,
-            Username : string,
-            Icon : int, //unused so its 0 old: profileId
-            Msg : string,
+            Id : int,
+            Author : {
+                Id : int,
+                Username : string,
+                Icon : int, //unused so its 0 old: profileId
+
+            },
+            Content : string,
             Time : int,
         }
     ]
@@ -113,10 +117,10 @@ const guildSlice = createSlice({
             state.guildInfo[action.payload.Guild].Banned = state.guildInfo[action.payload.Guild].Banned.filter(user => user.Id !== action.payload.Id);
         },
         msgAdd: (state, action) => { //accepts guild : int, msg : object
-            state.guildInfo[action.payload.Guild].MsgHistory.push(action.payload);
+            state.guildInfo[action.payload.Guild].MsgHistory.unshift(action.payload);
         },
         msgRemove: (state, action) => { //accepts guild : int, msg : object
-            if (action.payload.Author == 0) {
+            if (action.payload.Id !== 0) {
                 state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild]
                     .MsgHistory.filter(msg => msg.Id !== action.payload.Id);
             } else {
@@ -161,11 +165,10 @@ const guildSlice = createSlice({
             .addCase(GetMsgs.fulfilled, (state, action) => {// using unshift since we are also grabbing info from guilds not loaded in
                console.log(action.payload);
                 action.payload.map(msg =>
-                    state.guildInfo[state.currentGuild].MsgHistory.unshift(msg)
+                    state.guildInfo[state.currentGuild].MsgHistory.push(msg)
                 );
                 if (action.payload.length < 50) {
-                    console.log(action.payload);
-                    console.log(action.payload.length);
+                    console.log("msg limit reached");
                     state.guildInfo[state.currentGuild].MsgLimitReached = true;
                 }
             })
@@ -180,7 +183,7 @@ const guildSlice = createSlice({
                 state.guildInfo[state.currentGuild].Loaded = true;
             })
             .addCase(GetBannedUsers.fulfilled, (state, action) => {
-                console.log(action.payload)
+                console.log("banned", action.payload)
                 action.payload.map(user => {
                     state.guildInfo?.[state.currentGuild]?.Banned.unshift(user);
                 })

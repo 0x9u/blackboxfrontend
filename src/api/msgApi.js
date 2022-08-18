@@ -7,7 +7,7 @@ const GetMsgs = createAsyncThunk("msgs/get", async (args, api) => {
     const currentGuild = api.getState().guilds.currentGuild;
     const currentGuildMsgs = api.getState().guilds.guildInfo[currentGuild].MsgHistory
     const response = await getApi("msg", {
-        time: currentGuildMsgs[0]?.Time ?? Date.now(),
+        time: currentGuildMsgs[currentGuildMsgs?.length-1]?.Time ?? Date.now(),
         guild: currentGuild
     }, {
         headers: {

@@ -288,7 +288,7 @@
 
 .chatContent {
     display:flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     background:#666370;
     height: 100%;
     overflow-y: auto;
@@ -314,10 +314,6 @@
 .msg > img {
     border-radius: 5px;
     user-select: none;
-}
-
-.endMsgDiv ~ .msg {
-    margin-bottom: 15px;
 }
 
 .msg.hideUserTime {
@@ -388,7 +384,7 @@
 } 
 
 .endMsgDiv {
-    margin-top: 5px;
+    padding-top: 15px;
 }
 
 .startMsgDiv {
@@ -828,5 +824,5 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
     font-weight: 600;
     color: white;
     padding-left: 10px;
-    padding-top: 10px;
+    padding-bottom: 10px;
 }

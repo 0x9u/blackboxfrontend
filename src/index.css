@@ -22,10 +22,11 @@ html>body>#root:empty {
 
 ::-webkit-scrollbar-thumb {
   background: #488286;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #373E40;
+  background: transparent;
   margin: 15px 0px;
 }
 

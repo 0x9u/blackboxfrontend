@@ -9,6 +9,7 @@ format for guilds (guildInfo)
     Icon : id, // will be unused for now so its 0
     Invite : "",
     Loaded : bool,
+    MsgLimitReached : bool,
     Users : [
         {
             Id : int,

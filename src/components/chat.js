@@ -20,7 +20,6 @@ function Msg(props) { //TODO add id to return in backend
     const dispatch = useDispatch();
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
     const userId = useSelector(state => state.auth.userId);
-
     return (
         <div className={`${styles.msg} ${props.hideUserTime ? styles.hideUserTime : ""}`}>
             {!props.hideUserTime && <>
@@ -43,11 +42,13 @@ function Msg(props) { //TODO add id to return in backend
 function RenderChatMsgs() {
     const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
+    const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded ?? false)
+
     if (currentGuild == 0) {
         return;
     }
     if (msgsList?.length == 0) {
-        return (<div className={styles.noMessages}>Start the chat with a message!</div>)
+        return (<div className={styles.noMessages}>{ guildLoaded ? "Start the chat with a message!" : "Chat is loading"}</div>)
     }
     return msgsList.map((msg, index) => {
         const time = new Date(msg.Time)
@@ -360,9 +361,18 @@ function Chat() { //might turn into class
                             loader={<div className={styles.startMsgDiv}>Loading...</div>}
                             scrollableTarget={"Iwanttodie"}
                         >
-                        <div ref={dummyMsgBottomRef} className={styles.endMsgDiv}></div> {/* used to scroll automatically down at bottom of chat lmao*/}
+                        {
+                            messages.length > 0 
+                            &&
+                            <div ref={dummyMsgBottomRef} className={styles.endMsgDiv}
+                        ></div>} {/* used to scroll automatically down at bottom of chat lmao*/}
                         {
                             RenderChatMsgs()
+                        }
+                        { msgLimitReached && 
+                        <div className={styles.endOfMessages}>
+                            This is the end of the chat.
+                        </div>
                         }
                         </InfiniteScroll>
                     </div>

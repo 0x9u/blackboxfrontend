@@ -819,10 +819,15 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
     animation-fill-mode: forwards;
 }
 
-.noMessages {
+.noMessages, .endOfMessages {
     font-size: 16px;
     font-weight: 600;
     color: white;
-    padding-left: 10px;
+    padding-left: 15px;
     padding-bottom: 10px;
+
+}
+
+.endOfMessages {
+    padding-top: 15px;
 }

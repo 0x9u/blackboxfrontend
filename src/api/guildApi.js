@@ -1,4 +1,4 @@
-import { createAsyncThunk, current } from "@reduxjs/toolkit";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import { putApi, getApi, postApi, deleteApi } from "./client";
 
 const GetGuilds = createAsyncThunk("guilds/get", async (args, api) => {
@@ -119,7 +119,7 @@ const GetInvite = createAsyncThunk("guilds/invite/get", async (args, api) => {
 
 const DeleteInvite = createAsyncThunk("guilds/invite/delete", async (args, api) => {
     await deleteApi("invite", {
-        guild: api.getState().guilds.currentGuild,
+        guild: args.guild, //needed to keep track of pending request
         invite: args.invite
     }, {
         headers: {
@@ -130,7 +130,7 @@ const DeleteInvite = createAsyncThunk("guilds/invite/delete", async (args, api) 
 
 const BanUser = createAsyncThunk("guilds/users/ban", async (args, api) => {
     await postApi("guild/ban", {
-        guild: api.getState().guilds.currentGuild,
+        guild: args.guild,
         id: args.id
     }, {
         headers: {
@@ -142,7 +142,7 @@ const BanUser = createAsyncThunk("guilds/users/ban", async (args, api) => {
 
 const KickUser = createAsyncThunk("guilds/users/kick", async (args, api) => {
     await postApi("guild/kick", {
-        guild: api.getState().guilds.currentGuild,
+        guild: args.guild,
         id: args.id
     }, {
         headers: {
@@ -173,7 +173,7 @@ const GetBannedUsers = createAsyncThunk("guilds/users/ban/get", async (args, api
 
 const UnbanUser = createAsyncThunk("guilds/users/ban/put", async (args, api) => {
     await putApi("guild/ban", {
-        guild: api.getState().guilds.currentGuild,
+        guild: args.guild,
         id: args.id
     }, {
         headers: {

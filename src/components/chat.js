@@ -12,27 +12,46 @@ import { useStartWSQuery } from '../api/websocket';
 import { GetMsgs, SendMsgs, DeleteMsgs } from '../api/msgApi';
 import { GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
-import { guildCurrentSet, guildReset } from '../app/reducers/guilds';
+import { guildCurrentSet, guildReset, msgRemoveFailed } from '../app/reducers/guilds';
 import { userClear } from '../app/reducers/userInfo';
 
 
 function Msg(props) { //TODO add id to return in backend
     const dispatch = useDispatch();
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
+    const currentGuild = useSelector(state => state.guilds.currentGuild);
     const userId = useSelector(state => state.auth.userId);
+    async function retryMessage() {
+        await dispatch(msgRemoveFailed({
+           requestId : props.RequestId
+        }));
+        await dispatch(SendMsgs({
+            msg : props.msg,
+            guild : currentGuild
+        }));
+    }
     return (
         <div className={`${styles.msg} ${props.hideUserTime ? styles.hideUserTime : ""}`}>
             {!props.hideUserTime && <>
                 <img src={props.img} width="40" height="40" alt="pfp" />
                     <label>{props.username} <span>{props.time}</span></label>
                 </>}
-            <p className={props.hideUserTime ? styles.hideUserTime : ""}>{props.msg}</p>
-            { (isOwner || userId === props.AuthorId)
+            <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? styles.msgSentFail : ""}`}>{props.msg}</p>
+            { ((isOwner || userId === props.AuthorId) && (!props.loading || props.failed))
             &&
             <div className={styles.msgButtons}>
+                {
+                    !props.failed
+                && <>
                 <input className={`${styles.msgButtonChild} ${styles.msgButtonDelete}`}
                     type="button" value="Delete" onClick={() => {dispatch(DeleteMsgs({Id:props.Id, Author:props.AuthorId}))}}/>
                 <input className={`${styles.msgButtonChild} ${styles.msgButtonEdit}`} type="button" value="Edit"/>
+                </>
+                }
+                {
+                    props.failed &&
+                    <input className={`${styles.msgButtonChild} ${styles.msgButtonRetry}`} type="button" value="Retry" onClick={retryMessage}/>
+                }
             </div>
             }
         </div>
@@ -43,17 +62,24 @@ function RenderChatMsgs() {
     const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
     const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded ?? false)
+    const userId = useSelector(state => state.auth.userId);
+    const username = useSelector(state => state.userInfo.username);
 
-    if (currentGuild == 0) {
+    if (currentGuild === 0) {
         return;
     }
-    if (msgsList?.length == 0) {
+    if (msgsList?.length === 0) {
         return (<div className={styles.noMessages}>{ guildLoaded ? "Start the chat with a message!" : "Chat is loading"}</div>)
     }
     return msgsList.map((msg, index) => {
         const time = new Date(msg.Time)
         const beforeTime = new Date(msgsList?.[index + 1]?.Time)
-        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && msg.Author.Username === msgsList?.[index + 1]?.Author.Username
+        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && ((msg?.Author?.Username === msgsList?.[index + 1]?.Author?.Username) || (msg?.RequestId && msgsList?.[index + 1]?.Author?.Username === username) )
+
+        //show pending message
+        if (msg?.RequestId) {
+            return <Msg key={index} Id={0} AuthorId={userId} RequestId={msg.RequestId} img="/profileImg.png" username={username} time={time.toLocaleString()} msg={msg.Content} loading={true} failed={msg?.Failed} hideUserTime={hideUserTime} />
+        }
         return <Msg key={index} Id={msg.Id} AuthorId={msg.Author.Id} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
     });
 }
@@ -108,17 +134,31 @@ function RenderChatName() {
 function InviteModal(props) {
     const genInvite = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Invites?.at(-1) ?? "");
     const [errInvite, setErrInvite] = React.useState("");
+    const [inviteCopied, setInviteCopied] = React.useState("");
     const dispatch = useDispatch();
 
     React.useEffect(() => {
-        setErrInvite("")
+        setErrInvite("");
+        setInviteCopied("");
     }, [props.show]); //clear error message when the modal closes
 
     async function getInvite() {
         const res = await dispatch(GenInvite());
         //these operators are overkill lmao
+        if (!res?.error?.message) {
+            navigator.clipboard.writeText(genInvite);
+            setInviteCopied("Invite copied to clipboard!");
+        } else {
+            setInviteCopied("");
+        }
         setErrInvite(res?.error?.message ?? ""); //should be ok
     }
+
+    function copyInvite() {
+        navigator.clipboard.writeText(genInvite);
+        setInviteCopied("Invite copied to clipboard!");
+    }
+
     return (
         <Modal show={props.show} height="250" width="400" buttons={[{ value: "Exit", function: props.exit }]}>
             <h1>Create Invite</h1>
@@ -126,10 +166,13 @@ function InviteModal(props) {
                 <div className={styles.inviteBox}>
                     <label>Your Invite</label>
                     <input value={genInvite} type="text" readOnly />
-                    <label className={styles.inviteBoxError}>{errInvite}</label>
+                    {!inviteCopied ?
+                        <label className={styles.inviteBoxError}>{errInvite}</label>
+                    : <label className={styles.inviteBoxInviteCopiedMsg}>{inviteCopied}</label>}
                 </div>
-                <div>
+                <div className={styles.inviteButtons}>
                     <input type="button" value="Create" className={`default ${styles.genInviteButton}`} onClick={getInvite} />
+                    <input type="button" value="Copy" className={`default ${styles.genInviteButton}`} onClick={copyInvite} />
                 </div>
             </div>
         </Modal>
@@ -216,7 +259,7 @@ function Chat() { //might turn into class
     function prepareSendMsg() {
         const preparedTxt = chatTxt.trim();
         if (preparedTxt.length > 0 && preparedTxt.length < 1024) {
-            dispatch(SendMsgs({msg:preparedTxt}));
+            dispatch(SendMsgs({msg:preparedTxt, guild : currentGuild}));
             setChatTxt("");
         }
     }
@@ -369,7 +412,8 @@ function Chat() { //might turn into class
                         {
                             RenderChatMsgs()
                         }
-                        { msgLimitReached && 
+                        { (msgLimitReached && messages.length > 0 )
+                        && 
                         <div className={styles.endOfMessages}>
                             This is the end of the chat.
                         </div>

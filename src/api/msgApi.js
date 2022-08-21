@@ -18,10 +18,10 @@ const GetMsgs = createAsyncThunk("msgs/get", async (args, api) => {
 });
 
 const SendMsgs = createAsyncThunk("msgs/post", async (args, api) => { // no dispatch needed
-    const { msg } = args;
+    const { msg, guild } = args;
     await postApi("msg", {
         content: msg,
-        guild: api.getState().guilds.currentGuild
+        guild
     }, {
         headers: {
             "Auth-Token": api.getState().auth.token

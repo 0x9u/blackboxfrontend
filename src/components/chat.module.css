@@ -324,6 +324,14 @@
     position: relative !important;
 }
 
+.msgSentLoading {
+    filter: brightness(85%);
+}
+
+.msgSentFail {
+    color: red !important;
+}
+
 .msg:hover {
     background: rgba(0,0,0,0.25);
 }
@@ -363,6 +371,10 @@
 
 .msgButtonEdit {
     background: blue;
+}
+
+.msgButtonRetry {
+    background: red;
 }
 
 .msgButtonChild:hover {
@@ -767,14 +779,24 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
     text-align:left;
 }
 
+.inviteBoxInviteCopiedMsg {
+    color: gray;
+    text-align: left;
+    font-size: 0.75em;
+}
+
 .inviteBoxError:not(:empty)::before {
     content: "⚠️ ";
+}
+
+.inviteButtons { /* If ur reading this. This probably isnt a good fix*/
+    width: 135px;
 }
 
 .genInviteButton {
     width: 100px;
     height: 25px;
-    margin: 15px 0px;
+    margin: 2.5px 0px;
 }
 
 .chatNoSelected:not(.chat) {
@@ -825,7 +847,10 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
     color: white;
     padding-left: 15px;
     padding-bottom: 10px;
+}
 
+.msg ~ .endOfMessages {
+    padding-bottom: 0px;
 }
 
 .endOfMessages {

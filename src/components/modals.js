@@ -123,12 +123,12 @@ function ServerSettings() {
         resolver: yupResolver(schemaServerSettings)
     });
 
-    function resetForm() {
+   const resetForm = React.useCallback(() => {
         let defaultValues = {};
         defaultValues.serverName = Name;
-        defaultValues.saveChat = SaveChat;
+        defaultValues.saveChat = SaveChat; 
         reset({ ...defaultValues });
-    }
+    }, [Name, SaveChat,reset])
 
     async function updateGuildSettings(form) {
         const res = await dispatch(ChangeGuild({
@@ -139,10 +139,9 @@ function ServerSettings() {
             setError("serverName", { type: "custom", message: res.error.message });
         }
     }
-
     React.useEffect(() => { //temp fix unless there is no other way
-       resetForm();
-    }, [Name, SaveChat]); //transition effect bug fix later
+       resetForm()
+    }, [Name, SaveChat, resetForm]); //transition effect bug fix later
 
 
     return (
@@ -178,13 +177,16 @@ function BanOrKickSettings() {
     const [chosen, setChosen] = React.useState(-1);
     const [error, setError] = React.useState("");
     const userList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Users ?? []);
+    const BanKickLoading = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.BanKickLoading);
     const ownId = useSelector(state => state.auth.userId);
+    const currentGuild = useSelector(state => state.guilds.currentGuild);
 
     const dispatch = useDispatch();
 
     async function banUser() {
         const res = await dispatch(BanUser({
-            id: userList[chosen].Id
+            id: userList[chosen].Id,
+            guild : currentGuild
         }));
         if (res.error) {
             setError(res.error.message);
@@ -196,7 +198,8 @@ function BanOrKickSettings() {
 
     async function kickUser() {
         const res = await dispatch(KickUser({
-            id: userList[chosen].Id
+            id: userList[chosen].Id,
+            guild : currentGuild
         }));
         if (res.error) {
             setError(res.error.message);
@@ -213,7 +216,7 @@ function BanOrKickSettings() {
                 </p>
                 <OptionSelector>
                     {userList.map((user, idx) => user.Id !== ownId && <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
-                        <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" />
+                        <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" alt="profile" />
                         <p className={styles.optionSelectorUsername}>{user.Username}</p>
                     </OptionSelectorChild>)}
                 </OptionSelector>
@@ -223,8 +226,8 @@ function BanOrKickSettings() {
                     {chosen !== -1 ? `You have chosen ${userList?.[chosen]?.Username}` : "Choose a member to ban/kick"}
                 </p>
                 <div className={styles.optionBoxFlexRow}>
-                    <input value="Ban User" type="button" className={styles.banKickUserButton} onClick={banUser} disabled={chosen === -1} />
-                    <input value="Kick User" type="button" className={styles.banKickUserButton} onClick={kickUser} disabled={chosen === -1} />
+                    <input value="Ban User" type="button" className={styles.banKickUserButton} onClick={banUser} disabled={chosen === -1 || BanKickLoading} />
+                    <input value="Kick User" type="button" className={styles.banKickUserButton} onClick={kickUser} disabled={chosen === -1 || BanKickLoading} />
                 </div>
                 <p className={`${styles.optionDescription} ${styles.error}`}>{error}</p>
             </div>
@@ -237,12 +240,14 @@ function BannedUsersSettings() {
     const [error, setError] = React.useState("");
 
     const bannedList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Banned);
+    const currentGuild = useSelector(state => state.guilds.currentGuild);
 
     const dispatch = useDispatch();
 
     async function unbanUser() {
         const res = await dispatch(UnbanUser({
-            id: bannedList[chosen].Id
+            id: bannedList[chosen].Id,
+            guild : currentGuild
         }));
         if (res.error) {
             setError(res.error.message);
@@ -261,7 +266,7 @@ function BannedUsersSettings() {
                 <OptionSelector>
                     {bannedList.map((user, idx) =>
                         <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
-                            <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" />
+                            <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" alt="profile"/>
                             <p className={styles.optionSelectorUsername}>{user.Username}</p>
                         </OptionSelectorChild>)}
                 </OptionSelector>
@@ -284,12 +289,16 @@ function ManageInvitesSettings() {
     const [error, setError] = React.useState("");
 
     const inviteList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Invites);
+    const currentGuild = useSelector(state => state.guilds.currentGuild);
+    const inviteLoading = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.InviteLoading);
+
 
     const dispatch = useDispatch();
 
     async function deleteInvite() {
         const res = await dispatch(DeleteInvite({
-            invite: inviteList[chosen]
+            invite: inviteList[chosen],
+            guild : currentGuild
         }));
         if (res.error) {
             setError(res.error.message);
@@ -317,7 +326,7 @@ function ManageInvitesSettings() {
                     {chosen !== -1 ? `You have chosen ${inviteList[chosen]}` : "Choose a Invite to Delete"}
                 </p>
                 <div className={styles.optionBoxFlexRow}>
-                    <input value="Delete Invite" type="button" className={styles.banKickUserButton} onClick={deleteInvite} disabled={chosen === -1} />
+                    <input value="Delete Invite" type="button" className={styles.banKickUserButton} onClick={deleteInvite} disabled={chosen === -1 || inviteLoading} />
                 </div>
                 <p className={`${styles.optionDescription} ${styles.error}`}>{error}</p>
             </div>

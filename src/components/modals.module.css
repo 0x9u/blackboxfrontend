@@ -715,7 +715,7 @@ div[id='passwordChange']>input[type='button']:active {
 }
 
 .banKickUserButton:disabled {
-    opacity: 0.75;
+    filter: brightness(50%);
 }
 
 .banKickUserButton:not(:disabled):hover {

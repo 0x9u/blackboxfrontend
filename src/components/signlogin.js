@@ -126,7 +126,7 @@ function SignLogin(props) {
 
   return (
     <div className={styles.signlogin}>
-      <div className={styles.title}><h1>BlackBox ;)</h1></div>
+      <div className={styles.title}><h1>BlackBox ;)<span className={styles.stageSign}>Alpha</span></h1></div>
       <div className={styles.prompt}>
         <form className={login ? `${styles.registerForm} ${styles.hidden}` : styles.registerForm} onSubmit={handleSubmitR(SignUpSubmit)}>
           <InputBox id="email" label="Email" errorMessage={errorsR?.email?.message} type="text" register={registerR("email")} />

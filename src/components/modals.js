@@ -79,10 +79,10 @@ function ProfileSettings(props) {
             <div className={styles.profileContainer}>
                 <div className={styles.profileSettingsInformation}>
                     <div className={styles.profileDetails} id="username">
-                        <label >Username:</label><div><p id="username">{username}</p><input className="default" type="button" value="Change" onClick={() => props.userFunc(true)} /></div>
+                        <label >Username:</label><div><p id="username">{username || "Wtf how do u have no username?"}</p><input className="default" type="button" value="Change" onClick={() => props.userFunc(true)} /></div>
                     </div>
                     <div className={styles.profileDetails} id="email">
-                        <label>Email:</label><div><p>{email}</p><input className="default" type="button" value="Change" onClick={() => props.emailFunc(true)} /></div>
+                        <label>Email:</label><div><p>{email || "No Email"}</p><input className="default" type="button" value="Change" onClick={() => props.emailFunc(true)} /></div>
                     </div>
                 </div>
                 <img src="/profileImg.png" alt="Your pfp"/>

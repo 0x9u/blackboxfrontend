@@ -135,7 +135,7 @@ export const websocketApi = createApi({
             ) => {
                 async function connectWS() { //recursive so if its disconnected we can reconnect is unsuccessful
                     dispatch(setLoading(true));
-                    await dispatch(guildReset());
+                    await dispatch(guildReset()); //bug when user logs outs this doesnt work
                     await dispatch(GetGuilds());
                     await dispatch(GetUserInfo());
                     const ws = new WebSocket(WEBSOCKET_URL + "?" + new URLSearchParams({ token: arg.token }));

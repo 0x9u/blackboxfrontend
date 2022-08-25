@@ -58,7 +58,15 @@ white-space: nowrap;
 }
 
 .title>h1{
-  font-size: 3.5em;
+  font-size: calc(15vh - 50px);
+}
+
+.stageSign {
+  position: absolute;
+  font-size: 2.5vh;
+  transform: rotate(15deg);
+  right: 0;
+  bottom: 5vh;
 }
 
 .registerForm > div[id='password'] {

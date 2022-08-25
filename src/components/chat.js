@@ -359,12 +359,6 @@ function Chat() { //might turn into class
         }, [messages?.[0]] //temp fix
     )
 
-    React.useEffect(
-    () => {
-        console.log(msgLimitReached)
-    }, [msgLimitReached]
-    )
-
     const userInfo = useSelector(state => state.userInfo);
 
     async function joinGuild(form) {

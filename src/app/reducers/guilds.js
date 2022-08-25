@@ -12,6 +12,7 @@ format for guilds (guildInfo)
     MsgLimitReached : bool,
     InviteLoading : bool,
     BanKickLoading : bool,
+    EditMessage : int,
     Users : [
         {
             Id : int,
@@ -42,6 +43,7 @@ format for guilds (guildInfo)
             },
             Content : string,
             Time : int,
+            MsgSaved: bool,
         },
         { //pending message
             RequestId : string,
@@ -65,18 +67,19 @@ const guildSlice = createSlice({
     , reducers: {
         guildAdd: (state, action) => { //accepts guild : int
             state.guildInfo[action.payload.Id] = { //update the user list later i cant be fucked (backend and frontend)
-                MsgHistory : [],
-                Users : [],
-                Invites: [],
-                Banned : [],
-                Settings : {}, 
-                Loaded : false,
-                MsgLimitReached : false,
                 Name : action.payload.Name,
                 Icon : action.payload.Icon,
                 Owner : action.payload.Owner,
                 InviteLoading : false,
-                BanKickLoading : false
+                BanKickLoading : false,
+                Loaded : false,
+                MsgLimitReached : false,
+                EditMessage : 0,
+                Invites: [],
+                Users : [],
+                Banned : [],
+                Settings : {},
+                MsgHistory : []
             };
             state.guildOrder.push(action.payload.Id);
         },
@@ -139,6 +142,14 @@ const guildSlice = createSlice({
                     .MsgHistory.filter(msg => msg.Author !== action.payload.Author);
             }
         },
+        msgEditSet : (state, action) => {
+            state.guildInfo[state.currentGuild].EditMessage = action.payload.Id;
+        },
+        msgSet : (state, action) => {
+            state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.map(
+                msg => msg?.Id === action.payload.Id ? {...msg, Content : action.payload.Content }: msg
+            );
+        },
         msgRemoveFailed : (state, action) => {
             state.guildInfo[state.currentGuild].MsgHistory = state.guildInfo[state.currentGuild].MsgHistory.filter(msg => msg?.RequestId !== action.payload.requestId);
         },
@@ -166,9 +177,10 @@ const guildSlice = createSlice({
                         Owner: guild.Owner,
                         InviteLoading : false,
                         BanKickLoading : false,
-                        Invites: [],
                         Loaded: false,
                         MsgLimitReached : false,
+                        EditMessage : 0,
+                        Invites: [],
                         Users: [],
                         Settings : {}, 
                         Banned : [],
@@ -287,6 +299,6 @@ const guildSlice = createSlice({
 });
 //use ellipsis later
 export const { guildAdd, guildRemove, guildSet, guildChange, guildReset, guildSettingsChange, guildCurrentSet,
-    guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, msgRemoveFailed, guildRemoveUserList,
+    guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, msgEditSet, msgSet, msgRemoveFailed, guildRemoveUserList,
     guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove, setLoading } = guildSlice.actions;
 export default guildSlice.reducer;

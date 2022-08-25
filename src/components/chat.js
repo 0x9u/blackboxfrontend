@@ -9,10 +9,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './chat.module.css';
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { useStartWSQuery } from '../api/websocket';
-import { GetMsgs, SendMsgs, DeleteMsgs } from '../api/msgApi';
+import { GetMsgs, SendMsgs, DeleteMsgs, EditMsgs } from '../api/msgApi';
 import { GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
-import { guildCurrentSet, guildReset, msgRemoveFailed } from '../app/reducers/guilds';
+import { guildCurrentSet, guildReset, msgEditSet, msgRemoveFailed } from '../app/reducers/guilds';
 import { userClear } from '../app/reducers/userInfo';
 
 
@@ -21,6 +21,14 @@ function Msg(props) { //TODO add id to return in backend
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
     const userId = useSelector(state => state.auth.userId);
+    const editMessage = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.EditMessage);
+
+    const [editValue, setEditValue] = React.useState(props.msg);
+
+    React.useEffect(() => {
+        setEditValue(props.msg);
+    } ,[props.msg])
+
     async function retryMessage() {
         await dispatch(msgRemoveFailed({
            requestId : props.RequestId
@@ -30,14 +38,59 @@ function Msg(props) { //TODO add id to return in backend
             guild : currentGuild
         }));
     }
+
+    async function sendEditedMessage(msgText) {
+        await dispatch(EditMsgs({
+            msg : msgText,
+            id : props.Id,
+            guild : currentGuild
+        }))
+        await dispatch(msgEditSet({Id : 0}));
+    }
+
+    function cancelEdit() {
+        setEditValue(props.msg);
+        dispatch(msgEditSet({Id : 0}));
+    }
+
+    
+    function prepareSendMsg() {
+        const preparedTxt = editValue.trim();
+        if (preparedTxt.length > 0 && preparedTxt.length < 1024) {
+            sendEditedMessage(preparedTxt);
+            setEditValue(props.msg);
+        }
+    }
+
+    function handleKeySend(e) {
+        if (e.keyCode === 13 && !e.shiftKey) {
+            prepareSendMsg();
+        }
+        else if (e.keyCode === 27) {
+            cancelEdit();
+        }
+    }
+
+    //fixed new line problem
     return (
         <div className={`${styles.msg} ${props.hideUserTime ? styles.hideUserTime : ""}`}>
             {!props.hideUserTime && <>
                 <img src={props.img} width="40" height="40" alt="pfp" />
-                    <label>{props.username} <span>{props.time}</span></label>
+                    <label className={styles.msgUserTime}>{props.username} <span>{props.time}</span></label>
                 </>}
-            <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? styles.msgSentFail : ""}`}>{props.msg}</p>
-            { ((isOwner || userId === props.AuthorId) && (!props.loading || props.failed))
+            {
+                (editMessage === props.Id && props.msgSaved)? 
+                <>
+                <textarea className={`${props.hideUserTime ? styles.hideUserTime : ""}`} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyUp={handleKeySend}/>
+                <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons}`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
+                </>
+                : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? styles.msgSentFail : ""}`}>
+                    {props.msg.split(/\n/).map((line, index) => 
+                        <React.Fragment key={index}>{line}<br/></React.Fragment>
+                    )}
+                </p>
+            }
+            { ((isOwner || userId === props.AuthorId) && (!props.loading || props.failed) && props.msgSaved)
             &&
             <div className={styles.msgButtons}>
                 {
@@ -45,7 +98,10 @@ function Msg(props) { //TODO add id to return in backend
                 && <>
                 <input className={`${styles.msgButtonChild} ${styles.msgButtonDelete}`}
                     type="button" value="Delete" onClick={() => {dispatch(DeleteMsgs({Id:props.Id, Author:props.AuthorId}))}}/>
-                <input className={`${styles.msgButtonChild} ${styles.msgButtonEdit}`} type="button" value="Edit"/>
+                {  
+                    (editMessage !== props.Id && userId === props.AuthorId) && <input className={`${styles.msgButtonChild} ${styles.msgButtonEdit}`} type="button" value="Edit"
+                    onClick={() => {dispatch(msgEditSet({Id : props.Id}))}}/>
+                }
                 </>
                 }
                 {
@@ -78,9 +134,9 @@ function RenderChatMsgs() {
 
         //show pending message
         if (msg?.RequestId) {
-            return <Msg key={index} Id={0} AuthorId={userId} RequestId={msg.RequestId} img="/profileImg.png" username={username} time={time.toLocaleString()} msg={msg.Content} loading={true} failed={msg?.Failed} hideUserTime={hideUserTime} />
+            return <Msg key={msg.RequestId} Id={0} AuthorId={userId} RequestId={msg.RequestId} img="/profileImg.png" username={username} time={time.toLocaleString()} msg={msg.Content} loading={true} failed={msg?.Failed} hideUserTime={hideUserTime} />
         }
-        return <Msg key={index} Id={msg.Id} AuthorId={msg.Author.Id} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
+        return <Msg key={msg.Id} Id={msg.Id} AuthorId={msg.Author.Id} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
     });
 }
 

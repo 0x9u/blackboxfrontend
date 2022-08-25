@@ -23,6 +23,7 @@
 
 .modalContainer {
     background: rgba(0, 0, 0, 0.25);
+    /* (CAUSES LAG) backdrop-filter: blur(1px); */
 }
 
 .modal,
@@ -46,7 +47,7 @@
     width: 0px !important;
     height: 0px !important;
     font-size: 0px;
-    transition: 1s!important; /* slow as fuck replace with one time animation*/
+    transition: 1s !important; /* slow as fuck replace with one time animation*/
 }
 
 .modalContainer.hidden>.hidden>.buttons>input[type='button'] {
@@ -606,11 +607,14 @@ div[id='passwordChange']>input[type='button']:active {
 .userBox>.userBoxError {
     position: absolute;
     color: #cc0000;
-    font-size: 0.45em;
+    font-size: 0.65em;
     text-align: left;
     bottom: -10%;
     left: 0%;
+    right: 15px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     margin-left: 10px;
     transform: translate(0%, 10%);
 }

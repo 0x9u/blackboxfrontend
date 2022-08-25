@@ -5,7 +5,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
     msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildSettingsChange,
     guildUpdateUserList, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList,
-    inviteAdd, inviteRemove, setLoading, guildReset
+    inviteAdd, inviteRemove, setLoading, guildReset, msgSet
 } from '../app/reducers/guilds';
 import { userChange } from '../app/reducers/userInfo';
 import {GetGuilds} from './guildApi';
@@ -163,13 +163,12 @@ export const websocketApi = createApi({
                                 case MSGREMOVE:
                                     dispatch(msgRemove(data));
                                     break;
-
-                                //case MSGEDIT:
-                                //    return msgEdit(data);
+                                case MSGEDIT:
+                                    dispatch(msgSet(data));
+                                    break;
                                 case CHANGEGUILD:
                                     dispatch(guildChange(data));
                                     break;
-
                                 case JOINGUILD:
                                     console.log("join/created server");
                                     dispatch(guildAdd(data));

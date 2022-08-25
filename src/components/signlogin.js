@@ -83,13 +83,13 @@ function SignLogin(props) {
     if (type === "signup") {
       const res = await dispatch(postAuth(form))
       if (res.error) {
-        if (res.error.message === "400") {
-          setErrorR("username", { message: "Username already exists!" });
+        if (res.error.message === "Username already exists!") {
+          setErrorR("username", { type : "custom", message: "Username already exists!" }); //fix later
         } else {
-        setErrorR("username", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
-        setErrorR("password", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
-        setErrorR("confirmPassword", { type: "custom", message:`Something went wrong ( ${res.error.message} )` });
-        setErrorR("email", { type: "custom", message: `Something went wrong ( ${res.error.message} )` });
+        setErrorR("username", { type: "custom", message: `${res.error.message}` });
+        setErrorR("password", { type: "custom", message: `${res.error.message}` });
+        setErrorR("confirmPassword", { type: "custom", message:`${res.error.message}` });
+        setErrorR("email", { type: "custom", message: `${res.error.message}` });
         }
       } else {
         WaitAnim();
@@ -98,9 +98,8 @@ function SignLogin(props) {
       const res = await dispatch(getAuth(form));
       if (res.error) {
         console.log(res.error)
-        let error = res.error.message === "400" ? "Incorrect password or username" : `Something went wrong ( ${res.error.message} )`;
-        setErrorL("username", { type: "custom", message: error });
-        setErrorL("password", { type: "custom", message: error });
+        setErrorL("username", { type: "custom", message: res.error.message });
+        setErrorL("password", { type: "custom", message: res.error.message });
       } else {
         WaitAnim();
       }

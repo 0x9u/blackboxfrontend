@@ -85,9 +85,13 @@ function Msg(props) { //TODO add id to return in backend
                 <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons}`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
                 </>
                 : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? styles.msgSentFail : ""}`}>
-                    {props.msg.split(/\n/).map((line, index) => 
-                        <React.Fragment key={index}>{line}<br/></React.Fragment>
-                    )}
+                    {(() => {
+                        const splitMsgs = props.msg.split(/\n/);
+                        return splitMsgs.map((line, index) => 
+                        <React.Fragment key={index}>{line}{index !== (splitMsgs.length-1) && <br/>}</React.Fragment>
+                        )
+                    })()}
+                    {props.edited && <span className={styles.msgEdited}> (edited)</span>}
                 </p>
             }
             { ((isOwner || userId === props.AuthorId) && (!props.loading || props.failed) && props.msgSaved)
@@ -136,7 +140,7 @@ function RenderChatMsgs() {
         if (msg?.RequestId) {
             return <Msg key={msg.RequestId} Id={0} AuthorId={userId} RequestId={msg.RequestId} img="/profileImg.png" username={username} time={time.toLocaleString()} msg={msg.Content} loading={true} failed={msg?.Failed} hideUserTime={hideUserTime} />
         }
-        return <Msg key={msg.Id} Id={msg.Id} AuthorId={msg.Author.Id} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
+        return <Msg key={msg.Id} Id={msg.Id} AuthorId={msg.Author.Id} edited={msg.Edited} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
     });
 }
 

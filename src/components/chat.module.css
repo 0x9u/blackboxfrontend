@@ -323,6 +323,10 @@
     position: relative !important;
 }
 
+.msgEdited {
+    font-size: 12px;
+}
+
 .msgSentLoading {
     filter: brightness(85%);
 }

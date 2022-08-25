@@ -44,6 +44,7 @@ format for guilds (guildInfo)
             Content : string,
             Time : int,
             MsgSaved: bool,
+            Edited : bool
         },
         { //pending message
             RequestId : string,
@@ -147,7 +148,7 @@ const guildSlice = createSlice({
         },
         msgSet : (state, action) => {
             state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.map(
-                msg => msg?.Id === action.payload.Id ? {...msg, Content : action.payload.Content }: msg
+                msg => msg?.Id === action.payload.Id ? {...msg, Content : action.payload.Content, Edited : true }: msg
             );
         },
         msgRemoveFailed : (state, action) => {

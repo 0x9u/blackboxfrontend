@@ -347,6 +347,8 @@ function UserMenu(props) {
             case 0:
                 return <ProfileSettings userFunc={showChangeUser} emailFunc={showChangeEmail} passFunc={showChangePass} />;
             case 1:
+                return <p>Cheeky settings</p>
+            case 2:
                 return <Appearance />;
             default:
                 return <p>Something is Wrong!</p>
@@ -517,7 +519,8 @@ function UserMenu(props) {
         <Menu show={props.show} exit={() => { setActive(0); props.exit() }} render={renderUserSettings()} modals={modals()}>
             <div className={styles.optionHeading}><p>User Settings</p></div>
             <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
-            <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Appearance" onClick={() => { setActive(1) }} /></div>
+            <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="Cheeky Settings" onClick={() => { setActive(1) }} /></div>
+            <div className={active === 2 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Appearance" onClick={() => { setActive(2) }} /></div>
             <div className={styles.optionButton}><input type="button" value="Log Out" id="leaveButton" onClick={clearAuth} /></div>
         </Menu>
     )

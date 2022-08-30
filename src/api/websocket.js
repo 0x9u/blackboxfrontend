@@ -1,6 +1,8 @@
+/*
 import { webSocket } from 'rxjs/webSocket';
 import { map, mergeMap } from 'rxjs';
 import { ofType } from 'redux-observable';
+*/
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
     msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildSettingsChange,
@@ -10,6 +12,7 @@ import {
 import { userChange } from '../app/reducers/userInfo';
 import {GetGuilds} from './guildApi';
 import {GetUserInfo} from './userInfoApi';
+import { useDispatch } from 'react-redux';
 
 const WEBSOCKET_URL = 'ws://localhost:8090/api/ws';
 

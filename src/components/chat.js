@@ -14,6 +14,7 @@ import { GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild
 import { authClear } from '../app/reducers/auth';
 import { guildCurrentSet, guildReset, msgEditSet, msgRemoveFailed } from '../app/reducers/guilds';
 import { userClear } from '../app/reducers/userInfo';
+import { websocketApi } from '../api/websocket';
 
 
 function Msg(props) { //TODO add id to return in backend
@@ -81,7 +82,7 @@ function Msg(props) { //TODO add id to return in backend
             {
                 (editMessage === props.Id && props.msgSaved)? 
                 <>
-                <textarea className={`${props.hideUserTime ? styles.hideUserTime : ""}`} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyUp={handleKeySend}/>
+                <textarea className={`${props.hideUserTime ? styles.hideUserTime : ""}`} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeySend}/>
                 <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons}`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
                 </>
                 : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? styles.msgSentFail : ""}`}>
@@ -148,14 +149,15 @@ function User(props) {
     return (
         <div className={styles.userListChild}>
             <img src={props.img} width="50" height="50" alt="pfp" />
-            <p>{props.username}</p>
+            <p>{props.isOwner && "👑 "}{props.username}</p>
         </div>
     );
 }
 
 function RenderUserList() {
     const userList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Users ?? []);
-    return userList.map((user, index) => <User key={index} img="/profileImg.png" username={user.Username} />);
+    const ownerId = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner);
+    return userList.map((user, index) => <User key={index} img="/profileImg.png" isOwner={user.Id === ownerId} username={user.Username} />);
 }
 
 
@@ -326,6 +328,7 @@ function Chat() { //might turn into class
 
     function handleKeySend(e) {
         if (e.keyCode === 13 && !e.shiftKey) {
+            e.preventDefault();
             prepareSendMsg();
         }
     }
@@ -339,6 +342,8 @@ function Chat() { //might turn into class
                 navigate("../login", { "replace": false });
                 dispatch(guildReset());
                 dispatch(userClear());
+                dispatch(websocketApi.util.resetApiState()); // stops the fucking websocket finally god damn it took so long
+                //stupid ass documentation says nothing about this
                 return;
             }
         }, [dispatch, navigate, token, userId, expires])
@@ -494,7 +499,7 @@ function Chat() { //might turn into class
                 </div>
                 <div className={styles.chatControl}>
                     <div className={styles.userInput}>
-                        <textarea placeholder="type here!" value={chatTxt} onKeyUp={handleKeySend} onChange={(e) => setChatTxt(e.target.value)} />
+                        <textarea placeholder="type here!" value={chatTxt} onKeyDown={handleKeySend} onChange={(e) => setChatTxt(e.target.value)} />
                         <input type="button" value="Send!" onClick={prepareSendMsg} />
                     </div>
                 </div>

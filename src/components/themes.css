@@ -11,23 +11,30 @@
 }
 
 .themeOneButton, .themeOneTextArea, .themeOneTopMenu {
-    background: #6096BA;
+    background: #6096BA ;
 }
 
 .active.themeOneButton {
-    background: #21b6a8;
+    /*background: #6288A1;*/
+    background: transparent;
+    border: 2px solid #6096BA;
+    transition: 0s border;
 }
 
 .themeOneDivOne {
-    background: #666370;
+    background: #6288A1;
 }
 
 .themeOneDivTwo {
-    background: #4E5166;
+    background: #224857;
 }
 
 .themeOneDivThree {
-    background: #474A48;
+    background: #435D6E;
+}
+
+.themeOneDivFour {
+    background: #6288A1;
 }
 
 .themeOneTextArea::placeholder {

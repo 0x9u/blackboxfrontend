@@ -420,7 +420,7 @@ function Chat() { //might turn into class
     return (
         <div className={styles.chatContainer}>
             <div className={styles.menuUserContainer}>
-                <div className={`${styles.userModal} themeOneDivTwo`}>
+                <div className={`${styles.userModal} themeOneDivThree`}>
                     <div className={styles.userModalUsername}>
                         <p className={"themeOneText"}> {userInfo.username || "NO NAME"} </p>
                         <div>
@@ -456,7 +456,7 @@ function Chat() { //might turn into class
                     </div>
                 </div>
                 <div className={styles.chatContentContainer} >
-                    <div ref={chatContentRef} className={`${styles.chatContent} themeOneDivOne`} id="Iwanttodie">
+                    <div ref={chatContentRef} className={`${styles.chatContent} themeOneDivFour`} id="Iwanttodie">
                         <InfiniteScroll
                             dataLength={messages.length}
                             next={async () => {console.log("getting more");await dispatch(GetMsgs());}}

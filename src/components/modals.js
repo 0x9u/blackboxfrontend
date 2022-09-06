@@ -3,7 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
+
 import styles from './modals.module.css';
+import './themes.css';
+
 import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
 import { BanUser, KickUser, UnbanUser, DeleteInvite, DeleteGuild, ChangeGuild } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
@@ -14,7 +17,7 @@ function Modal(props) { //manual transition fix for now
     return (<div className={props.show ? styles.modalContainer : `${styles.modalContainer} ${styles.hidden}`}>
         <div className={props.show ? styles.modal : styles.hidden} style={{ width: (props.width || "350") + "px", height: (props.height || "150") + "px", transition: props.transition || "0s" }}>
             <div className={styles.buttons}>
-                {props.buttons && props.buttons.map((button, idx) => <input type="button" key={idx} value={button.value} onClick={button.function} />)}
+                {props.buttons && props.buttons.map((button, idx) => <input className={"themeOneButton"} type="button" key={idx} value={button.value} onClick={button.function} />)}
             </div>
             <div className={props.show ? styles.content : `${styles.content} ${styles.hidden}`}>
                 {props.children}
@@ -76,20 +79,20 @@ function ProfileSettings(props) {
 
     return (
         <div className={styles.settingsContainer}>
-            <div className={styles.profileContainer}>
-                <div className={styles.profileSettingsInformation}>
-                    <div className={styles.profileDetails} id="username">
-                        <label >Username:</label><div><p id="username">{username || "Wtf how do u have no username?"}</p><input className="default" type="button" value="Change" onClick={() => props.userFunc(true)} /></div>
+            <div className={`${styles.profileContainer} themeOneDivTwo`}>
+                <div className={`${styles.profileSettingsInformation} themeOneDivOne`}>
+                    <div className={`${styles.profileDetails} themeOneText`} id="username">
+                        <label >Username:</label><div><p id="username">{username || "Wtf how do u have no username?"}</p><input className="default themeOneButton" type="button" value="Change" onClick={() => props.userFunc(true)} /></div>
                     </div>
-                    <div className={styles.profileDetails} id="email">
-                        <label>Email:</label><div><p>{email || "No Email"}</p><input className="default" type="button" value="Change" onClick={() => props.emailFunc(true)} /></div>
+                    <div className={`${styles.profileDetails} themeOneText`} id="email">
+                        <label>Email:</label><div><p>{email || "No Email"}</p><input className="default themeOneButton" type="button" value="Change" onClick={() => props.emailFunc(true)} /></div>
                     </div>
                 </div>
                 <img src="/profileImg.png" alt="Your pfp"/>
             </div>
             <div className={styles.optionBox}>
                 <p className={styles.optionTitle}>Password</p>
-                <div className={styles.optionBoxRow} id="passwordChange"><label>Change password</label> <input type="button" value="Change Password" onClick={() => props.passFunc(true)} /></div>
+                <div className={styles.optionBoxRow} id="passwordChange"><label>Change password</label> <input type="button" className={"themeOneImportant"} value="Change Password" onClick={() => props.passFunc(true)} /></div>
             </div>
         </div>
     );
@@ -162,11 +165,11 @@ function ServerSettings() {
             <div className={styles.optionBox}>
                 <div className={styles.optionBoxRow} id="passwordChange"><label>Save Chat History?</label> <CheckBox register={register("saveChat")} /></div>
             </div>
-            <div className={`${styles.fixedMiniSettingsConfirm} ${!isDirty ? styles.hidden : ""}`}>
+            <div className={`${styles.fixedMiniSettingsConfirm} ${!isDirty ? styles.hidden : ""} themeOneDivTwo`}>
                 <label>Save Changes?</label>
                 <div className={styles.miniSettingsButtons}>
-                <input type="button" value="Reset" className={styles.miniSettingsReset} onClick={resetForm}/>
-                <input type="button" value="Save" className={styles.miniSettingsSave} onClick={handleSubmit(updateGuildSettings)}/>
+                <input type="button" value="Reset" className={`${styles.miniSettingsReset} themeOneImportant themeOneButton`} onClick={resetForm}/>
+                <input type="button" value="Save" className={`${styles.miniSettingsSave} themeOneButton`} onClick={handleSubmit(updateGuildSettings)}/>
                 </div>
             </div>
         </div>
@@ -518,10 +521,10 @@ function UserMenu(props) {
     return (
         <Menu show={props.show} exit={() => { setActive(0); props.exit() }} render={renderUserSettings()} modals={modals()}>
             <div className={styles.optionHeading}><p>User Settings</p></div>
-            <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
-            <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton} ><input type="button" value="Cheeky Settings" onClick={() => { setActive(1) }} /></div>
-            <div className={active === 2 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Appearance" onClick={() => { setActive(2) }} /></div>
-            <div className={styles.optionButton}><input type="button" value="Log Out" id="leaveButton" onClick={clearAuth} /></div>
+            <div className={styles.optionButton} ><input className={active === 0 ? "active themeOneButton" : "themeOneButton"} type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
+            <div className={styles.optionButton} ><input className={active === 1 ? "active themeOneButton" : "themeOneButton"} type="button" value="Cheeky Settings" onClick={() => { setActive(1) }} /></div>
+            <div className={styles.optionButton}><input className={active === 2 ? "active themeOneButton" : "themeOneButton"}type="button" value="Appearance" onClick={() => { setActive(2) }} /></div>
+            <div className={styles.optionButton}><input className={"themeOneImportant themeOneButton"} type="button" value="Log Out" id="leaveButton" onClick={clearAuth} /></div>
         </Menu>
     )
 }
@@ -555,7 +558,7 @@ function ServerMenu(props) {
     }
     function modals() {
         return (
-            <Modal show={showDelete} buttons={[{ value: "Exit", function: () => setShowDelete(false) }, { value: "Done", function: deleteServer }]} >
+            <Modal show={showDelete} buttons={[{ value: "No", function: () => setShowDelete(false) }, { value: "Yes", function: deleteServer }]} >
                 <p style={{ fontSize: "22px" }}>Are you sure?</p>
             </Modal>
         )
@@ -563,11 +566,11 @@ function ServerMenu(props) {
     return (
         <Menu show={props.show} exit={() => { setActive(0); props.exit() }} render={renderServerSettings()} modals={modals()}>
             <div className={styles.optionHeading}><p>Server Settings</p></div>
-            <div className={active === 0 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Server Settings" onClick={() => { setActive(0) }} /></div>
-            <div className={active === 1 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
-            <div className={active === 2 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Banned Users" onClick={() => { setActive(2) }} /></div>
-            <div className={active === 3 ? `${styles.optionButton} ${styles.active}` : styles.optionButton}><input type="button" value="Manage Invites" onClick={() => { setActive(3) }} /></div>
-            <div className={styles.optionButton}><input type="button" value="Delete Server" id="leaveButton" onClick={() => setShowDelete(true)} /></div>
+            <div className={styles.optionButton}><input className={active === 0 ? "active themeOneButton" : "themeOneButton"} type="button" value="Server Settings" onClick={() => { setActive(0) }} /></div>
+            <div className={styles.optionButton}><input className={active === 1 ? "active themeOneButton" : "themeOneButton"} type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
+            <div className={styles.optionButton}><input className={active === 2 ? "active themeOneButton" : "themeOneButton"} type="button" value="Banned Users" onClick={() => { setActive(2) }} /></div>
+            <div className={styles.optionButton}><input className={active === 3 ? "active themeOneButton" : "themeOneButton"} type="button" value="Manage Invites" onClick={() => { setActive(3) }} /></div>
+            <div className={styles.optionButton}><input type="button" className={"themeOneImportant themeOneButton"} value="Delete Server" id="leaveButton" onClick={() => setShowDelete(true)} /></div>
         </Menu>
     )
 }
@@ -575,15 +578,15 @@ function ServerMenu(props) {
 function Menu(props) { //pass set states function to be able change options through scopes
     return (
         <div className={props.show ? styles.menuContainer : `${styles.menuContainer} ${styles.hidden}`}>
-            <div className={styles.optionsMenu}>
+            <div className={`${styles.optionsMenu} themeOneDivTwo`}>
                 {props.children}
             </div>
-            <div className={styles.optionsContainer}>
+            <div className={`${styles.optionsContainer} themeOneDivThree`}>
                 <div className={styles.options}>
                     {props.render}
                 </div>
                 <div className={styles.exitButton}>
-                    <input className="default" type="button" onClick={props.exit} value="×" />
+                    <input className="default themeOneButton" type="button" onClick={props.exit} value="×" />
                     <label>Exit</label>
                 </div>
             </div>

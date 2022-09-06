@@ -6,7 +6,10 @@ import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 //import { useInView } from 'react-intersection-observer';
 import InfiniteScroll from 'react-infinite-scroll-component';
+
 import styles from './chat.module.css';
+import './themes.css';
+
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { useStartWSQuery } from '../api/websocket';
 import { GetMsgs, SendMsgs, DeleteMsgs, EditMsgs } from '../api/msgApi';
@@ -77,19 +80,19 @@ function Msg(props) { //TODO add id to return in backend
         <div className={`${styles.msg} ${props.hideUserTime ? styles.hideUserTime : ""}`}>
             {!props.hideUserTime && <>
                 <img src={props.img} width="40" height="40" alt="pfp" />
-                    <label className={styles.msgUserTime}>{props.username} <span>{props.time}</span></label>
+                    <label className={`${styles.msgUserTime} themeOneTextUserTime`}>{props.username} <span>{props.time}</span></label>
                 </>}
             {
                 (editMessage === props.Id && props.msgSaved)? 
                 <>
-                <textarea className={`${props.hideUserTime ? styles.hideUserTime : ""}`} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeySend}/>
-                <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons}`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
+                <textarea className={`${props.hideUserTime ? styles.hideUserTime : ""} themeOneTextArea`} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeySend}/>
+                <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons} themeOneText`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
                 </>
-                : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? styles.msgSentFail : ""}`}>
+                : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? styles.msgSentFail : ""} themeOneText`}>
                     {(() => {
                         const splitMsgs = props.msg.split(/\n/);
                         return splitMsgs.map((line, index) => 
-                        <React.Fragment key={index}>{line}{index !== (splitMsgs.length-1) && <br/>}</React.Fragment>
+                        <React.Fragment key={index}>{line}{index !== (splitMsgs.length-1) && <br className={styles.msgNewLine}/>}</React.Fragment>
                         )
                     })()}
                     {props.edited && <span className={styles.msgEdited}> (edited)</span>}
@@ -101,17 +104,17 @@ function Msg(props) { //TODO add id to return in backend
                 {
                     !props.failed
                 && <>
-                <input className={`${styles.msgButtonChild} ${styles.msgButtonDelete}`}
+                <input className={`${styles.msgButtonChild} themeOneImportant themeOneButton`}
                     type="button" value="Delete" onClick={() => {dispatch(DeleteMsgs({Id:props.Id, Author:props.AuthorId}))}}/>
                 {  
-                    (editMessage !== props.Id && userId === props.AuthorId) && <input className={`${styles.msgButtonChild} ${styles.msgButtonEdit}`} type="button" value="Edit"
+                    (editMessage !== props.Id && userId === props.AuthorId) && <input className={`${styles.msgButtonChild} themeOneButton`} type="button" value="Edit"
                     onClick={() => {dispatch(msgEditSet({Id : props.Id}))}}/>
                 }
                 </>
                 }
                 {
                     props.failed &&
-                    <input className={`${styles.msgButtonChild} ${styles.msgButtonRetry}`} type="button" value="Retry" onClick={retryMessage}/>
+                    <input className={`${styles.msgButtonChild} themeOneImportant themeOneButton`} type="button" value="Retry" onClick={retryMessage}/>
                 }
             </div>
             }
@@ -149,7 +152,7 @@ function User(props) {
     return (
         <div className={styles.userListChild}>
             <img src={props.img} width="50" height="50" alt="pfp" />
-            <p>{props.isOwner && "👑 "}{props.username}</p>
+            <p className={"themeOneText"}>{props.isOwner && "👑 "}{props.username}</p>
         </div>
     );
 }
@@ -163,8 +166,8 @@ function RenderUserList() {
 
 function MenuOption(props) {
     return (
-        <div className={styles.menuOption} onClick={props.function}>
-            <p>{props.name}</p>
+        <div className={`${styles.menuOption} themeOneButton`} onClick={props.function}>
+            <p className={"themeOneText"}>{props.name}</p>
         </div>
     );
 }
@@ -172,9 +175,9 @@ function MenuOption(props) {
 function Guild(props) {
     const dispatch = useDispatch();
     return (
-        <div className={`${styles.guildContainer} ${props.active ? styles.active : ""}`} onClick={() => dispatch(guildCurrentSet({ Guild: props.guildId }))}>
-            <div className={styles.guildOption}>
-                <p>{props.name}</p>
+        <div className={`${styles.guildContainer}`} onClick={() => dispatch(guildCurrentSet({ Guild: props.guildId }))}>
+            <div className={`${styles.guildOption} ${props.active ? "active"/*styles.active*/ : ""} themeOneButton`}>
+                <p className={"themeOneText"}>{props.name}</p>
             </div>
             <img src={props.img} alt="server pfp" />
         </div>
@@ -229,12 +232,12 @@ function InviteModal(props) {
                     <label>Your Invite</label>
                     <input value={genInvite} type="text" readOnly />
                     {!inviteCopied ?
-                        <label className={styles.inviteBoxError}>{errInvite}</label>
+                        <label className={`${styles.inviteBoxError} themeOneImportantText`}>{errInvite}</label>
                     : <label className={styles.inviteBoxInviteCopiedMsg}>{inviteCopied}</label>}
                 </div>
                 <div className={styles.inviteButtons}>
-                    <input type="button" value="Create" className={`default ${styles.genInviteButton}`} onClick={getInvite} />
-                    <input type="button" value="Copy" className={`default ${styles.genInviteButton}`} onClick={copyInvite} />
+                    <input type="button" value="Create" className={`default themeOneButton ${styles.genInviteButton}`} onClick={getInvite} />
+                    <input type="button" value="Copy" className={`default themeOneButton ${styles.genInviteButton}`} onClick={copyInvite} />
                 </div>
             </div>
         </Modal>
@@ -417,18 +420,18 @@ function Chat() { //might turn into class
     return (
         <div className={styles.chatContainer}>
             <div className={styles.menuUserContainer}>
-                <div className={styles.userModal}>
+                <div className={`${styles.userModal} themeOneDivTwo`}>
                     <div className={styles.userModalUsername}>
-                        <p> {userInfo.username || "NO NAME"} </p>
+                        <p className={"themeOneText"}> {userInfo.username || "NO NAME"} </p>
                         <div>
-                            <input type="button" value="settings" onClick={() => setMenu(true)} />
+                            <input type="button" className={"themeOneButton"} value="settings" onClick={() => setMenu(true)} />
                         </div>
                     </div>
                     <div className={styles.userModalProfile}>
                         <img src="/profileImg.png" id="pfp" />
                     </div>
                 </div>
-                <div className={styles.menu}>
+                <div className={`${styles.menu} themeOneDivThree`}>
                     <MenuOption name="Games (Not Working yet)" function={() => 1} />
                     <MenuOption name="Create/Add Chat" function={() => setChat(true)} />
                     {
@@ -440,12 +443,12 @@ function Chat() { //might turn into class
                     { 
                         currentGuild === 0 &&
                         <div className={styles.chatNoSelected}>
-                            <p>No Chat Selected</p>
+                            <p className={"themeOneText"}>No Chat Selected</p>
                         </div>
                     }
-                <div className={styles.chatTopMenu}>
+                <div className={`${styles.chatTopMenu} themeOneTopMenu`}>
                     <div className={styles.topMenuServerName}>
-                        <p>{RenderChatName()}</p> {/* REPLACE WITH SOME COOL ASS FUNCTION */}
+                        <p className={"themeOneText"}>{RenderChatName()}</p> {/* REPLACE WITH SOME COOL ASS FUNCTION */}
                     </div>
                     <div className={styles.topMenuServerButton}>
                         <input type="button" value="Server" onClick={() => { setServer(!server); setUserList(false) }} />
@@ -453,7 +456,7 @@ function Chat() { //might turn into class
                     </div>
                 </div>
                 <div className={styles.chatContentContainer} >
-                    <div ref={chatContentRef} className={styles.chatContent} id="Iwanttodie">
+                    <div ref={chatContentRef} className={`${styles.chatContent} themeOneDivOne`} id="Iwanttodie">
                         <InfiniteScroll
                             dataLength={messages.length}
                             next={async () => {console.log("getting more");await dispatch(GetMsgs());}}
@@ -479,28 +482,28 @@ function Chat() { //might turn into class
                         }
                         </InfiniteScroll>
                     </div>
-                    <div className={userList ? styles.chatUserList : styles.chatUserListHidden}>
+                    <div className={`${userList ? styles.chatUserList : styles.chatUserListHidden} themeOneDivThree`}>
                         {
                             RenderUserList()
                         }
 
                     </div>
-                    <div className={server ? styles.serverMiniOptions : styles.serverMiniOptionsHidden}>
-                        <input className="default" type="button" value="Create Invite" id="createInviteButton" onClick={() => { setInvite(true); setServer(false); }} />
+                    <div className={`${server ? styles.serverMiniOptions : styles.serverMiniOptionsHidden} themeOneDivTwo`}>
+                        <input className={"default themeOneButton"} type="button" value="Create Invite" id="createInviteButton" onClick={() => { setInvite(true); setServer(false); }} />
                         {
                             isOwner &&
-                            <input className="default" type="button" value="Server Settings" id="serverSettingsButton" onClick={() => { setServerSettings(true); setServer(false) }} />
+                            <input className={"default themeOneButton"} type="button" value="Server Settings" id="serverSettingsButton" onClick={() => { setServerSettings(true); setServer(false) }} />
                         }
                         {
                             !isOwner &&
-                            <input className="default" type="button" value="Leave Server" id="leaveServerButton" onClick={leaveGuild} />
+                            <input className={"default themeOneButton themeOneImportant"} type="button" value="Leave Server" id="leaveServerButton" onClick={leaveGuild} />
                         }
                     </div>
                 </div>
-                <div className={styles.chatControl}>
+                <div className={`${styles.chatControl} themeOneDivTwo`}>
                     <div className={styles.userInput}>
-                        <textarea placeholder="type here!" value={chatTxt} onKeyDown={handleKeySend} onChange={(e) => setChatTxt(e.target.value)} />
-                        <input type="button" value="Send!" onClick={prepareSendMsg} />
+                        <textarea placeholder="type here!" className={"themeOneTextArea"} value={chatTxt} onKeyDown={handleKeySend} onChange={(e) => setChatTxt(e.target.value)} />
+                        <input type="button" value="Send!" className={"themeOneButton"} onClick={prepareSendMsg} />
                     </div>
                 </div>
             </div>
@@ -510,8 +513,8 @@ function Chat() { //might turn into class
                 <div className={styles.addChatOptions}>
                     <p>Create/Add Chat</p>
                     <div className={create === 0 || create === -1 ? styles.chatOptionsContainer : `${styles.chatOptionsContainer} ${styles.hidden}`}>
-                        <button onClick={() => setCreate(1)}><label>Create Chat</label></button>
-                        <button onClick={() => setCreate(2)}><label>Join Chat</label></button>
+                        <button className={"themeOneButton"} onClick={() => setCreate(1)}><label>Create Chat</label></button>
+                        <button className={"themeOneButton"} onClick={() => setCreate(2)}><label>Join Chat</label></button>
                     </div>
                     <div className={create === 1 ? styles.chatCreateContainer : `${styles.chatCreateContainer} ${styles.hidden}`}>
                         <div className={styles.createInformation}>
@@ -524,7 +527,7 @@ function Chat() { //might turn into class
                         </div>
                         <div className={styles.createAppearance}>
                             <div className={styles.createInfoOption} id="changeProfile">
-                                <PictureSelector src={serverImage} height="150" width="150" />
+                                <PictureSelector src={serverImage} height="150" width="150" />  
                             </div>
                             <div className={styles.createInfoOption}>
                                 <InputBox id="serverNameInput" label="Server Name" type="text" maxLength={16} register={registerC("serverName")} errorMessage={errorsC?.serverName?.message} />
@@ -547,7 +550,7 @@ function Chat() { //might turn into class
             }
             {
                 isLoading &&
-                <div className={styles.loadingScreen}>Loading...</div>
+                <div className={`${styles.loadingScreen} themeOneText`}>Loading...</div>
             }
         </div>
 

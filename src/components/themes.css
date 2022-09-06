@@ -1,0 +1,43 @@
+.themeOneText, .themeOneButton, .themeOneTextArea  {
+    color: white;
+}
+
+.themeOneText > a {
+    color: #0096FF;
+}
+
+.themeOneTextUserTime {
+    color: #E2DFD2;
+}
+
+.themeOneButton, .themeOneTextArea, .themeOneTopMenu {
+    background: #6096BA;
+}
+
+.active.themeOneButton {
+    background: #21b6a8;
+}
+
+.themeOneDivOne {
+    background: #666370;
+}
+
+.themeOneDivTwo {
+    background: #4E5166;
+}
+
+.themeOneDivThree {
+    background: #474A48;
+}
+
+.themeOneTextArea::placeholder {
+    color: whitesmoke;
+}
+
+.themeOneImportant {
+    background: red;
+}
+
+.themeOneImportantText {
+    color: red;
+}

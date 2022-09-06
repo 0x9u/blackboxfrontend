@@ -31,8 +31,10 @@ html>body>#root:empty {
 }
 
 input[type='button'].default {
+  /*
   background: #6096BA;
   color: white;
+  */
   border: none;
   border-radius: 2px;
   font-weight: bold;

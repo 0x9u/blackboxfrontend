@@ -145,8 +145,8 @@
 
 .modal>.buttons>input[type="button"],
 .hidden>.buttons>input[type="button"] {
-    background: #6096BA;
-    color: white;
+    /*background: #6096BA;
+    color: white;*/
     border: none;
     font-weight: bold;
     width: 10em;
@@ -164,7 +164,7 @@
 }
 
 .optionsMenu {
-    background: #37505C;
+    /*background: #37505C;*/
     width: 350px;
     padding-left: calc(25% - 350px);
     height: 100%;
@@ -206,7 +206,7 @@
 }
 
 .optionButton>input {
-    background: rgba(0, 0, 0, 0.5);
+    /*background: rgba(0, 0, 0, 0.5);*/
     width: 100%;
     height: 100%;
     border: none;
@@ -216,13 +216,15 @@
     transition: 0.5s;
 }
 
+/*
 .optionButton.active>input {
     background: blueviolet;
 }
+*/
 
 .optionsContainer {
     flex: 2;
-    background: #4F5D75;
+    /*background: #4F5D75;*/
     width: 650px;
     /* unsure why it overwraps the options menu check later temp fix */
     padding-right: calc(75% - 650px - 25px);
@@ -289,7 +291,7 @@
     margin: 0px 50px 25px;
     gap: 15px;
     padding: 30px;
-    background: #AEC3B0;
+    /*background: #AEC3B0;*/
 }
 
 .profileContainer>img {
@@ -306,7 +308,7 @@
     flex-direction: column;
     height: 100%;
     width: calc(100% - 100px - 15px);
-    background: #A0AAB2;
+    /*background: #A0AAB2;*/
     box-shadow: 1px 1px 5px black;
     border-radius: 10px;
     padding: 5px;
@@ -352,6 +354,7 @@
     */
 }
 
+/*
 input[type='button'][id='leaveButton'] {
     background: rgba(255, 0, 0, 0.25);
     border: 2px solid red;
@@ -359,6 +362,15 @@ input[type='button'][id='leaveButton'] {
 
 input[type='button'][id='leaveButton']:hover {
     background: red;
+}
+*/
+
+input[type='button'][id='leaveButton']:hover {
+    filter: brightness(85%);
+}
+
+input[type='button'][id='leaveButton']:active {
+    filter: brightness(50%);
 }
 
 .optionBox {
@@ -440,7 +452,8 @@ input[type='button'][id='leaveButton']:hover {
     margin-left: 5px;
     width: 45px;
     height: 20px;
-    background: #464655;
+    /*background: #464655;*/
+    background: black;
     border-radius: 15px;
     position: relative;
     display: inline-block;
@@ -489,7 +502,7 @@ input[type='button'][id='leaveButton']:hover {
 
 div[id='passwordChange']>input[type='button'] {
     border: none;
-    background: green;
+    /*background: green;*/
     border-radius: 5px;
     height: 25px;
     color: white;
@@ -497,8 +510,13 @@ div[id='passwordChange']>input[type='button'] {
     transition: 0.1s;
 }
 
+div[id='passwordChange']>input[type='button']:hover {
+    filter: brightness(85%);
+}
+
 div[id='passwordChange']>input[type='button']:active {
-    background: gray;
+    /*background: gray;*/
+    filter: brightness(50%);
 }
 
 .changeUsernameModal,
@@ -735,7 +753,7 @@ div[id='passwordChange']>input[type='button']:active {
     position: fixed;
     /* FIX LATER WHEN SCREEN RESOLUTION CHANGES*/
     display: flex;
-    background: red;
+    /*background: red;*/
     margin: 0px 15px;
     bottom: 15px;
     /* this is going to be hell to migrate to scss*/
@@ -782,9 +800,15 @@ div[id='passwordChange']>input[type='button']:active {
 
 .miniSettingsSave {
     margin-right: 10px;
+}
+
+/*
+.miniSettingsSave {
+    margin-right: 10px;
     background: darkgreen;
 }
 
 .miniSettingsReset {
     background: darkred;
 }
+*/

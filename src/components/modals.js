@@ -48,7 +48,7 @@ function CheckBox(props) {
 
 function OptionSelector(props) {
     return (
-        <div className={`${styles.optionSelector} ${props.className}`} id={props.id}>
+        <div className={`${styles.optionSelector} ${props.className} themeOneDivOne`} id={props.id}>
             {props.children}
         </div>
     )
@@ -56,7 +56,7 @@ function OptionSelector(props) {
 
 function OptionSelectorChild(props) {
     return (
-        <div className={`${styles.optionSelectorChild} ${props.active ? styles.active : ""} ${props.className}`} id={props.id} onClick={() => props.onClick(props.value)} >
+        <div className={`${styles.optionSelectorChild} ${props.active ? `${styles.active} themeOneActiveBackground` : "themeOneOptionSelectorChild themeOnDivTwo"} ${props.className} themeOneText`} id={props.id} onClick={() => props.onClick(props.value)} >
             {props.children}
         </div>
     )
@@ -80,7 +80,7 @@ function ProfileSettings(props) {
     return (
         <div className={styles.settingsContainer}>
             <div className={`${styles.profileContainer} themeOneDivTwo`}>
-                <div className={`${styles.profileSettingsInformation} themeOneDivOne`}>
+                <div className={`${styles.profileSettingsInformation} themeOneDivThree`}>
                     <div className={`${styles.profileDetails} themeOneText`} id="username">
                         <label >Username:</label><div><p id="username">{username || "Wtf how do u have no username?"}</p><input className="default themeOneButton" type="button" value="Change" onClick={() => props.userFunc(true)} /></div>
                     </div>
@@ -92,11 +92,36 @@ function ProfileSettings(props) {
             </div>
             <div className={styles.optionBox}>
                 <p className={styles.optionTitle}>Password</p>
-                <div className={styles.optionBoxRow} id="passwordChange"><label>Change password</label> <input type="button" className={"themeOneImportant"} value="Change Password" onClick={() => props.passFunc(true)} /></div>
+                <div className={styles.optionBoxRow} id="passwordChange"><label>Change password</label> <input type="button" className={`${styles.singleRowButton} themeOneImportant`} value="Change Password" onClick={() => props.passFunc(true)} /></div>
             </div>
         </div>
     );
 }
+
+function CheekySettings(props) {
+    return (
+        <div className={styles.settingsContainer}>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>
+                    Cheeky Settings
+                </p>
+                <div className={styles.optionBoxRow}>
+                    <label>Panic Button Link</label>
+                    <input type="button" className={`${styles.singleRowButton} themeOneImportant`} value="Change Link" onClick={() => props.linkFunc(true)}/>
+                </div>
+                <div className={styles.optionBoxRow}>
+                    <label>Set Keybind for panic button</label>
+                    <input type="button" className={`${styles.singleRowButton} themeOneImportant`} value="Set Keybind" onClick={() => props.keyBindFunc(true)}/>
+                </div>
+                <div className={styles.optionBoxRow}>
+                    <label>Redirect (Green) or Display page (Red)</label>
+                    <CheckBox />
+                </div>
+            </div>
+        </div>
+    )
+}
+
 
 function Appearance() {
     return (
@@ -108,7 +133,7 @@ function Appearance() {
     );
 }
 
-function ServerSettings() {
+function ServerSettings(props) {
     const dispatch = useDispatch();
     const Name = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Name);
     const { SaveChat } = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Settings ?? {});
@@ -144,7 +169,7 @@ function ServerSettings() {
     }
     React.useEffect(() => { //temp fix unless there is no other way
         resetForm()
-    }, [Name, SaveChat, resetForm]); //transition effect bug fix later
+    }, [Name, SaveChat, resetForm, props.show]); //transition effect bug fix later
 
 
     return (
@@ -342,6 +367,11 @@ function UserMenu(props) {
     const [changeUser, showChangeUser] = React.useState(false);
     const [changeEmail, showChangeEmail] = React.useState(false);
     const [changePass, showChangePass] = React.useState(false);
+    
+    const [keyBindSetting ,setKeyBindSetting] = React.useState(false);
+    const [linkSetting ,setLinkSetting] = React.useState(false);
+
+    const [keyBind, setKeyBind] = React.useState({});
 
     const dispatch = useDispatch();
 
@@ -350,7 +380,7 @@ function UserMenu(props) {
             case 0:
                 return <ProfileSettings userFunc={showChangeUser} emailFunc={showChangeEmail} passFunc={showChangePass} />;
             case 1:
-                return <p>Cheeky settings</p>
+                return <CheekySettings linkFunc={setLinkSetting} keyBindFunc={setKeyBindSetting}/>
             case 2:
                 return <Appearance />;
             default:
@@ -388,6 +418,13 @@ function UserMenu(props) {
         password: Yup.string().required("Password is required")
     })
 
+    const schemaLink = Yup.object().shape({
+        link : Yup.string()
+            .required("A link is required")
+            .matches(/((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+                    "Invalid link")
+    })
+
     const { handleSubmit: handleSubmitU, register: registerU, setError: setErrorU, reset: resetU, formState: { errors: errorsU } } = useForm({
         resolver: yupResolver(schemaUsername)
     });
@@ -399,6 +436,11 @@ function UserMenu(props) {
 
     const { handleSubmit: handleSubmitP, register: registerP, setError: setErrorP, reset: resetP, formState: { errors: errorsP } } = useForm({
         resolver: yupResolver(schemaPassword)
+    });
+
+    
+    const { handleSubmit: handleSubmitL, register: registerL, setError: setErrorL, reset: resetL, formState: { errors: errorsL } } = useForm({
+        resolver: yupResolver(schemaLink)
     });
 
     async function changeUsernameAPI(form) {
@@ -452,9 +494,33 @@ function UserMenu(props) {
         dispatch(authClear());
     }
 
+
+
+    function recordKeyBind(e) {
+        e.preventDefault();
+        console.log(e.keyCode);
+        console.log(keyBind);
+        console.log(e.key)
+        if (e.key === " ") {
+            e.key = "Space"
+        }
+        setKeyBind({...keyBind, [e.key] : true});
+    }
+
+    function resetKeyBind(e) {
+        console.log(keyBind)
+        setKeyBind({});
+     }
+
+    function renderKeyBind(a) {
+        console.log(a)
+        return Object.keys(a).sort().join("+")
+    }
+
+
     function modals() {
         return <>
-            <Modal show={changeUser} buttons={[{ value: "Exit", function: () => showChangeUser(false) }, { value: "Done", function: handleSubmitU(changeUsernameAPI) }]} width="450" height="300">
+            <Modal show={changeUser} buttons={[{ value: "Exit", function: () => {showChangeUser(false); resetU() }}, { value: "Done", function: handleSubmitU(changeUsernameAPI) }]} width="450" height="300">
                 <form className={styles.changeUsernameModal}>
                     <div className={styles.changeContainer}>
                         <label>New Username</label>
@@ -473,7 +539,7 @@ function UserMenu(props) {
                     </div>
                 </form>
             </Modal>
-            <Modal show={changeEmail} buttons={[{ value: "Exit", function: () => showChangeEmail(false) }, { value: "Done", function: handleSubmitE(changeEmailAPI) }]} width="450" height="300">
+            <Modal show={changeEmail} buttons={[{ value: "Exit", function: () => {showChangeEmail(false); resetE() }}, { value: "Done", function: handleSubmitE(changeEmailAPI) }]} width="450" height="300">
                 <form className={styles.changeEmailModal}>
                     <div className={styles.changeContainer}>
                         <label>New Email</label>
@@ -491,7 +557,7 @@ function UserMenu(props) {
                     </div>
                 </form>
             </Modal>
-            <Modal show={changePass} buttons={[{ value: "Exit", function: () => showChangePass(false) }, { value: "Done", function: handleSubmitP(changePasswordAPI) }]} width="450" height="300">
+            <Modal show={changePass} buttons={[{ value: "Exit", function: () => {showChangePass(false); resetP() }}, { value: "Done", function: handleSubmitP(changePasswordAPI) }]} width="450" height="300">
                 <form className={styles.changePasswordModal}>
                     <div className={styles.changeContainer}>
                         <label>New Password</label>
@@ -512,6 +578,28 @@ function UserMenu(props) {
                         <div className={styles.innerChangeContainer}>
                             <input type="password" {...registerP("password")} />
                             <label className={styles.error}>{errorsP?.password?.message}</label>
+                        </div>
+                    </div>
+                </form>
+            </Modal>
+            <Modal show={keyBindSetting} buttons={[{ value: "Exit", function: () => setKeyBindSetting(false) },{ value: "Done", function: () => setKeyBindSetting(false)}]} width="450" height="300">
+                <div className={styles.keybindModal}>
+                    <div className={styles.changeContainer}>
+                        <label>Keybind</label>
+                        <div className={styles.innerChangeContainer}>
+                            <input type="text" value={renderKeyBind(keyBind)} onKeyDown={resetKeyBind} onKeyUp={recordKeyBind} readOnly />
+                            <label className={styles.info}>Click on input above to set keybind</label>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+            <Modal show={linkSetting} buttons={[{ value: "Exit", function: () => {setLinkSetting(false); resetL()} },{ value: "Set Link", function: handleSubmitL((a) => {}) }]} width="450" height="300">
+                <form className={styles.linkModal}>
+                    <div className={styles.changeContainer}>
+                        <label>Link</label>
+                        <div className={styles.innerChangeContainer}>
+                            <input type="text" {...registerL("link")}/>
+                            <label className={errorsL?.link?.message ? styles.error : styles.info}>{errorsL?.link?.message || "Copy and paste valid link above"}</label>
                         </div>
                     </div>
                 </form>
@@ -538,7 +626,7 @@ function ServerMenu(props) {
     function renderServerSettings() {
         switch (active) {
             case 0:
-                return <ServerSettings />;
+                return <ServerSettings show={props.show}/>;
             case 1:
                 return <BanOrKickSettings />;
             case 2:

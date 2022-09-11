@@ -10,7 +10,7 @@
     color: #E2DFD2;
 }
 
-.themeOneButton, .themeOneTextArea, .themeOneTopMenu {
+.themeOneButton, .themeOneTextArea, .themeOneTopMenu, .themeOneActiveBackground {
     background: #6096BA ;
 }
 
@@ -22,16 +22,12 @@
     background: #6288A1;
 }
 
-.themeOneDivTwo {
+.themeOneDivTwo, .themeOneOptionSelectorChild:hover {
     background: #224857;
 }
 
 .themeOneDivThree {
     background: #435D6E;
-}
-
-.themeOneDivFour {
-    background: #6288A1;
 }
 
 .themeOneTextArea::placeholder {

@@ -456,7 +456,7 @@ function Chat() { //might turn into class
                     </div>
                 </div>
                 <div className={styles.chatContentContainer} >
-                    <div ref={chatContentRef} className={`${styles.chatContent} themeOneDivFour`} id="Iwanttodie">
+                    <div ref={chatContentRef} className={`${styles.chatContent} themeOneDivOne`} id="Iwanttodie">
                         <InfiniteScroll
                             dataLength={messages.length}
                             next={async () => {console.log("getting more");await dispatch(GetMsgs());}}

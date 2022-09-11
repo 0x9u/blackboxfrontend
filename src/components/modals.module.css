@@ -17,7 +17,7 @@
     background: white;
     display: flex;
     flex-direction: row;
-    transition: 0.5s;
+    transition: 0.25s;
     overflow-x: auto;
 }
 
@@ -55,7 +55,7 @@
 }
 
 .menuContainer.hidden {
-    transition: 0.5s;
+    transition: 0.25s;
     opacity: 0.0;
     width: 0px;
     height: 0px;
@@ -174,7 +174,6 @@
 }
 
 .optionHeading {
-    font-weight: bold;
     border-bottom: 2px solid white;
     padding: 0;
 }
@@ -265,7 +264,6 @@
 .exitButton>label {
     margin-left: 6.5px;
     margin-top: 1px;
-    font-weight: bolder;
     font-size: 12px !important;
     color: white !important;
 }
@@ -424,6 +422,12 @@ input[type='button'][id='leaveButton']:active {
     margin-top: 30px;
 }
 
+.optionBoxRow:not(:first-child),
+.optionBoxFlexRow:not(:first-child)
+{
+    margin-bottom: 30px;
+}
+
 .optionBoxRow {
     align-items: center;
 
@@ -503,14 +507,15 @@ input[type='button'][id='leaveButton']:active {
     margin: 250px;
     font-size: 32px;
     font-weight: bolder;
+    color: white;
 }
 
 .optionTitle {
-    font-weight: bolder;
-    font-size: 20px;
+    font-weight: 500;
+    font-size: 22px;
 }
 
-div[id='passwordChange']>input[type='button'] {
+.singleRowButton {
     border: none;
     /*background: green;*/
     border-radius: 5px;
@@ -520,21 +525,29 @@ div[id='passwordChange']>input[type='button'] {
     transition: 0.1s;
 }
 
-div[id='passwordChange']>input[type='button']:hover {
+.singleRowButton:hover {
     filter: brightness(85%);
 }
 
-div[id='passwordChange']>input[type='button']:active {
+.singleRowButton:active {
     /*background: gray;*/
     filter: brightness(50%);
 }
 
 .changeUsernameModal,
 .changePasswordModal,
-.changeEmailModal {
+.changeEmailModal,
+.keybindModal,
+.linkModal {
     position: absolute;
     width: 400px;
     height: calc(100% - 35px - 15%);
+}
+
+.keybindModal, .linkModal {
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -100%);
 }
 
 .changeUsernameModal,
@@ -574,15 +587,17 @@ div[id='passwordChange']>input[type='button']:active {
 
 .innerChangeContainer>label.error {
     color: red;
-    font-size: 0.50em;
+}
+.innerChangeContainer>label.error,.innerChangeContainer>label.info {
     flex: 0;
     text-align: left;
+    font-size: 0.75em;
     margin-top: 5px;
 }
 
 .innerChangeContainer>label.error:empty {
     /* keeps same height when no text*/
-    padding-top: 15px;
+    padding-top: 21px;
     /* fixed I fucking hate css*/
     margin: 0px;
 }
@@ -693,7 +708,7 @@ div[id='passwordChange']>input[type='button']:active {
     margin: 25px;
     width: calc(100% - 50x);
     height: 250px;
-    background: white;
+    /*background: white;*/
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -708,14 +723,17 @@ div[id='passwordChange']>input[type='button']:active {
     word-wrap: break-word;
     display:flex;
 }
-
+/*
 .optionSelectorChild.active {
     background: green;
 }
+*/
 
+/*
 .optionSelectorChild:not(.active):hover {
     background: red;
 }
+*/
 
 .optionSelectorPFP {
     border-radius: 5px;

@@ -134,6 +134,7 @@ const guildSlice = createSlice({
         msgAdd: (state, action) => { //accepts guild : int, msg : object
             const {Guild, RequestId} = action.payload;
             console.log(action.payload);
+            console.log(RequestId);
             if (Guild in state.guildInfo) {
                 state.guildInfo[Guild].MsgHistory = state.guildInfo[Guild].MsgHistory.filter(msg => msg?.RequestId !== RequestId);
             }

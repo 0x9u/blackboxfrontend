@@ -730,7 +730,7 @@ input[id='createChatButton'] {
     /*background: #474A48;*/
     box-sizing: border-box;
     height: 100%;
-    transition: width 0.25s;
+    /*transition: width 0.25s;*/
     flex-shrink:0;
 }
 
@@ -770,7 +770,7 @@ input[id='createChatButton'] {
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     overflow: hidden;
-    transition: 0.25s;
+    /*transition: 0.25s;*/
     white-space: nowrap;
     display: flex;
     flex-direction: column;

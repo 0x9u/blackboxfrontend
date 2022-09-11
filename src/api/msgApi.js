@@ -21,6 +21,7 @@ const SendMsgs = createAsyncThunk("msgs/post", async (args, api) => { // no disp
     const { msg, guild } = args;
     await postApi("msg", {
         content: msg,
+        requestId : api.requestId,
         guild
     }, {
         headers: {

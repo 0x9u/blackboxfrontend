@@ -12,7 +12,7 @@ import {
 import { userChange } from '../app/reducers/userInfo';
 import {GetGuilds} from './guildApi';
 import {GetUserInfo} from './userInfoApi';
-import { useDispatch } from 'react-redux';
+//import { useDispatch } from 'react-redux';
 
 const WEBSOCKET_URL = 'ws://localhost:8090/api/ws';
 
@@ -136,12 +136,33 @@ export const websocketApi = createApi({
                 //using dispatch and not updateCachedData because it only does one action
                 { dispatch, cacheDataLoaded, cacheEntryRemoved }
             ) => {
+                var checkLastPingTimer;
                 async function connectWS() { //recursive so if its disconnected we can reconnect is unsuccessful
-                    dispatch(setLoading(true));
                     await dispatch(guildReset()); //bug when user logs outs this doesnt work
-                    await dispatch(GetGuilds());
-                    await dispatch(GetUserInfo());
+                    let a = await dispatch(GetGuilds());
+                    let b = await dispatch(GetUserInfo());
+                    
+                    if (a.error || b.error) { //loading thing doesnt show up (minor bug)
+                        await dispatch(setLoading(true));
+                        setTimeout( () => {
+                            console.log("reconnecting websocket...");
+                            connectWS();
+                        }, 10000); 
+                    } //sometimes getguilds and get user info fails therefore just reconnect websocket
+
                     const ws = new WebSocket(WEBSOCKET_URL + "?" + new URLSearchParams({ token: arg.token }));
+                    var lastPing = 0;
+                    checkLastPingTimer = setInterval(() => {
+                        if ((Date.now() - lastPing) > 25000) {
+                            console.log("server failed to ping restarting ws")
+                            clearInterval(checkLastPingTimer);
+                            ws.close();
+                            setTimeout( () => {
+                                connectWS();
+                            }, 10000)
+                        }
+                    }, 25000); //check every 25 seconds
+                    //unsure about this function above look back to check if theres bugs
                     try {
                         await cacheDataLoaded
                         console.log("loaded")
@@ -151,6 +172,7 @@ export const websocketApi = createApi({
                             console.log(payload);
                             switch (dataType) {
                                 case PING: //pings back to server to let it know its alive
+                                    lastPing = Date.now();
                                     ws.send(JSON.stringify({
                                         dataType: 0,
                                         data: {
@@ -222,6 +244,7 @@ export const websocketApi = createApi({
                         const onReady = () => dispatch(setLoading(false));
                         const onClose = (e) => {
                             if (e.code !== 1005) {
+                                dispatch(setLoading(true));
                                 setTimeout( () => {
                                 console.log("reconnecting websocket...");
                                 connectWS();
@@ -238,6 +261,7 @@ export const websocketApi = createApi({
                     console.log("removed");
                     ws.close()
                 }
+                dispatch(setLoading(true));
                 await connectWS()
             }
         }),

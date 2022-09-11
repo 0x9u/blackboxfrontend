@@ -88,7 +88,7 @@ function ProfileSettings(props) {
                         <label>Email:</label><div><p>{email || "No Email"}</p><input className="default themeOneButton" type="button" value="Change" onClick={() => props.emailFunc(true)} /></div>
                     </div>
                 </div>
-                <img src="/profileImg.png" alt="Your pfp"/>
+                <img src="/profileImg.png" alt="Your pfp" />
             </div>
             <div className={styles.optionBox}>
                 <p className={styles.optionTitle}>Password</p>
@@ -111,7 +111,7 @@ function Appearance() {
 function ServerSettings() {
     const dispatch = useDispatch();
     const Name = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Name);
-    const {SaveChat } = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Settings ?? {});
+    const { SaveChat } = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Settings ?? {});
 
     const schemaServerSettings = Yup.object().shape({
         serverName: Yup.string()
@@ -126,24 +126,24 @@ function ServerSettings() {
         resolver: yupResolver(schemaServerSettings)
     });
 
-   const resetForm = React.useCallback(() => {
+    const resetForm = React.useCallback(() => {
         let defaultValues = {};
         defaultValues.serverName = Name;
-        defaultValues.saveChat = SaveChat; 
+        defaultValues.saveChat = SaveChat;
         reset({ ...defaultValues });
-    }, [Name, SaveChat,reset])
+    }, [Name, SaveChat, reset])
 
     async function updateGuildSettings(form) {
         const res = await dispatch(ChangeGuild({
-            name : form.serverName,
-            saveChat : form.saveChat
+            name: form.serverName,
+            saveChat: form.saveChat
         }));
         if (res.error) {
             setError("serverName", { type: "custom", message: res.error.message });
         }
     }
     React.useEffect(() => { //temp fix unless there is no other way
-       resetForm()
+        resetForm()
     }, [Name, SaveChat, resetForm]); //transition effect bug fix later
 
 
@@ -168,8 +168,8 @@ function ServerSettings() {
             <div className={`${styles.fixedMiniSettingsConfirm} ${!isDirty ? styles.hidden : ""} themeOneDivTwo`}>
                 <label>Save Changes?</label>
                 <div className={styles.miniSettingsButtons}>
-                <input type="button" value="Reset" className={`${styles.miniSettingsReset} themeOneImportant themeOneButton`} onClick={resetForm}/>
-                <input type="button" value="Save" className={`${styles.miniSettingsSave} themeOneButton`} onClick={handleSubmit(updateGuildSettings)}/>
+                    <input type="button" value="Reset" className={`${styles.miniSettingsReset} themeOneImportant themeOneButton`} onClick={resetForm} />
+                    <input type="button" value="Save" className={`${styles.miniSettingsSave} themeOneButton`} onClick={handleSubmit(updateGuildSettings)} />
                 </div>
             </div>
         </div>
@@ -189,7 +189,7 @@ function BanOrKickSettings() {
     async function banUser() {
         const res = await dispatch(BanUser({
             id: userList[chosen].Id,
-            guild : currentGuild
+            guild: currentGuild
         }));
         if (res.error) {
             setError(res.error.message);
@@ -202,7 +202,7 @@ function BanOrKickSettings() {
     async function kickUser() {
         const res = await dispatch(KickUser({
             id: userList[chosen].Id,
-            guild : currentGuild
+            guild: currentGuild
         }));
         if (res.error) {
             setError(res.error.message);
@@ -250,7 +250,7 @@ function BannedUsersSettings() {
     async function unbanUser() {
         const res = await dispatch(UnbanUser({
             id: bannedList[chosen].Id,
-            guild : currentGuild
+            guild: currentGuild
         }));
         if (res.error) {
             setError(res.error.message);
@@ -269,7 +269,7 @@ function BannedUsersSettings() {
                 <OptionSelector>
                     {bannedList.map((user, idx) =>
                         <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
-                            <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" alt="profile"/>
+                            <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" alt="profile" />
                             <p className={styles.optionSelectorUsername}>{user.Username}</p>
                         </OptionSelectorChild>)}
                 </OptionSelector>
@@ -301,7 +301,7 @@ function ManageInvitesSettings() {
     async function deleteInvite() {
         const res = await dispatch(DeleteInvite({
             invite: inviteList[chosen],
-            guild : currentGuild
+            guild: currentGuild
         }));
         if (res.error) {
             setError(res.error.message);
@@ -521,9 +521,9 @@ function UserMenu(props) {
     return (
         <Menu show={props.show} exit={() => { setActive(0); props.exit() }} render={renderUserSettings()} modals={modals()}>
             <div className={styles.optionHeading}><p>User Settings</p></div>
-            <div className={styles.optionButton} ><input className={active === 0 ? "active themeOneButton" : "themeOneButton"} type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
-            <div className={styles.optionButton} ><input className={active === 1 ? "active themeOneButton" : "themeOneButton"} type="button" value="Cheeky Settings" onClick={() => { setActive(1) }} /></div>
-            <div className={styles.optionButton}><input className={active === 2 ? "active themeOneButton" : "themeOneButton"}type="button" value="Appearance" onClick={() => { setActive(2) }} /></div>
+            <div className={styles.optionButton} ><input className={active === 0 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
+            <div className={styles.optionButton} ><input className={active === 1 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Cheeky Settings" onClick={() => { setActive(1) }} /></div>
+            <div className={styles.optionButton}><input className={active === 2 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Appearance" onClick={() => { setActive(2) }} /></div>
             <div className={styles.optionButton}><input className={"themeOneImportant themeOneButton"} type="button" value="Log Out" id="leaveButton" onClick={clearAuth} /></div>
         </Menu>
     )
@@ -566,10 +566,10 @@ function ServerMenu(props) {
     return (
         <Menu show={props.show} exit={() => { setActive(0); props.exit() }} render={renderServerSettings()} modals={modals()}>
             <div className={styles.optionHeading}><p>Server Settings</p></div>
-            <div className={styles.optionButton}><input className={active === 0 ? "active themeOneButton" : "themeOneButton"} type="button" value="Server Settings" onClick={() => { setActive(0) }} /></div>
-            <div className={styles.optionButton}><input className={active === 1 ? "active themeOneButton" : "themeOneButton"} type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
-            <div className={styles.optionButton}><input className={active === 2 ? "active themeOneButton" : "themeOneButton"} type="button" value="Banned Users" onClick={() => { setActive(2) }} /></div>
-            <div className={styles.optionButton}><input className={active === 3 ? "active themeOneButton" : "themeOneButton"} type="button" value="Manage Invites" onClick={() => { setActive(3) }} /></div>
+            <div className={styles.optionButton}><input className={active === 0 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Server Settings" onClick={() => { setActive(0) }} /></div>
+            <div className={styles.optionButton}><input className={active === 1 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
+            <div className={styles.optionButton}><input className={active === 2 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Banned Users" onClick={() => { setActive(2) }} /></div>
+            <div className={styles.optionButton}><input className={active === 3 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Manage Invites" onClick={() => { setActive(3) }} /></div>
             <div className={styles.optionButton}><input type="button" className={"themeOneImportant themeOneButton"} value="Delete Server" id="leaveButton" onClick={() => setShowDelete(true)} /></div>
         </Menu>
     )

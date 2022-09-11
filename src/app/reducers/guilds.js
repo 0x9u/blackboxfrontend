@@ -132,7 +132,12 @@ const guildSlice = createSlice({
             state.guildInfo[action.payload.Guild].Banned = state.guildInfo[action.payload.Guild].Banned.filter(user => user.Id !== action.payload.Id);
         },
         msgAdd: (state, action) => { //accepts guild : int, msg : object
-            state.guildInfo[action.payload.Guild].MsgHistory.unshift(action.payload);
+            const {Guild, RequestId} = action.payload;
+            console.log(action.payload);
+            if (Guild in state.guildInfo) {
+                state.guildInfo[Guild].MsgHistory = state.guildInfo[Guild].MsgHistory.filter(msg => msg?.RequestId !== RequestId);
+            }
+            state.guildInfo[action.payload.Guild].MsgHistory.unshift({...action.payload, RequestId : undefined});
         },
         msgRemove: (state, action) => { //accepts guild : int, msg : object
             if (action.payload.Id !== 0) {
@@ -213,6 +218,7 @@ const guildSlice = createSlice({
 
                 });
             })
+            /*
             .addCase(SendMsgs.fulfilled, (state, action) => {
                 console.log("fulfilled", action);
                 const {requestId} = action.meta;
@@ -221,6 +227,7 @@ const guildSlice = createSlice({
                     state.guildInfo[guild].MsgHistory = state.guildInfo[guild].MsgHistory.filter(msg => msg?.RequestId !== requestId);
                 }
             })
+            */
             .addCase(SendMsgs.rejected, (state, action) => {
                 console.log("rejected", action);
                 const {requestId} = action.meta;

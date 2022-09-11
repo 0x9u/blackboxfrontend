@@ -7,8 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 //import { useInView } from 'react-intersection-observer';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import styles from './chat.module.css';
 import './themes.css';
+import styles from './chat.module.css';
 
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
 import { useStartWSQuery } from '../api/websocket';
@@ -88,7 +88,7 @@ function Msg(props) { //TODO add id to return in backend
                 <textarea className={`${props.hideUserTime ? styles.hideUserTime : ""} themeOneTextArea`} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeySend}/>
                 <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons} themeOneText`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
                 </>
-                : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? styles.msgSentFail : ""} themeOneText`}>
+                : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? "themeOneImportantText" : "themeOneText"}`}>
                     {(() => {
                         const splitMsgs = props.msg.split(/\n/);
                         return splitMsgs.map((line, index) => 
@@ -98,7 +98,7 @@ function Msg(props) { //TODO add id to return in backend
                     {props.edited && <span className={styles.msgEdited}> (edited)</span>}
                 </p>
             }
-            { ((isOwner || userId === props.AuthorId) && (!props.loading || props.failed) && props.msgSaved)
+            { (((isOwner || userId === props.AuthorId) && !props.loading && props.msgSaved) || props.failed)
             &&
             <div className={styles.msgButtons}>
                 {
@@ -175,8 +175,8 @@ function MenuOption(props) {
 function Guild(props) {
     const dispatch = useDispatch();
     return (
-        <div className={`${styles.guildContainer}`} onClick={() => dispatch(guildCurrentSet({ Guild: props.guildId }))}>
-            <div className={`${styles.guildOption} ${props.active ? "active"/*styles.active*/ : ""} themeOneButton`}>
+        <div className={`${styles.guildContainer} ${props.active ? styles.active : ""}`} onClick={() => dispatch(guildCurrentSet({ Guild: props.guildId }))}>
+            <div className={`${styles.guildOption} ${props.active ? "themeOneActive" : ""} themeOneButton`}>
                 <p className={"themeOneText"}>{props.name}</p>
             </div>
             <img src={props.img} alt="server pfp" />
@@ -533,13 +533,13 @@ function Chat() { //might turn into class
                                 <InputBox id="serverNameInput" label="Server Name" type="text" maxLength={16} register={registerC("serverName")} errorMessage={errorsC?.serverName?.message} />
                             </div>
                             <div className={styles.createInfoOption}>
-                                <input className="default" type="button" value="Create" id="createChatButton" onClick={handleSubmitC(createGuild)} />
+                                <input className="default themeOneButton" type="button" value="Create" id="createChatButton" onClick={handleSubmitC(createGuild)} />
                             </div>
                         </div>
                     </div>
                     <div className={create === 2 ? styles.chatJoinContainer : `${styles.hatJoinContainer} ${styles.hidden}`}>
                         <InputBox id="inviteInput" label="Invite Code" type="text" register={registerJ("invite")} errorMessage={errorsJ?.invite?.message} />
-                        <input className="default" type="button" value="Join" onClick={handleSubmitJ(joinGuild)} />
+                        <input className="default themeOneButton" type="button" value="Join" onClick={handleSubmitJ(joinGuild)} />
                     </div>
                 </div>
             </Modal>
@@ -550,7 +550,7 @@ function Chat() { //might turn into class
             }
             {
                 isLoading &&
-                <div className={`${styles.loadingScreen} themeOneText`}>Loading...</div>
+                <div className={`${styles.loadingScreen} themeOneText themeOneDivOne`}>Loading...</div>
             }
         </div>
 

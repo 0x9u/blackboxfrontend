@@ -206,7 +206,7 @@
     border-radius: 15px;
 }
 
-.guildContainer:not(.active):hover > img{
+.guildContainer:not(.active):hover  img{
     opacity: 0.5;
 }
 
@@ -228,11 +228,13 @@
     transition: 0.5s;
 }
 
-/*
 .guildContainer.active > .guildOption {
-    background: #21b6a8;
+    background: transparent;
+    border: 2px solid;
+    transition: 0s border;
 }
-*/
+
+
 
 .guildOption > p {
     text-align:center;

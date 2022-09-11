@@ -216,6 +216,16 @@
     transition: 0.5s;
 }
 
+.optionButton>input.active {
+    background: transparent;
+    border: 2px solid;
+    transition: 0s border;
+}
+
+.optionButton>input:not(.active):hover {
+    filter: brightness(85%);
+}
+
 /*
 .optionButton.active>input {
     background: blueviolet;

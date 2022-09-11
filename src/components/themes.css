@@ -14,11 +14,8 @@
     background: #6096BA ;
 }
 
-.active.themeOneButton {
-    /*background: #6288A1;*/
-    background: transparent;
-    border: 2px solid #6096BA;
-    transition: 0s border;
+.themeOneActive {
+    border-color: #6096BA !important;
 }
 
 .themeOneDivOne {

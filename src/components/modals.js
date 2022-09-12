@@ -292,7 +292,7 @@ function BannedUsersSettings() {
                     Banned Users
                 </p>
                 <OptionSelector>
-                    {bannedList.map((user, idx) =>
+                    {bannedList?.map((user, idx) =>
                         <OptionSelectorChild key={idx} value={idx} onClick={setChosen} active={idx === chosen}>
                             <img className={styles.optionSelectorPFP} src="/profileImg.png" id="pfp" alt="profile" />
                             <p className={styles.optionSelectorUsername}>{user.Username}</p>
@@ -498,9 +498,9 @@ function UserMenu(props) {
 
     function recordKeyBind(e) {
         e.preventDefault();
-        console.log(e.keyCode);
-        console.log(keyBind);
-        console.log(e.key)
+        //console.log(e.keyCode);
+        //console.log(keyBind);
+        //console.log(e.key)
         if (e.key === " ") {
             e.key = "Space"
         }
@@ -508,12 +508,12 @@ function UserMenu(props) {
     }
 
     function resetKeyBind(e) {
-        console.log(keyBind)
+        //console.log(keyBind)
         setKeyBind({});
      }
 
     function renderKeyBind(a) {
-        console.log(a)
+        //console.log(a)
         return Object.keys(a).sort().join("+")
     }
 

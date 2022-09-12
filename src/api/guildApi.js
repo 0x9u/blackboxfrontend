@@ -26,7 +26,7 @@ const CreateGuild = createAsyncThunk("guilds/post", async (args, api) => {
     //const {icon, name} = args; //uncomment when implement profile picture uploading
     await postApi("guild", {
         name: args.name,
-        save: args.saveChat
+        saveChat: args.saveChat
     }, {
         headers: {
             "Auth-Token": api.getState().auth.token

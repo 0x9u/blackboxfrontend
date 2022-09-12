@@ -18,6 +18,7 @@ import { authClear } from '../app/reducers/auth';
 import { guildCurrentSet, guildReset, msgEditSet, msgRemoveFailed } from '../app/reducers/guilds';
 import { userClear } from '../app/reducers/userInfo';
 import { websocketApi } from '../api/websocket';
+import { clientLastGuildActiveSet } from '../app/reducers/client';
 
 
 function Msg(props) { //TODO add id to return in backend
@@ -175,7 +176,7 @@ function MenuOption(props) {
 function Guild(props) {
     const dispatch = useDispatch();
     return (
-        <div className={`${styles.guildContainer} ${props.active ? styles.active : ""}`} onClick={() => dispatch(guildCurrentSet({ Guild: props.guildId }))}>
+        <div className={`${styles.guildContainer} ${props.active ? styles.active : ""}`} onClick={() =>  dispatch(guildCurrentSet({ Guild: props.guildId }))}>
             <div className={`${styles.guildOption} ${props.active ? "themeOneActive" : ""} themeOneButton`}>
                 <p className={"themeOneText"}>{props.name}</p>
             </div>
@@ -258,6 +259,8 @@ function Chat() { //might turn into class
 
     const [serverImage, setServerImage] = React.useState("/profileImg.png");
 
+    const [keyPressed, setKeyPressed] = React.useState({});
+
     const dummyMsgBottomRef = React.useRef(null); //used to scroll down to bottom of chat when new message appears (CHANGE LATER NOT GOOD DESIGN!!!)
 //    const loadMoreMsgRef = React.useRef(null); //used to load more messages when scrolled to top of chat
     const chatContentRef = React.useRef(null); //scroll down to hide loadmoremsg element
@@ -293,6 +296,7 @@ function Chat() { //might turn into class
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
     const msgLimitReached = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgLimitReached);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
+
 
     function GetData() {
         console.log("loading messages")
@@ -371,6 +375,10 @@ function Chat() { //might turn into class
         }, [messages?.[0]] //temp fix
     )
 
+    React.useEffect(() => {
+        dispatch(clientLastGuildActiveSet({guild : currentGuild}));
+    }, [currentGuild])
+
     const userInfo = useSelector(state => state.userInfo);
 
     async function joinGuild(form) {
@@ -388,7 +396,7 @@ function Chat() { //might turn into class
 
     async function createGuild(form) {
         const res = await dispatch(CreateGuild({
-            name: form.serverName,
+            name:      form.serverName,
             saveChat : form.saveChat
         }));
         if (res.error) {
@@ -417,8 +425,19 @@ function Chat() { //might turn into class
         setServerImage(e.target.files[0]);
     }
 
+
+    function keyBindUp(e) {
+        const key = e.key === " " ? "Space" : e.key;
+        setKeyPressed({...keyPressed, [key] : undefined});
+    }
+
+    function keyBindDown(e) {
+        const key = e.key === " " ? "Space" : e.key;
+        setKeyPressed({...keyPressed, [key] : true}); 
+    }
+
     return (
-        <div className={styles.chatContainer}>
+        <div className={styles.chatContainer} onKeyUp={keyBindUp} onKeyDown={keyBindDown}>
             <div className={styles.menuUserContainer}>
                 <div className={`${styles.userModal} themeOneDivThree`}>
                     <div className={styles.userModalUsername}>

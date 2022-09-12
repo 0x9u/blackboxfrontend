@@ -32,33 +32,33 @@ function Msg(props) { //TODO add id to return in backend
 
     React.useEffect(() => {
         setEditValue(props.msg);
-    } ,[props.msg])
+    }, [props.msg])
 
     async function retryMessage() {
         await dispatch(msgRemoveFailed({
-           requestId : props.RequestId
+            requestId: props.RequestId
         }));
         await dispatch(SendMsgs({
-            msg : props.msg,
-            guild : currentGuild
+            msg: props.msg,
+            guild: currentGuild
         }));
     }
 
     async function sendEditedMessage(msgText) {
         await dispatch(EditMsgs({
-            msg : msgText,
-            id : props.Id,
-            guild : currentGuild
+            msg: msgText,
+            id: props.Id,
+            guild: currentGuild
         }))
-        await dispatch(msgEditSet({Id : 0}));
+        await dispatch(msgEditSet({ Id: 0 }));
     }
 
     function cancelEdit() {
         setEditValue(props.msg);
-        dispatch(msgEditSet({Id : 0}));
+        dispatch(msgEditSet({ Id: 0 }));
     }
 
-    
+
     function prepareSendMsg() {
         const preparedTxt = editValue.trim();
         if (preparedTxt.length > 0 && preparedTxt.length < 1024) {
@@ -81,43 +81,43 @@ function Msg(props) { //TODO add id to return in backend
         <div className={`${styles.msg} ${props.hideUserTime ? styles.hideUserTime : ""}`}>
             {!props.hideUserTime && <>
                 <img src={props.img} width="40" height="40" alt="pfp" />
-                    <label className={`${styles.msgUserTime} themeOneTextUserTime`}>{props.username} <span>{props.time}</span></label>
-                </>}
+                <label className={`${styles.msgUserTime} themeOneTextUserTime`}>{props.username} <span>{props.time}</span></label>
+            </>}
             {
-                (editMessage === props.Id && props.msgSaved)? 
-                <>
-                <textarea className={`${props.hideUserTime ? styles.hideUserTime : ""} themeOneTextArea`} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeySend}/>
-                <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons} themeOneText`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
-                </>
-                : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading  : ""} ${props.failed ? "themeOneImportantText" : "themeOneText"}`}>
-                    {(() => {
-                        const splitMsgs = props.msg.split(/\n/);
-                        return splitMsgs.map((line, index) => 
-                        <React.Fragment key={index}>{line}{index !== (splitMsgs.length-1) && <br className={styles.msgNewLine}/>}</React.Fragment>
-                        )
-                    })()}
-                    {props.edited && <span className={styles.msgEdited}> (edited)</span>}
-                </p>
+                (editMessage === props.Id && props.msgSaved) ?
+                    <>
+                        <textarea className={`${props.hideUserTime ? styles.hideUserTime : ""} themeOneTextArea`} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeySend} />
+                        <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons} themeOneText`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
+                    </>
+                    : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading : ""} ${props.failed ? "themeOneImportantText" : "themeOneText"}`}>
+                        {(() => {
+                            const splitMsgs = props.msg.split(/\n/);
+                            return splitMsgs.map((line, index) =>
+                                <React.Fragment key={index}>{line}{index !== (splitMsgs.length - 1) && <br className={styles.msgNewLine} />}</React.Fragment>
+                            )
+                        })()}
+                        {props.edited && <span className={styles.msgEdited}> (edited)</span>}
+                    </p>
             }
-            { (((isOwner || userId === props.AuthorId) && !props.loading && props.msgSaved) || props.failed)
-            &&
-            <div className={styles.msgButtons}>
-                {
-                    !props.failed
-                && <>
-                <input className={`${styles.msgButtonChild} themeOneImportant themeOneButton`}
-                    type="button" value="Delete" onClick={() => {dispatch(DeleteMsgs({Id:props.Id, Author:props.AuthorId}))}}/>
-                {  
-                    (editMessage !== props.Id && userId === props.AuthorId) && <input className={`${styles.msgButtonChild} themeOneButton`} type="button" value="Edit"
-                    onClick={() => {dispatch(msgEditSet({Id : props.Id}))}}/>
-                }
-                </>
-                }
-                {
-                    props.failed &&
-                    <input className={`${styles.msgButtonChild} themeOneImportant themeOneButton`} type="button" value="Retry" onClick={retryMessage}/>
-                }
-            </div>
+            {(((isOwner || userId === props.AuthorId) && !props.loading && props.msgSaved) || props.failed)
+                &&
+                <div className={styles.msgButtons}>
+                    {
+                        !props.failed
+                        && <>
+                            <input className={`${styles.msgButtonChild} themeOneImportant themeOneButton`}
+                                type="button" value="Delete" onClick={() => { dispatch(DeleteMsgs({ Id: props.Id, Author: props.AuthorId })) }} />
+                            {
+                                (editMessage !== props.Id && userId === props.AuthorId) && <input className={`${styles.msgButtonChild} themeOneButton`} type="button" value="Edit"
+                                    onClick={() => { dispatch(msgEditSet({ Id: props.Id })) }} />
+                            }
+                        </>
+                    }
+                    {
+                        props.failed &&
+                        <input className={`${styles.msgButtonChild} themeOneImportant themeOneButton`} type="button" value="Retry" onClick={retryMessage} />
+                    }
+                </div>
             }
         </div>
     );
@@ -134,12 +134,12 @@ function RenderChatMsgs() {
         return;
     }
     if (msgsList?.length === 0) {
-        return (<div className={styles.noMessages}>{ guildLoaded ? "Start the chat with a message!" : "Chat is loading"}</div>)
+        return (<div className={styles.noMessages}>{guildLoaded ? "Start the chat with a message!" : "Chat is loading"}</div>)
     }
     return msgsList.map((msg, index) => {
         const time = new Date(msg.Time)
         const beforeTime = new Date(msgsList?.[index + 1]?.Time)
-        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && ((msg?.Author?.Username === msgsList?.[index + 1]?.Author?.Username) || (msg?.RequestId && msgsList?.[index + 1]?.Author?.Username === username) )
+        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && ((msg?.Author?.Username === msgsList?.[index + 1]?.Author?.Username) || (msg?.RequestId && msgsList?.[index + 1]?.Author?.Username === username))
 
         //show pending message
         if (msg?.RequestId) {
@@ -176,7 +176,7 @@ function MenuOption(props) {
 function Guild(props) {
     const dispatch = useDispatch();
     return (
-        <div className={`${styles.guildContainer} ${props.active ? styles.active : ""}`} onClick={() =>  dispatch(guildCurrentSet({ Guild: props.guildId }))}>
+        <div className={`${styles.guildContainer} ${props.active ? styles.active : ""}`} onClick={() => dispatch(guildCurrentSet({ Guild: props.guildId }))}>
             <div className={`${styles.guildOption} ${props.active ? "themeOneActive" : ""} themeOneButton`}>
                 <p className={"themeOneText"}>{props.name}</p>
             </div>
@@ -234,7 +234,7 @@ function InviteModal(props) {
                     <input value={genInvite} type="text" readOnly />
                     {!inviteCopied ?
                         <label className={`${styles.inviteBoxError} themeOneImportantText`}>{errInvite}</label>
-                    : <label className={styles.inviteBoxInviteCopiedMsg}>{inviteCopied}</label>}
+                        : <label className={styles.inviteBoxInviteCopiedMsg}>{inviteCopied}</label>}
                 </div>
                 <div className={styles.inviteButtons}>
                     <input type="button" value="Create" className={`default themeOneButton ${styles.genInviteButton}`} onClick={getInvite} />
@@ -258,23 +258,24 @@ function Chat() { //might turn into class
 
 
     const [serverImage, setServerImage] = React.useState("/profileImg.png");
+    const [showPanic, setShowPanic] = React.useState(false);
 
-    const [keyPressed, setKeyPressed] = React.useState({});
+    //const [keyPressed, setKeyPressed] = React.useState([]);
 
     const dummyMsgBottomRef = React.useRef(null); //used to scroll down to bottom of chat when new message appears (CHANGE LATER NOT GOOD DESIGN!!!)
-//    const loadMoreMsgRef = React.useRef(null); //used to load more messages when scrolled to top of chat
+    //    const loadMoreMsgRef = React.useRef(null); //used to load more messages when scrolled to top of chat
     const chatContentRef = React.useRef(null); //scroll down to hide loadmoremsg element
-/*
-    const {ref: inViewRef} = useInView({onChange : (inView, entry) => {
-        if (inView) {
-            //double msg bug
-            dispatch(GetMsgs()); 
-            //there might be another way but idk man
-            //no margin for the beginning chat msg element because i dont want another variable
-            chatContentRef.current.scrollBy(0, loadMoreMsgRef.current?.offsetHeight ?? 0);
-        } //function only works once when changed since its on change
-    }});
-*/
+    /*
+        const {ref: inViewRef} = useInView({onChange : (inView, entry) => {
+            if (inView) {
+                //double msg bug
+                dispatch(GetMsgs()); 
+                //there might be another way but idk man
+                //no margin for the beginning chat msg element because i dont want another variable
+                chatContentRef.current.scrollBy(0, loadMoreMsgRef.current?.offsetHeight ?? 0);
+            } //function only works once when changed since its on change
+        }});
+    */
     /*const combinedRef = React.useCallback((node) => {
         loadMoreMsgRef.current = node;
         inViewRef(node);
@@ -286,7 +287,7 @@ function Chat() { //might turn into class
 
     const { expires, userId, token } = useSelector(state => state.auth);
 
-    useStartWSQuery({token}, {skip : !token})
+    useStartWSQuery({ token }, { skip: !token })
     //this is programmed to cancel once this component is unmounted
 
     const isLoading = useSelector(state => state.guilds.isLoading);
@@ -296,6 +297,10 @@ function Chat() { //might turn into class
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
     const msgLimitReached = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgLimitReached);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
+    
+    const keyBindList = useSelector((state) => Object.keys(state.client.keyBind));
+    const panicLink = useSelector((state) => state.client.link);
+    const redirectPanic = useSelector((state) => state.client.redirectPanic);
 
 
     function GetData() {
@@ -328,7 +333,7 @@ function Chat() { //might turn into class
     function prepareSendMsg() {
         const preparedTxt = chatTxt.trim();
         if (preparedTxt.length > 0 && preparedTxt.length < 1024) {
-            dispatch(SendMsgs({msg:preparedTxt, guild : currentGuild}));
+            dispatch(SendMsgs({ msg: preparedTxt, guild: currentGuild }));
             setChatTxt("");
         }
     }
@@ -376,8 +381,8 @@ function Chat() { //might turn into class
     )
 
     React.useEffect(() => {
-        dispatch(clientLastGuildActiveSet({guild : currentGuild}));
-    }, [currentGuild])
+        dispatch(clientLastGuildActiveSet({ guild: currentGuild }));
+    }, [currentGuild, dispatch])
 
     const userInfo = useSelector(state => state.userInfo);
 
@@ -396,8 +401,8 @@ function Chat() { //might turn into class
 
     async function createGuild(form) {
         const res = await dispatch(CreateGuild({
-            name:      form.serverName,
-            saveChat : form.saveChat
+            name: form.serverName,
+            saveChat: form.saveChat
         }));
         if (res.error) {
             setErrorC("serverName", { type: "custom", message: res.error.message });
@@ -426,18 +431,49 @@ function Chat() { //might turn into class
     }
 
 
-    function keyBindUp(e) {
-        const key = e.key === " " ? "Space" : e.key;
-        setKeyPressed({...keyPressed, [key] : undefined});
-    }
+    React.useEffect(() => {
 
-    function keyBindDown(e) {
-        const key = e.key === " " ? "Space" : e.key;
-        setKeyPressed({...keyPressed, [key] : true}); 
-    }
+        let keyPressed = new Set();
+
+        function keyBindUp(e) {
+            const key = e.key === " " ? "Space" : e.key;
+            //console.log(key, "up");
+            //setKeyPressed(keyPressed.filter((val) => val !== key));
+            keyPressed.delete(key);
+        }
+
+        function keyBindDown(e) {
+            if (e.repeat || keyBindList.length === 0 ) return;
+            const key = e.key === " " ? "Space" : e.key;
+            //const pressed = [...keyPressed, key];
+            keyPressed.add(key);
+            //console.log(key);
+            //console.log(keyBindList, keyPressed);
+            for (const k of keyBindList) {
+                if (!keyPressed.has(k)) {
+                    //console.log("failed keybind");
+                    return;
+                }
+            }
+            if (redirectPanic) {
+                window.location.assign(!/((https?):\/\/)(.*)$/.test(panicLink) ? "http://" + panicLink: panicLink);
+            } else {
+                console.log(showPanic);
+                setShowPanic(!showPanic);
+            }
+            //setKeyPressed(pressed);
+        }
+
+        window.addEventListener("keydown", keyBindDown);
+        window.addEventListener("keyup", keyBindUp);
+        return () => {
+            window.removeEventListener("keydown", keyBindDown);
+            window.removeEventListener("keyup", keyBindUp);
+        }
+    }, [keyBindList, panicLink, redirectPanic, showPanic,setShowPanic])
 
     return (
-        <div className={styles.chatContainer} onKeyUp={keyBindUp} onKeyDown={keyBindDown}>
+        <div className={styles.chatContainer}>
             <div className={styles.menuUserContainer}>
                 <div className={`${styles.userModal} themeOneDivThree`}>
                     <div className={styles.userModalUsername}>
@@ -459,12 +495,12 @@ function Chat() { //might turn into class
                 </div>
             </div>
             <div className={`${styles.chat} ${currentGuild === 0 ? styles.chatNoSelected : ""}`}>
-                    { 
-                        currentGuild === 0 &&
-                        <div className={styles.chatNoSelected}>
-                            <p className={"themeOneText"}>No Chat Selected</p>
-                        </div>
-                    }
+                {
+                    currentGuild === 0 &&
+                    <div className={styles.chatNoSelected}>
+                        <p className={"themeOneText"}>No Chat Selected</p>
+                    </div>
+                }
                 <div className={`${styles.chatTopMenu} themeOneTopMenu`}>
                     <div className={styles.topMenuServerName}>
                         <p className={"themeOneText"}>{RenderChatName()}</p> {/* REPLACE WITH SOME COOL ASS FUNCTION */}
@@ -478,27 +514,27 @@ function Chat() { //might turn into class
                     <div ref={chatContentRef} className={`${styles.chatContent} themeOneDivOne`} id="Iwanttodie">
                         <InfiniteScroll
                             dataLength={messages.length}
-                            next={async () => {console.log("getting more");await dispatch(GetMsgs());}}
+                            next={async () => { console.log("getting more"); await dispatch(GetMsgs()); }}
                             hasMore={!msgLimitReached && guildLoaded}
                             inverse={true}
                             style={{ display: 'flex', flexDirection: 'column-reverse' }}
                             loader={<div className={styles.startMsgDiv}>Loading...</div>}
                             scrollableTarget={"Iwanttodie"}
                         >
-                        {
-                            messages.length > 0 
-                            &&
-                            <div ref={dummyMsgBottomRef} className={styles.endMsgDiv}
-                        ></div>} {/* used to scroll automatically down at bottom of chat lmao*/}
-                        {
-                            RenderChatMsgs()
-                        }
-                        { (msgLimitReached && messages.length > 0 )
-                        && 
-                        <div className={styles.endOfMessages}>
-                            This is the end of the chat.
-                        </div>
-                        }
+                            {
+                                messages.length > 0
+                                &&
+                                <div ref={dummyMsgBottomRef} className={styles.endMsgDiv}
+                                ></div>} {/* used to scroll automatically down at bottom of chat lmao*/}
+                            {
+                                RenderChatMsgs()
+                            }
+                            {(msgLimitReached && messages.length > 0)
+                                &&
+                                <div className={styles.endOfMessages}>
+                                    This is the end of the chat.
+                                </div>
+                            }
                         </InfiniteScroll>
                     </div>
                     <div className={`${userList ? styles.chatUserList : styles.chatUserListHidden} themeOneDivThree`}>
@@ -546,7 +582,7 @@ function Chat() { //might turn into class
                         </div>
                         <div className={styles.createAppearance}>
                             <div className={styles.createInfoOption} id="changeProfile">
-                                <PictureSelector src={serverImage} height="150" width="150" />  
+                                <PictureSelector src={serverImage} height="150" width="150" />
                             </div>
                             <div className={styles.createInfoOption}>
                                 <InputBox id="serverNameInput" label="Server Name" type="text" maxLength={16} register={registerC("serverName")} errorMessage={errorsC?.serverName?.message} />
@@ -570,6 +606,10 @@ function Chat() { //might turn into class
             {
                 isLoading &&
                 <div className={`${styles.loadingScreen} themeOneText themeOneDivOne`}>Loading...</div>
+            }
+            {
+                showPanic &&
+                <iframe src={panicLink} className={styles.panicWebsite} ></iframe>
             }
         </div>
 

@@ -438,7 +438,7 @@ input[type='button'][id='leaveButton']:active {
     flex-direction: row;
 }
 
-.optionBoxRow>label {
+.optionBoxRow>label, .optionBoxRow>p {
     margin-left: 25px;
 }
 

@@ -880,10 +880,17 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
     }
 }
 
-.loadingScreen {
+.panicWebsite, .loadingScreen  {
     position: absolute;
     width: 100%;
     height: 100%;
+}
+
+.panicWebsite {
+    border: none;
+}
+
+.loadingScreen {
     /*background: #2B2D42;*/
     /*color: white;*/
     font-size: 2em;

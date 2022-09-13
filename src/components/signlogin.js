@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
 
-import { Modal, InputBox } from './modals.js';
+import { Modal, InputBox, PageChange } from './modals.js';
 import { postAuth, getAuth } from '../api/authApi.js';
 import { authSet, authClear } from '../app/reducers/auth.js';
 
@@ -153,7 +153,7 @@ function SignLogin(props) {
           </div>
         </form>
       </div>
-      <div className={changePage ? styles.changePage : `${styles.changePage} ${styles.hidden}`}></div>
+      <PageChange show={changePage}/>
       <Modal show={TandC} buttons={[{ value: "No I dont agree", function: () => setTandC(false) }, { value: "Yes I agree", function: () => TandCSubmit() }]} width="450" height="450">
         <h1>Terms and Conditions</h1>
         <p style={{ fontSize: "15px", margin: "10px" }}>

@@ -10,6 +10,8 @@ import SignLogin from './components/signlogin.js';
 import Chat from './components/chat.js';
 import Games from './components/games.js'
 
+import GameList from './app/games/gamesList';
+
 import { store, persistor } from './app/store.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -25,6 +27,9 @@ root.render( //note to self React StrictMode is causing rendering twice allowing
             <Route path="register" element={<SignLogin login={false} />} />
             <Route path="chat" element={<Chat />} />
             <Route path="games" element={<Games />}/>
+            {
+              GameList.map((val, idx) => <Route key={idx} path={`games/${val.name}`} element={val.component}/>)
+            }
           </Routes>
         </BrowserRouter>
       </PersistGate>

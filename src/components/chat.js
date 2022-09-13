@@ -10,7 +10,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import './themes.css';
 import styles from './chat.module.css';
 
-import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector } from './modals';
+import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector, PageChange } from './modals';
 import { useStartWSQuery } from '../api/websocket';
 import { GetMsgs, SendMsgs, DeleteMsgs, EditMsgs } from '../api/msgApi';
 import { GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
@@ -18,7 +18,7 @@ import { authClear } from '../app/reducers/auth';
 import { guildCurrentSet, guildReset, msgEditSet, msgRemoveFailed } from '../app/reducers/guilds';
 import { userClear } from '../app/reducers/userInfo';
 import { websocketApi } from '../api/websocket';
-import { clientLastGuildActiveSet } from '../app/reducers/client';
+import { clientLastGuildActiveSet, clientClear } from '../app/reducers/client';
 
 
 function Msg(props) { //TODO add id to return in backend
@@ -260,6 +260,8 @@ function Chat() { //might turn into class
     const [serverImage, setServerImage] = React.useState("/profileImg.png");
     const [showPanic, setShowPanic] = React.useState(false);
 
+    const [changePage, setChangePage] = React.useState(false);
+
     //const [keyPressed, setKeyPressed] = React.useState([]);
 
     const dummyMsgBottomRef = React.useRef(null); //used to scroll down to bottom of chat when new message appears (CHANGE LATER NOT GOOD DESIGN!!!)
@@ -297,10 +299,12 @@ function Chat() { //might turn into class
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
     const msgLimitReached = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgLimitReached);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
-    
+
     const keyBindList = useSelector((state) => Object.keys(state.client.keyBind));
     const panicLink = useSelector((state) => state.client.link);
     const redirectPanic = useSelector((state) => state.client.redirectPanic);
+
+    const lastGuildActive = useSelector((state) => state.client.lastGuildActive);
 
 
     function GetData() {
@@ -354,10 +358,12 @@ function Chat() { //might turn into class
                 navigate("../login", { "replace": false });
                 dispatch(guildReset());
                 dispatch(userClear());
+                dispatch(clientClear());
                 dispatch(websocketApi.util.resetApiState()); // stops the fucking websocket finally god damn it took so long
                 //stupid ass documentation says nothing about this
                 return;
             }
+
         }, [dispatch, navigate, token, userId, expires])
 
     React.useEffect(
@@ -379,10 +385,6 @@ function Chat() { //might turn into class
             dummyMsgBottomRef.current?.scrollIntoView();
         }, [messages?.[0]] //temp fix
     )
-
-    React.useEffect(() => {
-        dispatch(clientLastGuildActiveSet({ guild: currentGuild }));
-    }, [currentGuild, dispatch])
 
     const userInfo = useSelector(state => state.userInfo);
 
@@ -430,6 +432,12 @@ function Chat() { //might turn into class
         setServerImage(e.target.files[0]);
     }
 
+    async function WaitAnim() {
+        setChangePage(true);
+        await setTimeout(() => {
+            navigate("../games", { "replace": false });
+        }, 1500); //replace: replaces the history (didnt find anything about it in documentation bruh)
+    }
 
     React.useEffect(() => {
 
@@ -437,31 +445,24 @@ function Chat() { //might turn into class
 
         function keyBindUp(e) {
             const key = e.key === " " ? "Space" : e.key;
-            //console.log(key, "up");
-            //setKeyPressed(keyPressed.filter((val) => val !== key));
             keyPressed.delete(key);
         }
 
         function keyBindDown(e) {
-            if (e.repeat || keyBindList.length === 0 ) return;
+            if (e.repeat || keyBindList.length === 0) return;
             const key = e.key === " " ? "Space" : e.key;
-            //const pressed = [...keyPressed, key];
             keyPressed.add(key);
-            //console.log(key);
-            //console.log(keyBindList, keyPressed);
             for (const k of keyBindList) {
                 if (!keyPressed.has(k)) {
-                    //console.log("failed keybind");
                     return;
                 }
             }
             if (redirectPanic) {
-                window.location.assign(!/((https?):\/\/)(.*)$/.test(panicLink) ? "http://" + panicLink: panicLink);
+                window.location.assign(!/((https?):\/\/)(.*)$/.test(panicLink) ? "http://" + panicLink : panicLink);
             } else {
                 console.log(showPanic);
                 setShowPanic(!showPanic);
             }
-            //setKeyPressed(pressed);
         }
 
         window.addEventListener("keydown", keyBindDown);
@@ -470,7 +471,7 @@ function Chat() { //might turn into class
             window.removeEventListener("keydown", keyBindDown);
             window.removeEventListener("keyup", keyBindUp);
         }
-    }, [keyBindList, panicLink, redirectPanic, showPanic,setShowPanic])
+    }, [keyBindList, panicLink, redirectPanic, showPanic, setShowPanic])
 
     return (
         <div className={styles.chatContainer}>
@@ -487,7 +488,7 @@ function Chat() { //might turn into class
                     </div>
                 </div>
                 <div className={`${styles.menu} themeOneDivThree`}>
-                    <MenuOption name="Games" function={() => 1} />
+                    <MenuOption name="Games" function={WaitAnim} />
                     <MenuOption name="Create/Add Chat" function={() => setChat(true)} />
                     {
                         RenderGuilds()
@@ -609,8 +610,9 @@ function Chat() { //might turn into class
             }
             {
                 showPanic &&
-                <iframe src={panicLink} className={styles.panicWebsite} ></iframe>
+                <iframe src={panicLink} className={styles.panicWebsite} title="website"></iframe>
             }
+            <PageChange show={changePage} />
         </div>
 
     );

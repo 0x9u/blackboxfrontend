@@ -1,0 +1,12 @@
+.gamesContainer {
+    width: 100vw;
+    height: 100vh;
+    background: green;
+    
+}
+
+.gamesSelector {
+    width: 150px;
+    height: 350px;
+    background: red;
+}

@@ -487,7 +487,7 @@ function Chat() { //might turn into class
                     </div>
                 </div>
                 <div className={`${styles.menu} themeOneDivThree`}>
-                    <MenuOption name="Games (Not Working yet)" function={() => 1} />
+                    <MenuOption name="Games" function={() => 1} />
                     <MenuOption name="Create/Add Chat" function={() => setChat(true)} />
                     {
                         RenderGuilds()

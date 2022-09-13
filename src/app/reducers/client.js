@@ -4,7 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const clientSlice = createSlice({ //saves client side settings
     name: "client",
     initialState: {
-        link : "", keyBind : {}, lastGuildActive : 0, redirectPanic : true
+        link : "", keyBind : {}, lastGuildActive : 0, redirectPanic : true, disguiseTab : false
     },
     reducers: { 
         clientLinkSet: (state, action) => { 
@@ -19,6 +19,9 @@ const clientSlice = createSlice({ //saves client side settings
         clientRedirectPanicSet : (state,action) => {
             state.redirectPanic = action.payload.redirectPanic;
         },
+        clientDisguiseTabSet : (state, action) => {
+            state.disguiseTab = action.payload.disguiseTab;
+        },
         clientClear: (state, action) => {
             state.link = "";
             state.keyBind = {};
@@ -26,5 +29,5 @@ const clientSlice = createSlice({ //saves client side settings
     }
 });
 
-export const { clientLinkSet, clientKeyBindSet , clientLastGuildActiveSet, clientRedirectPanicSet, clientClear } = clientSlice.actions;
+export const { clientLinkSet, clientKeyBindSet , clientLastGuildActiveSet, clientRedirectPanicSet, clientDisguiseTabSet , clientClear } = clientSlice.actions;
 export default clientSlice.reducer;

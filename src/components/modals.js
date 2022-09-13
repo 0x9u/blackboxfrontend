@@ -10,7 +10,7 @@ import './themes.css';
 import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userInfoApi';
 import { BanUser, KickUser, UnbanUser, DeleteInvite, DeleteGuild, ChangeGuild } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
-import { clientLinkSet, clientKeyBindSet, clientRedirectPanicSet } from '../app/reducers/client';
+import { clientLinkSet, clientKeyBindSet, clientRedirectPanicSet, clientDisguiseTabSet } from '../app/reducers/client';
 
 
 //find better way to fix button shit
@@ -105,6 +105,8 @@ function CheekySettings(props) {
 
     const redirectPanic = useSelector((state) => state.client.redirectPanic);
 
+    const disguiseTab = useSelector((state) => state.client.disguiseTab);
+
     return (
         <div className={styles.settingsContainer}>
             <div className={styles.optionBox}>
@@ -122,6 +124,10 @@ function CheekySettings(props) {
                 <div className={styles.optionBoxRow}>
                     <label>Redirect (Green) or Display page (Red)</label>
                     <CheckBox checked={redirectPanic} onChange={() => dispatch(clientRedirectPanicSet({ redirectPanic: !redirectPanic }))} />
+                </div>
+                <div className={styles.optionBoxRow}>
+                    <label>Disguise title and icon</label>
+                    <CheckBox checked={disguiseTab} onChange={() => dispatch(clientDisguiseTabSet({ disguiseTab : !disguiseTab}))} />
                 </div>
             </div>
             <div className={styles.optionBox}>
@@ -721,4 +727,10 @@ function Menu(props) { //pass set states function to be able change options thro
     )
 }
 
-export { Modal, UserMenu, ServerMenu, CheckBox, InputBox, PictureSelector };
+function PageChange(props) {
+    return(
+        <div className={props.show ? styles.changePage : `${styles.changePage} ${styles.hidden}`}></div>
+    )
+}
+
+export { Modal, UserMenu, ServerMenu, CheckBox, InputBox, PictureSelector, PageChange };

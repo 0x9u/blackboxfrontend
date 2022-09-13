@@ -8,6 +8,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 
 import SignLogin from './components/signlogin.js';
 import Chat from './components/chat.js';
+import Games from './components/games.js'
 
 import { store, persistor } from './app/store.js';
 
@@ -23,6 +24,7 @@ root.render( //note to self React StrictMode is causing rendering twice allowing
             <Route path="login" element={<SignLogin login={true} />} />
             <Route path="register" element={<SignLogin login={false} />} />
             <Route path="chat" element={<Chat />} />
+            <Route path="games" element={<Games />}/>
           </Routes>
         </BrowserRouter>
       </PersistGate>

@@ -258,6 +258,7 @@ export const websocketApi = createApi({
                         console.log(err);
                     }
                     await cacheEntryRemoved
+                    clearInterval(checkLastPingTimer);
                     console.log("removed");
                     ws.close()
                 }

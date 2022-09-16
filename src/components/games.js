@@ -1,15 +1,24 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
+import { useNavigate, Route } from 'react-router';
 
 import styles from './games.module.css';
 import './themes.css';
 
-import { PageChange } from './modals';
+import { PageChange, PageChangeAfter, ExitButton } from './modals';
 
 import GameList from '../app/games/gamesList';
 
-import { websocketApi } from '../api/websocket';
+//import { websocketApi } from '../api/websocket';
+
+function GameDisplay(props) {
+    return (<div>
+        {props.game}
+        <div>
+            <input type="button" value="exit" />
+        </div>
+    </div>);
+}
 
 function Games() {
 
@@ -30,10 +39,11 @@ function Games() {
             navigate("../chat", { "replace": false });
         }, 1500);
     }
-
+    /*
     React.useEffect(() => { //stop websocket when we get here
         dispatch(websocketApi.util.resetApiState());
     }, []);
+    */
 
     React.useEffect(() => { //make this its own seperate function later
 
@@ -70,19 +80,25 @@ function Games() {
     }, [keyBindList, panicLink, redirectPanic, showPanic, setShowPanic])
 
     return (<div className={styles.gamesContainer}>
-        <div className={styles.gamesSelector}>
-            {
-                GameList.map((val, idx) =>
-                    <div key={idx} className={styles.gamesOption}>
-                        {val.name}
-                    </div>)
-            }
+        <div className={styles.gamesAndInfo}>
+            <div className={styles.gamesExitHelp}>
+                To exit hover to right side of the screen and the exit button will show up
         </div>
-        <div className={styles.gamesExitButton}>
-                <input value="Exit" type="button" onClick={WaitAnim}/>
+            <div className={styles.gamesSelector}>
+                {
+                    GameList.map((val, idx) =>
+                        <div key={idx} className={styles.gamesOption} onClick={() => navigate(`../games/${val.name}`, { "replace": false })}>
+                            {val.name}
+                        </div>)
+                }
+            </div>
         </div>
+        <ExitButton exit={WaitAnim} />
         <PageChange show={changePage} />
+        <PageChangeAfter />
     </div>)
 }
 
 export default Games;
+
+export { GameDisplay };

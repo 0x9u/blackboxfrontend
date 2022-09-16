@@ -93,7 +93,7 @@ function ProfileSettings(props) {
             </div>
             <div className={styles.optionBox}>
                 <p className={styles.optionTitle}>Password</p>
-                <div className={styles.optionBoxRow} id="passwordChange"><label>Change password</label> <input type="button" className={`${styles.singleRowButton} themeOneImportant`} value="Change Password" onClick={() => props.passFunc(true)} /></div>
+                <div className={styles.optionBoxRow} id="passwordChange"><label>Change password</label> <input type="button" className={`${styles.singleRowButton} themeOneButton`} value="Change Password" onClick={() => props.passFunc(true)} /></div>
             </div>
         </div>
     );
@@ -115,11 +115,11 @@ function CheekySettings(props) {
                 </p>
                 <div className={styles.optionBoxRow}>
                     <label>Panic Button Link</label>
-                    <input type="button" className={`${styles.singleRowButton} themeOneImportant`} value="Change Link" onClick={() => props.linkFunc(true)} />
+                    <input type="button" className={`${styles.singleRowButton} themeOneButton`} value="Change Link" onClick={() => props.linkFunc(true)} />
                 </div>
                 <div className={styles.optionBoxRow}>
                     <label>Set Keybind for panic button</label>
-                    <input type="button" className={`${styles.singleRowButton} themeOneImportant`} value="Set Keybind" onClick={() => props.keyBindFunc(true)} />
+                    <input type="button" className={`${styles.singleRowButton} themeOneButton`} value="Set Keybind" onClick={() => props.keyBindFunc(true)} />
                 </div>
                 <div className={styles.optionBoxRow}>
                     <label>Redirect (Green) or Display page (Red)</label>
@@ -127,7 +127,7 @@ function CheekySettings(props) {
                 </div>
                 <div className={styles.optionBoxRow}>
                     <label>Disguise title and icon</label>
-                    <CheckBox checked={disguiseTab} onChange={() => dispatch(clientDisguiseTabSet({ disguiseTab : !disguiseTab}))} />
+                    <CheckBox checked={disguiseTab} onChange={() => dispatch(clientDisguiseTabSet({ disguiseTab: !disguiseTab }))} disabled />
                 </div>
             </div>
             <div className={styles.optionBox}>
@@ -135,7 +135,7 @@ function CheekySettings(props) {
                     NOTE:
                 </p>
                 <div className={styles.optionBoxRow}>
-                    <p>Display page only works on old webpages therefore Redirect (green) is recommended.<br/><br/>Also I wasn't able to make it hide ur history so pray to god u dont get caught.   </p>
+                    <p>Display page only works on old webpages therefore Redirect (green) is recommended.<br /><br />Also I wasn't able to make it hide ur history so pray to god u dont get caught.   </p>
                 </div>
             </div>
         </div>
@@ -656,7 +656,7 @@ function UserMenu(props) {
             <div className={styles.optionButton} ><input className={active === 0 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="User Profile" onClick={() => { setActive(0) }} /></div>
             <div className={styles.optionButton} ><input className={active === 1 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Cheeky Settings" onClick={() => { setActive(1) }} /></div>
             <div className={styles.optionButton}><input className={active === 2 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Appearance" onClick={() => { setActive(2) }} /></div>
-            <div className={styles.optionButton}><input className={"themeOneImportant themeOneButton"} type="button" value="Log Out" id="leaveButton" onClick={clearAuth} /></div>
+            <div className={`${styles.optionButton} ${styles.optionImportantButton}`}><input className={"themeOneButton"} type="button" value="Log Out" id="leaveButton" onClick={clearAuth} /></div>
         </Menu>
     )
 }
@@ -702,7 +702,7 @@ function ServerMenu(props) {
             <div className={styles.optionButton}><input className={active === 1 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
             <div className={styles.optionButton}><input className={active === 2 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Banned Users" onClick={() => { setActive(2) }} /></div>
             <div className={styles.optionButton}><input className={active === 3 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Manage Invites" onClick={() => { setActive(3) }} /></div>
-            <div className={styles.optionButton}><input type="button" className={"themeOneImportant themeOneButton"} value="Delete Server" id="leaveButton" onClick={() => setShowDelete(true)} /></div>
+            <div className={`${styles.optionButton} ${styles.optionImportantButton}`}><input type="button" className={"themeOneButton"} value="Delete Server" id="leaveButton" onClick={() => setShowDelete(true)} /></div>
         </Menu>
     )
 }
@@ -728,9 +728,23 @@ function Menu(props) { //pass set states function to be able change options thro
 }
 
 function PageChange(props) {
-    return(
+    return (
         <div className={props.show ? styles.changePage : `${styles.changePage} ${styles.hidden}`}></div>
     )
 }
 
-export { Modal, UserMenu, ServerMenu, CheckBox, InputBox, PictureSelector, PageChange };
+function PageChangeAfter(props) {
+    return (
+        <div className={styles.pageChangeAfter}></div>
+    )
+}
+
+function ExitButton(props) {
+    return (
+        <div className={styles.exitButton}>
+            <input className="default themeOneButton" type="button" onClick={props.exit} value="×" />
+            <label>Exit</label>
+        </div>);
+}
+
+export { Modal, UserMenu, ServerMenu, CheckBox, InputBox, PictureSelector, PageChange, PageChangeAfter, ExitButton };

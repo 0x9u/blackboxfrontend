@@ -1,12 +1,45 @@
-.gamesContainer {
-    width: 100vw;
-    height: 100vh;
+.gamesContainer {   
     background: green;
-    
+    position: fixed;
+    width: 100%;
+    height: 100%;    
+    display: flex;
+    overflow: auto;
+}
+
+.gamesAndInfo {
+    margin-left: calc((100vw - 35vw) / 2);
+    margin-top: calc((100vh - 75vh) / 4 );
+    margin-right: 50px;
 }
 
 .gamesSelector {
-    width: 150px;
-    height: 350px;
+    width: 35vw;
+    height: 75vh;
+    min-width: 300px;
+    min-height: 450px;
     background: red;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    border: black solid 5px;
+}
+
+.gamesOption {
+    border: blue solid;
+    width: calc(100% - 60px);
+    margin-left: 25px;
+    margin-top: 15px;
+    padding: 5px;
+    background: green;
+    border-radius: 5px;
+}
+
+.gamesOption:hover {
+    background: yellow;
+}
+
+.gamesExitHelp {
+    max-width: 35vw;
+    font-size: 0.85em;
 }

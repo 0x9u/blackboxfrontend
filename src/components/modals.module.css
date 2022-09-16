@@ -225,6 +225,12 @@
     filter: brightness(85%);
 }
 
+.optionImportantButton {
+    padding-top: 10px;
+    border-top: white solid 2px;
+    margin-top: 75px;
+}
+
 /*
 .optionButton.active>input {
     background: blueviolet;
@@ -389,7 +395,7 @@ input[type='button'][id='leaveButton']:active {
 }
 
 .optionBox:not(:first-child) {
-    border-top: 2px solid black;
+    border-top: 2px solid white;
 }
 
 .optionBox:not(:first-child)>.optionTitle {
@@ -718,7 +724,7 @@ input[type='button'][id='leaveButton']:active {
 .optionSelectorChild {
     flex: 0 0;
     padding: 1em 2em;
-    border-bottom: 2px solid black;
+    border-bottom: 2px solid white;
     color: black;
     word-wrap: break-word;
     display:flex;
@@ -855,4 +861,28 @@ input[type='button'][id='leaveButton']:active {
     width: 100%;
     height: 100%;
     position: fixed;
+    left: 0%;
+    top:0%;
+}
+
+@keyframes pageChangeAnim {
+    0%, 25% {
+        opacity: 1.0;
+    }
+
+    100% {
+        opacity: 0.0;
+        pointer-events: none;
+    }
+}
+
+.pageChangeAfter {
+    animation: pageChangeAnim 1s;
+    animation-fill-mode: forwards;
+    width: 100%;
+    height: 100%;
+    background: #2B2D42;
+    position: absolute;
+    left: 0%;
+    top: 0%;
 }

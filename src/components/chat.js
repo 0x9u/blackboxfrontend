@@ -10,7 +10,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import './themes.css';
 import styles from './chat.module.css';
 
-import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector, PageChange } from './modals';
+import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector, PageChange, PageChangeAfter } from './modals';
 import { useStartWSQuery } from '../api/websocket';
 import { GetMsgs, SendMsgs, DeleteMsgs, EditMsgs } from '../api/msgApi';
 import { GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
@@ -602,7 +602,7 @@ function Chat() { //might turn into class
             <InviteModal show={invite} exit={() => setInvite(false)} />
             {
                 !isLoading &&
-                <div className={styles.pageChange}></div>
+                <PageChangeAfter/>
             }
             {
                 isLoading &&

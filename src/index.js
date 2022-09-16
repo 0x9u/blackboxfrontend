@@ -9,6 +9,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import SignLogin from './components/signlogin.js';
 import Chat from './components/chat.js';
 import Games from './components/games.js'
+import { GameDisplay } from './components/games.js';
 
 import GameList from './app/games/gamesList';
 
@@ -17,23 +18,23 @@ import { store, persistor } from './app/store.js';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render( //note to self React StrictMode is causing rendering twice allowing useeffect to activiate twice
-//Remove React StrictMode when testing API/CHAT
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<SignLogin login={true} />} />
-            <Route path="login" element={<SignLogin login={true} />} />
-            <Route path="register" element={<SignLogin login={false} />} />
-            <Route path="chat" element={<Chat />} />
-            <Route path="games" element={<Games />}/>
-            {
-              GameList.map((val, idx) => <Route key={idx} path={`games/${val.name}`} element={val.component}/>)
-            }
-          </Routes>
-        </BrowserRouter>
-      </PersistGate>
-    </Provider>
+  //Remove React StrictMode when testing API/CHAT
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<SignLogin login={true} />} />
+          <Route path="login" element={<SignLogin login={true} />} />
+          <Route path="register" element={<SignLogin login={false} />} />
+          <Route path="chat" element={<Chat />} />
+          <Route path="games" element={<Games />} />
+          {
+            GameList.map((val, idx) => <Route key={idx} path={`games/${val.name}`} element={<GameDisplay game={val.component} />} />)
+          }
+        </Routes>
+      </BrowserRouter>
+    </PersistGate>
+  </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function

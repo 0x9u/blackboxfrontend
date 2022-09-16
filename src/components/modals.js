@@ -743,7 +743,7 @@ function ExitButton(props) {
     return (
         <div className={styles.exitButton}>
             <input className="default themeOneButton" type="button" onClick={props.exit} value="×" />
-            <label>Exit</label>
+            { !props.showLabel && <label>Exit</label> }
         </div>);
 }
 

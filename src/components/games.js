@@ -7,7 +7,7 @@ import './themes.css';
 
 import { PageChange, PageChangeAfter, ExitButton } from './modals';
 
-import GameList from '../app/games/gamesList';
+import GameList from '../games/gamesList';
 
 //import { websocketApi } from '../api/websocket';
 

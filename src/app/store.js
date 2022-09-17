@@ -19,6 +19,9 @@ import { default as clientReducer } from './reducers/client';
 import {websocketApi} from '../api/websocket';
 //import { wsEpic } from '../api/websocket';
 
+//game APIS
+import wordleApi  from '../games/gameFiles/wordle/wordleApi';
+
 //const epicMiddleware = createEpicMiddleware();
 
 const middlewares = [thunk, /*epicMiddleware,*/ websocketApi.middleware];
@@ -34,6 +37,9 @@ const rootReducer = combineReducers({
     userInfo: userInfoReducer,
     client : clientReducer,
     [websocketApi.reducerPath]: websocketApi.reducer,
+
+    //game APIS
+    [wordleApi.reducerPath] : wordleApi.reducer
     //    wsChat: wsChatReducer
 });
 
@@ -43,7 +49,7 @@ const peristConfig = {
         "auth",
         "client"
     ],
-    storage, //localstorage PROBLEM no idea how to make it expire
+    storage, //localstorage PROBLEM no idea how to make it expire (it fixed itself nvm)
 };
 
 const persistedReducer = persistReducer(peristConfig, rootReducer); //load config for localstorage saving

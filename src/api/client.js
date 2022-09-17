@@ -1,6 +1,7 @@
 const gateway = "http://localhost:8090/api/";
 
-//change this to use rxjs as new api soon
+//change this to use create api instead 
+//this is unneccessary additional code
 async function requestApi(endpoint, type, { data, urlParams, ...customConfig } = {}) { //replace later with RTK
     try {
         const response = await fetch(`${gateway}${endpoint}${Object.keys(urlParams).length !== 0 ? "?" + new URLSearchParams(urlParams) : ""}`, 

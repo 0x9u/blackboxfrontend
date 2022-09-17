@@ -11,7 +11,7 @@ import Chat from './components/chat.js';
 import Games from './components/games.js'
 import { GameDisplay } from './components/games.js';
 
-import GameList from './app/games/gamesList';
+import GameList from './games/gamesList';
 
 import { store, persistor } from './app/store.js';
 

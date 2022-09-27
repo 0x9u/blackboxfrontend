@@ -144,8 +144,8 @@ function RenderChatMsgs() {
         //show pending message
         if (msg?.RequestId) {
             return <Msg key={msg.RequestId} Id={0} AuthorId={userId} RequestId={msg.RequestId} img="/profileImg.png" username={username} time={time.toLocaleString()} msg={msg.Content} loading={true} failed={msg?.Failed} hideUserTime={hideUserTime} />
-        }
-        return <Msg key={msg.Id} Id={msg.Id} AuthorId={msg.Author.Id} edited={msg.Edited} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
+        } //msg.Id || index because sometimes chat isnt saved and therefore index is required instead
+        return <Msg key={msg.Id || index} Id={msg.Id} AuthorId={msg.Author.Id} edited={msg.Edited} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
     });
 }
 

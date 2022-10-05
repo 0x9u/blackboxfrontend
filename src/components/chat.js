@@ -80,7 +80,7 @@ function Msg(props) { //TODO add id to return in backend
     return (
         <div className={`${styles.msg} ${props.hideUserTime ? styles.hideUserTime : ""}`}>
             {!props.hideUserTime && <>
-                <img src={props.img} width="40" height="40" alt="pfp" />
+                <img src={props.img} width="40" height="40" />
                 <label className={`${styles.msgUserTime} themeOneTextUserTime`}>{props.username} <span>{props.time}</span></label>
             </>}
             {

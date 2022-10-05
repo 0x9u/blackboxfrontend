@@ -137,6 +137,7 @@ export const websocketApi = createApi({
                 { dispatch, cacheDataLoaded, cacheEntryRemoved }
             ) => {
                 var checkLastPingTimer;
+                var wsRestartTimeout;
                 async function connectWS() { //recursive so if its disconnected we can reconnect is unsuccessful
                     await dispatch(guildReset()); //bug when user logs outs this doesnt work
                     let a = await dispatch(GetGuilds());
@@ -144,10 +145,14 @@ export const websocketApi = createApi({
                     
                     if (a.error || b.error) { //loading thing doesnt show up (minor bug)
                         await dispatch(setLoading(true));
-                        setTimeout( () => {
-                            console.log("reconnecting websocket...");
-                            connectWS();
-                        }, 10000); 
+                        await new Promise(
+                        (resolve) => setTimeout( async () => { //fixed repeating infinite websocket bug
+                            clearInterval(checkLastPingTimer);
+                            clearTimeout(wsRestartTimeout);
+                            console.log("reconnecting websocket... 2");
+                            await connectWS();
+                            resolve();
+                        }, 10000)); 
                     } //sometimes getguilds and get user info fails therefore just reconnect websocket
 
                     const ws = new WebSocket(WEBSOCKET_URL + "?" + new URLSearchParams({ token: arg.token }));
@@ -156,6 +161,7 @@ export const websocketApi = createApi({
                         if ((Date.now() - lastPing) > 25000) {
                             console.log("server failed to ping restarting ws")
                             clearInterval(checkLastPingTimer);
+                            clearTimeout(wsRestartTimeout);
                             ws.close();
                             setTimeout( () => {
                                 connectWS();
@@ -243,9 +249,10 @@ export const websocketApi = createApi({
                         }
                         const onReady = () => dispatch(setLoading(false));
                         const onClose = (e) => {
+                            clearInterval(checkLastPingTimer);
                             if (e.code !== 1005) {
                                 dispatch(setLoading(true));
-                                setTimeout( () => {
+                                wsRestartTimeout = setTimeout( () => {
                                 console.log("reconnecting websocket...");
                                 connectWS();
                             }, 10000); //wait 10 seconds before trying to reconnect

@@ -1,4 +1,4 @@
-const gateway = "http://localhost:8090/api/";
+const gateway = "http://localhost:8090/api/"//"https://radiant-inlet-70212.herokuapp.com/api/";//"http://localhost:8090/api/";
 
 //change this to use create api instead 
 //this is unneccessary additional code
@@ -27,6 +27,9 @@ async function requestApi(endpoint, type, { data, urlParams, ...customConfig } =
         return Promise.resolve(resJson)
     } catch (error) {
         console.log("bad", error)
+        if (typeof error.message === "undefined") { //shit code
+            error.message = "Unable to connect";
+        }
         return Promise.reject({...error});
     }
 }

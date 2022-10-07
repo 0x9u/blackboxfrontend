@@ -10,6 +10,7 @@ import SignLogin from './components/signlogin.js';
 import Chat from './components/chat.js';
 import Games from './components/games.js'
 import { GameDisplay } from './components/games.js';
+import NotFound from './components/notfound.js';
 
 import GameList from './games/gamesList';
 
@@ -31,6 +32,7 @@ root.render( //note to self React StrictMode is causing rendering twice allowing
           {
             GameList.map((val, idx) => <Route key={idx} path={`games/${val.name}`} element={<GameDisplay game={val.component} />} />)
           }
+          <Route path="*" element={ <NotFound/> } />
         </Routes>
       </BrowserRouter>
     </PersistGate>

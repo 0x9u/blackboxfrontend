@@ -160,6 +160,9 @@ const guildSlice = createSlice({
         msgRemoveFailed : (state, action) => {
             state.guildInfo[state.currentGuild].MsgHistory = state.guildInfo[state.currentGuild].MsgHistory.filter(msg => msg?.RequestId !== action.payload.requestId);
         },
+        msgClearUser : (state, action) => {
+            state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.filter(msg => msg?.Author !== action.payload.Id);
+        },
         inviteAdd: (state,action) => {
             state.guildInfo[action.payload.Guild].Invites.push(action.payload.Invite);
         },
@@ -308,6 +311,6 @@ const guildSlice = createSlice({
 });
 //use ellipsis later
 export const { guildAdd, guildRemove, guildSet, guildChange, guildReset, guildSettingsChange, guildCurrentSet,
-    guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, msgEditSet, msgSet, msgRemoveFailed, guildRemoveUserList,
+    guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, msgEditSet, msgSet, msgRemoveFailed, msgClearUser, guildRemoveUserList,
     guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove, setLoading } = guildSlice.actions;
 export default guildSlice.reducer;

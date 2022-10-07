@@ -11,6 +11,7 @@ import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userIn
 import { BanUser, KickUser, UnbanUser, DeleteInvite, DeleteGuild, ChangeGuild } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
 import { clientLinkSet, clientKeyBindSet, clientRedirectPanicSet, clientDisguiseTabSet } from '../app/reducers/client';
+import { DeleteAllUserMsg } from '../api/msgApi';
 
 
 //find better way to fix button shit
@@ -77,6 +78,9 @@ function ProfileSettings(props) {
     const username = useSelector(state => state.userInfo.username);
     const email = useSelector(state => state.userInfo.email);
     //const icon = useSelector(state => state.userInfo.icon);
+    const deleteAllUserMsgLoading = useSelector(state => state.client.DeleteAllUserMsgLoading);
+
+    const dispatch = useDispatch();
 
     return (
         <div className={styles.settingsContainer}>
@@ -93,7 +97,13 @@ function ProfileSettings(props) {
             </div>
             <div className={styles.optionBox}>
                 <p className={styles.optionTitle}>Password</p>
-                <div className={styles.optionBoxRow} id="passwordChange"><label>Change password</label> <input type="button" className={`${styles.singleRowButton} themeOneButton`} value="Change Password" onClick={() => props.passFunc(true)} /></div>
+                <div className={styles.optionBoxRow} id="passwordChange"><label>Change password</label>
+                    <input type="button" className={`${styles.singleRowButton} themeOneButton`} value="Change Password" onClick={() => props.passFunc(true)} /></div>
+            </div>
+            <div className={styles.optionBox}>
+                <p className={styles.optionTitle}>Delete all your messages</p>
+                <div className={styles.optionBoxRow}><label>Delete messages</label>
+                    <input type="button" className={`${styles.singleRowButton} themeOneButton`} value="Delete Messages" onClick={() => dispatch(DeleteAllUserMsg())} disabled={deleteAllUserMsgLoading}/></div>
             </div>
         </div>
     );
@@ -225,7 +235,7 @@ function BanOrKickSettings() {
     const [chosen, setChosen] = React.useState(-1);
     const [error, setError] = React.useState("");
     const userList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Users ?? []);
-    const BanKickLoading = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.BanKickLoading);
+    const banKickLoading = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.BanKickLoading);
     const ownId = useSelector(state => state.auth.userId);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
 
@@ -274,8 +284,8 @@ function BanOrKickSettings() {
                     {chosen !== -1 ? `You have chosen ${userList?.[chosen]?.Username}` : "Choose a member to ban/kick"}
                 </p>
                 <div className={styles.optionBoxFlexRow}>
-                    <input value="Ban User" type="button" className={styles.banKickUserButton} onClick={banUser} disabled={chosen === -1 || BanKickLoading} />
-                    <input value="Kick User" type="button" className={styles.banKickUserButton} onClick={kickUser} disabled={chosen === -1 || BanKickLoading} />
+                    <input value="Ban User" type="button" className={styles.banKickUserButton} onClick={banUser} disabled={chosen === -1 || banKickLoading} />
+                    <input value="Kick User" type="button" className={styles.banKickUserButton} onClick={kickUser} disabled={chosen === -1 || banKickLoading} />
                 </div>
                 <p className={`${styles.optionDescription} ${styles.error}`}>{error}</p>
             </div>
@@ -743,7 +753,7 @@ function ExitButton(props) {
     return (
         <div className={styles.exitButton}>
             <input className="default themeOneButton" type="button" onClick={props.exit} value="×" />
-            { !props.showLabel && <label>Exit</label> }
+            {!props.showLabel && <label>Exit</label>}
         </div>);
 }
 

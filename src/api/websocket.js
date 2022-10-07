@@ -7,7 +7,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
     msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildSettingsChange,
     guildUpdateUserList, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList,
-    inviteAdd, inviteRemove, setLoading, guildReset, msgSet
+    inviteAdd, inviteRemove, setLoading, guildReset, msgSet, msgClearUser
 } from '../app/reducers/guilds';
 import { userChange } from '../app/reducers/userInfo';
 import {GetGuilds} from './guildApi';
@@ -31,7 +31,9 @@ const
     INVITEADDED = 11,
     INVITEREMOVED = 12,
     CHANGECLIENTDATA = 13,
-    CHANGESETTINGGUILD = 14;
+    CHANGESETTINGGUILD = 14,
+    CLEARGUILDMSG = 15,
+    CLEARUSERMSG = 16;
 
 /*
 const WS_START = "WS_START";
@@ -241,7 +243,10 @@ export const websocketApi = createApi({
                                 case CHANGESETTINGGUILD:
                                     dispatch(guildSettingsChange(data));
                                     break;
-
+                                //case CLEARGUILDMSGDATA:
+                                case CLEARUSERMSG:
+                                    dispatch(msgClearUser(data));
+                                    break;
                                 //return guildAction(data); //TODO REPLACE WITH SWITCH CASE
                                 default:
                                     console.log("Unidenified data type: " + dataType);

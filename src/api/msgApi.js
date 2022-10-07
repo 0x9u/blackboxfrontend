@@ -58,6 +58,17 @@ const DeleteMsgs = createAsyncThunk("msgs/delete", async(args, api) => {
             "Auth-Token" : api.getState().auth.token
         }
     })
+});
+
+const DeleteAllUserMsg = createAsyncThunk("user/deletemsg", async (args, api) => {
+    console.log("delete all user msg")
+    await deleteApi("user/deletemsg", {
+        
+    }, {
+        headers : {
+            "Auth-Token" : api.getState().auth.token
+        }
+    })
 })
 
-export {GetMsgs, SendMsgs, DeleteMsgs, EditMsgs};
+export {GetMsgs, SendMsgs, DeleteMsgs, EditMsgs, DeleteAllUserMsg};

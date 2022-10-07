@@ -71,4 +71,15 @@ const DeleteAllUserMsg = createAsyncThunk("user/deletemsg", async (args, api) =>
     })
 })
 
-export {GetMsgs, SendMsgs, DeleteMsgs, EditMsgs, DeleteAllUserMsg};
+const DeleteAllGuildMsg = createAsyncThunk("guild/deletemsg", async (args, api) => {
+    console.log("delete all guild msg")
+    await deleteApi("guild/deletemsg", {
+        Guild : api.getState().guilds.currentGuild
+    }, {
+        headers : {
+            "Auth-Token" : api.getState().auth.token
+        }
+    })
+})
+
+export {GetMsgs, SendMsgs, DeleteMsgs, EditMsgs, DeleteAllUserMsg, DeleteAllGuildMsg};

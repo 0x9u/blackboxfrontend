@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { GetBannedUsers, GetGuilds, GetGuildSettings, GetGuildUsers, GetInvite, DeleteInvite, BanUser, KickUser, UnbanUser } from "../../api/guildApi";
-import { GetMsgs, SendMsgs } from "../../api/msgApi";
+import { DeleteAllGuildMsg, GetMsgs, SendMsgs } from "../../api/msgApi";
 
 /*
 format for guilds (guildInfo)
@@ -12,6 +12,7 @@ format for guilds (guildInfo)
     MsgLimitReached : bool,
     InviteLoading : bool,
     BanKickLoading : bool,
+    ClearMsgLoading : bool,
     EditMessage : int,
     Users : [
         {
@@ -73,6 +74,7 @@ const guildSlice = createSlice({
                 Owner : action.payload.Owner,
                 InviteLoading : false,
                 BanKickLoading : false,
+                ClearMsgLoading : false,
                 Loaded : false,
                 MsgLimitReached : false,
                 EditMessage : 0,
@@ -146,11 +148,11 @@ const guildSlice = createSlice({
                     .MsgHistory.filter(msg => msg.Id !== action.payload.Id);
             } else {
                 state.GuildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild]
-                    .MsgHistory.filter(msg => msg.Author !== action.payload.Author);
+                    .MsgHistory.filter(msg => msg.Author.Id !== action.payload.Author);
             }
         },
-        msgEditSet : (state, action) => {
-            state.guildInfo[state.currentGuild].EditMessage = action.payload.Id;
+        msgEditSet : (state, action) => { //i dont think this is used or maybe it is idk
+            state.guildInfo[state.currentGuild].EditMessage = action.payload.Id; //investigate this
         },
         msgSet : (state, action) => {
             state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.map(
@@ -161,7 +163,10 @@ const guildSlice = createSlice({
             state.guildInfo[state.currentGuild].MsgHistory = state.guildInfo[state.currentGuild].MsgHistory.filter(msg => msg?.RequestId !== action.payload.requestId);
         },
         msgClearUser : (state, action) => {
-            state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.filter(msg => msg?.Author !== action.payload.Id);
+            state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.filter(msg => msg?.Author.Id !== action.payload.Id);
+        },
+        msgClearGuild : (state, action) => {
+            state.guildInfo[action.payload.Guild].MsgHistory = [];
         },
         inviteAdd: (state,action) => {
             state.guildInfo[action.payload.Guild].Invites.push(action.payload.Invite);
@@ -187,6 +192,7 @@ const guildSlice = createSlice({
                         Owner: guild.Owner,
                         InviteLoading : false,
                         BanKickLoading : false,
+                        ClearMsgLoading : false,
                         Loaded: false,
                         MsgLimitReached : false,
                         EditMessage : 0,
@@ -304,6 +310,12 @@ const guildSlice = createSlice({
             })
             .addCase(GetGuildSettings.fulfilled, (state,action) => {
                 state.guildInfo[state.currentGuild].Settings = action.payload;
+            })
+            .addCase(DeleteAllGuildMsg.pending, (state, action) => {
+                state.guildInfo[state.currentGuild].ClearMsgLoading = true;
+            })
+            .addCase(DeleteAllGuildMsg.fulfilled, (state, action) => {
+                state.guildInfo[state.currentGuild].ClearMsgLoading = false;
             });
 
     }
@@ -311,6 +323,6 @@ const guildSlice = createSlice({
 });
 //use ellipsis later
 export const { guildAdd, guildRemove, guildSet, guildChange, guildReset, guildSettingsChange, guildCurrentSet,
-    guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, msgEditSet, msgSet, msgRemoveFailed, msgClearUser, guildRemoveUserList,
+    guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, msgEditSet, msgSet, msgRemoveFailed, msgClearUser, msgClearGuild, guildRemoveUserList,
     guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove, setLoading } = guildSlice.actions;
 export default guildSlice.reducer;

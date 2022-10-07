@@ -11,7 +11,7 @@ import { EDITEMAIL, EDITPASS, EDITUSERNAME, UpdateUserInfo } from '../api/userIn
 import { BanUser, KickUser, UnbanUser, DeleteInvite, DeleteGuild, ChangeGuild } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
 import { clientLinkSet, clientKeyBindSet, clientRedirectPanicSet, clientDisguiseTabSet } from '../app/reducers/client';
-import { DeleteAllUserMsg } from '../api/msgApi';
+import { DeleteAllGuildMsg, DeleteAllUserMsg } from '../api/msgApi';
 
 
 //find better way to fix button shit
@@ -675,6 +675,9 @@ function ServerMenu(props) {
     const [active, setActive] = React.useState(0);
     const [showDelete, setShowDelete] = React.useState(false);
 
+    const clearMsgLoading = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.ClearMsgLoading);
+    const msgIsEmpty = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory?.length === 0);
+
     const dispatch = useDispatch();
 
     function renderServerSettings() {
@@ -712,7 +715,8 @@ function ServerMenu(props) {
             <div className={styles.optionButton}><input className={active === 1 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Ban/Kick User" onClick={() => { setActive(1) }} /></div>
             <div className={styles.optionButton}><input className={active === 2 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Banned Users" onClick={() => { setActive(2) }} /></div>
             <div className={styles.optionButton}><input className={active === 3 ? `${styles.active} themeOneActive themeOneButton` : "themeOneButton"} type="button" value="Manage Invites" onClick={() => { setActive(3) }} /></div>
-            <div className={`${styles.optionButton} ${styles.optionImportantButton}`}><input type="button" className={"themeOneButton"} value="Delete Server" id="leaveButton" onClick={() => setShowDelete(true)} /></div>
+            <div className={`${styles.optionButton} ${styles.optionImportantButton}`}><input className={"themeOneButton"} type="button" value="Clear Messages" onClick={() => {dispatch(DeleteAllGuildMsg())}} disabled={clearMsgLoading || msgIsEmpty}/></div>
+            <div className={styles.optionButton}><input type="button" className={"themeOneButton"} value="Delete Server" id="leaveButton" onClick={() => setShowDelete(true)} /></div>
         </Menu>
     )
 }

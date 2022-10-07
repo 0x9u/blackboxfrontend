@@ -7,14 +7,14 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
     msgAdd, msgRemove, guildAdd, guildRemove, guildChange, guildSettingsChange,
     guildUpdateUserList, guildRemoveUserList, guildRemoveBannedList, guildUpdateBannedList,
-    inviteAdd, inviteRemove, setLoading, guildReset, msgSet, msgClearUser
+    inviteAdd, inviteRemove, setLoading, guildReset, msgSet, msgClearUser, msgClearGuild
 } from '../app/reducers/guilds';
 import { userChange } from '../app/reducers/userInfo';
 import {GetGuilds} from './guildApi';
 import {GetUserInfo} from './userInfoApi';
 //import { useDispatch } from 'react-redux';
 
-const WEBSOCKET_URL = 'ws://localhost:8090/api/ws'//'wss://radiant-inlet-70212.herokuapp.com/api/ws'//'ws://localhost:8090/api/ws';
+const WEBSOCKET_URL = 'ws://localhost:8090/api/ws';//'wss://radiant-inlet-70212.herokuapp.com/api/ws'//'ws://localhost:8090/api/ws';
 
 const
     PING = 0,
@@ -243,7 +243,9 @@ export const websocketApi = createApi({
                                 case CHANGESETTINGGUILD:
                                     dispatch(guildSettingsChange(data));
                                     break;
-                                //case CLEARGUILDMSGDATA:
+                                case CLEARGUILDMSG:
+                                    dispatch(msgClearGuild(data));
+                                    break;
                                 case CLEARUSERMSG:
                                     dispatch(msgClearUser(data));
                                     break;

@@ -220,8 +220,10 @@
     border: 2px solid;
     transition: 0s border;
 }
-
-.optionButton>input:not(.active):hover {
+.optionButton>input:disabled {
+    filter: brightness(50%);
+}
+.optionButton>input:not(.active):not(:disabled):hover {
     filter: brightness(85%);
 }
 

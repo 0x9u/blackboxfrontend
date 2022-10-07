@@ -5,7 +5,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 //import { useInView } from 'react-intersection-observer';
+
 import InfiniteScroll from 'react-infinite-scroll-component';
+import Linkify from 'react-linkify';
 
 import './themes.css';
 import styles from './chat.module.css';
@@ -90,12 +92,14 @@ function Msg(props) { //TODO add id to return in backend
                         <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons} themeOneText`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
                     </>
                     : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading : ""} ${props.failed ? "themeOneImportantText" : "themeOneText"}`}>
+                        <Linkify>
                         {(() => {
                             const splitMsgs = props.msg.split(/\n/);
                             return splitMsgs.map((line, index) =>
                                 <React.Fragment key={index}>{line}{index !== (splitMsgs.length - 1) && <br className={styles.msgNewLine} />}</React.Fragment>
                             )
                         })()}
+                        </Linkify>
                         {props.edited && <span className={styles.msgEdited}> (edited)</span>}
                     </p>
             }

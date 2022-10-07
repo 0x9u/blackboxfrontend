@@ -2,9 +2,16 @@
     color: white;
 }
 
+
+/* Subject to change */
 .themeOneText > a {
-    color: #0096FF;
+    color: lightskyblue;
 }
+
+.themeOneText > a:visited {
+    color: darkblue;
+}
+/* Subject to change */
 
 .themeOneTextUserTime {
     color: #E2DFD2;

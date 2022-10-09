@@ -24,9 +24,8 @@
 }
 
 .grid {
-    margin-bottom: 25px;
-    flex-grow: 1;
-    justify-content: center;
+    flex-grow: 2;
+    flex-shrink: 2;
 }
 
 .gridRow {
@@ -36,31 +35,53 @@
 
 .gridCube {
     text-transform: uppercase;
-    padding: 10px 20px;
+    width: 7.5vh;
+    height: 7.5vh;
     border: 1px black solid;
-    margin: 2px;
+    margin: 4px;
     font-weight: bold;
-    font-size: 2em;
+    font-size: 4vh;
     font-stretch: expanded;
     line-height: 1.25em;
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.yellowCube {
-    background: yellow;
+.cubeWRONGPOS {
+    background: orange;
+    transform: rotateX(360deg);
+    transition: 1s transform;
     color: white;
 }
 
-.greenCube {
+.cubeCORRECT {
     background: green;
+    transform: rotateX(360deg);
+    transition: 1s transform;
+    color: white;
+}
+
+.cubeWRONG {
+    background: red;
+    transform: rotateX(360deg);
+    transition: 1s transform;
     color: white;
 }
 
 .button {
     border: 1px black solid;
-    background: transparent;
     font-weight: bold;
-    font-size: 1em;
-    height: 25px;
-    width: 150px;
+    font-size: 1.25em;
+    min-width: 125px;
+    min-height: 25px;
+    width: 10vh;
+    height: 2.5vh;
+    max-height: 50px;
+}
+
+.winLose {
+    text-align: center;
+    height: 50px;
+    font-size: 1.5em;
 }

@@ -48,16 +48,17 @@ function Msg(props) { //TODO add id to return in backend
 
     async function sendEditedMessage(msgText) {
         await dispatch(EditMsgs({
-            msg: msgText,
-            id: props.Id,
-            guild: currentGuild
+            Msg: msgText,
+            Id: props.Id,
+            RequestId: !props.msgSaved ? props.RequestId : undefined,
+            Guild: currentGuild
         }))
-        await dispatch(msgEditSet({ Id: 0 }));
+        await dispatch(msgEditSet({ Id: -1 }));
     }
 
     function cancelEdit() {
         setEditValue(props.msg);
-        dispatch(msgEditSet({ Id: 0 }));
+        dispatch(msgEditSet({ Id: -1 }));
     }
 
 
@@ -86,14 +87,14 @@ function Msg(props) { //TODO add id to return in backend
                 <label className={`${styles.msgUserTime} themeOneTextUserTime`}>{props.username} <span>{props.time}</span></label>
             </>}
             {
-                (editMessage === props.Id && props.msgSaved) ?
+                (editMessage === props.Id || editMessage === props.RequestId/* && props.msgSaved*/) ?
                     <>
                         <textarea className={`${props.hideUserTime ? styles.hideUserTime : ""} themeOneTextArea`} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeySend} />
                         <label className={`${props.hideUserTime ? styles.hideUserTime : ""} ${styles.msgEditButtons} themeOneText`}>esc to <a className={styles.msgEditCancel} onClick={cancelEdit}>Cancel</a> • enter to <a className={styles.msgEditSave} onClick={prepareSendMsg}>Save</a></label>
                     </>
                     : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading : ""} ${props.failed ? "themeOneImportantText" : "themeOneText"}`}>
                         <Linkify>
-                        {(() => {
+                        {(() => { //splits new lines
                             const splitMsgs = props.msg.split(/\n/);
                             return splitMsgs.map((line, index) =>
                                 <React.Fragment key={index}>{line}{index !== (splitMsgs.length - 1) && <br className={styles.msgNewLine} />}</React.Fragment>
@@ -103,17 +104,17 @@ function Msg(props) { //TODO add id to return in backend
                         {props.edited && <span className={styles.msgEdited}> (edited)</span>}
                     </p>
             }
-            {(((isOwner || userId === props.AuthorId) && !props.loading && props.msgSaved) || props.failed)
+            {(((isOwner || userId === props.AuthorId) && !props.loading/* && props.msgSaved*/) || props.failed)
                 &&
                 <div className={styles.msgButtons}>
                     {
                         !props.failed
                         && <>
                             <input className={`${styles.msgButtonChild} themeOneImportant themeOneButton`}
-                                type="button" value="Delete" onClick={() => { dispatch(DeleteMsgs({ Id: props.Id, Author: props.AuthorId })) }} />
+                                type="button" value="Delete" onClick={() => { dispatch(DeleteMsgs({ Id: props.Id, Author: props.AuthorId, RequestId : !props.msgSaved ? props.RequestId : undefined })) }} />
                             {
-                                (editMessage !== props.Id && userId === props.AuthorId) && <input className={`${styles.msgButtonChild} themeOneButton`} type="button" value="Edit"
-                                    onClick={() => { dispatch(msgEditSet({ Id: props.Id })) }} />
+                                (editMessage !== props.Id && editMessage !== props.RequestId && userId === props.AuthorId) && <input className={`${styles.msgButtonChild} themeOneButton`} type="button" value="Edit"
+                                    onClick={() => { dispatch(msgEditSet({ Id: props.msgSaved ? props.Id : props.RequestId })) }} />
                             }
                         </>
                     }
@@ -146,10 +147,11 @@ function RenderChatMsgs() {
         const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && ((msg?.Author?.Username === msgsList?.[index + 1]?.Author?.Username) || (msg?.RequestId && msgsList?.[index + 1]?.Author?.Username === username))
 
         //show pending message
-        if (msg?.RequestId) {
+        console.log(msg)
+        if (!msg?.Loaded) {
             return <Msg key={msg.RequestId} Id={0} AuthorId={userId} RequestId={msg.RequestId} img="/profileImg.png" username={username} time={time.toLocaleString()} msg={msg.Content} loading={true} failed={msg?.Failed} hideUserTime={hideUserTime} />
         } //msg.Id || index because sometimes chat isnt saved and therefore index is required instead
-        return <Msg key={msg.Id || index} Id={msg.Id} AuthorId={msg.Author.Id} edited={msg.Edited} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
+        return <Msg key={msg.Id || index} Id={msg.Id} AuthorId={msg.Author.Id} RequestId={msg.RequestId} edited={msg.Edited} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
     });
 }
 
@@ -523,7 +525,7 @@ function Chat() { //might turn into class
                             hasMore={!msgLimitReached && guildLoaded}
                             inverse={true}
                             style={{ display: 'flex', flexDirection: 'column-reverse' }}
-                            loader={<div className={styles.startMsgDiv}>Loading...</div>}
+                            loader={<div className={`${styles.startMsgDiv} themeOneText`}>Loading...</div>}
                             scrollableTarget={"Iwanttodie"}
                         >
                             {

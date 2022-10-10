@@ -13,7 +13,9 @@ format for guilds (guildInfo)
     InviteLoading : bool,
     BanKickLoading : bool,
     ClearMsgLoading : bool,
-    EditMessage : int,
+    //investigate additional solutions for data storage in EditMessage
+    //use union when converting to typescript
+    EditMessage : int | str, //must be set at default -1 to make space for non saved messages
     Users : [
         {
             Id : int,
@@ -36,6 +38,7 @@ format for guilds (guildInfo)
     MsgHistory : [
         {
             Id : int,
+            RequestId : string, //only used when save chat is not enabled
             Author : {
                 Id : int,
                 Username : string,
@@ -46,6 +49,7 @@ format for guilds (guildInfo)
             Time : int,
             MsgSaved: bool,
             Edited : bool
+            Loaded : bool, //could be changed to detect if Author dictionary exists or not
         },
         { //pending message
             RequestId : string,
@@ -69,20 +73,20 @@ const guildSlice = createSlice({
     , reducers: {
         guildAdd: (state, action) => { //accepts guild : int
             state.guildInfo[action.payload.Id] = { //update the user list later i cant be fucked (backend and frontend)
-                Name : action.payload.Name,
-                Icon : action.payload.Icon,
-                Owner : action.payload.Owner,
-                InviteLoading : false,
-                BanKickLoading : false,
-                ClearMsgLoading : false,
-                Loaded : false,
-                MsgLimitReached : false,
-                EditMessage : 0,
+                Name: action.payload.Name,
+                Icon: action.payload.Icon,
+                Owner: action.payload.Owner,
+                InviteLoading: false,
+                BanKickLoading: false,
+                ClearMsgLoading: false,
+                Loaded: false,
+                MsgLimitReached: false,
+                EditMessage: -1,
                 Invites: [],
-                Users : [],
-                Banned : [],
-                Settings : {},
-                MsgHistory : []
+                Users: [],
+                Banned: [],
+                Settings: {},
+                MsgHistory: []
             };
             state.guildOrder.push(action.payload.Id);
         },
@@ -108,7 +112,7 @@ const guildSlice = createSlice({
             state.guildOrder = [];
             state.currentGuild = 0;
         },
-        guildSettingsChange : (state, action) => {
+        guildSettingsChange: (state, action) => {
             console.log(action.payload);
             state.guildInfo[action.payload.Guild].Settings = action.payload.Settings;
         },
@@ -127,54 +131,66 @@ const guildSlice = createSlice({
         guildRemoveUserList: (state, action) => { //accepts guild : int
             state.guildInfo[action.payload.Guild].Users = state.guildInfo[action.payload.Guild].Users.filter(user => user.Id !== action.payload.Id)
         },
-        guildUpdateBannedList: (state,action) => {
+        guildUpdateBannedList: (state, action) => {
             state.guildInfo[action.payload.Guild].Banned.push(action.payload.User);
         },
-        guildRemoveBannedList: (state,action) => {
+        guildRemoveBannedList: (state, action) => {
             state.guildInfo[action.payload.Guild].Banned = state.guildInfo[action.payload.Guild].Banned.filter(user => user.Id !== action.payload.Id);
         },
         msgAdd: (state, action) => { //accepts guild : int, msg : object
-            const {Guild, RequestId} = action.payload;
+            const { Guild, RequestId } = action.payload;
             console.log(action.payload);
             console.log(RequestId);
-            if (Guild in state.guildInfo) {
+            //idk why Guild in state.guildInfo 
+            if (Guild in state.guildInfo) { //removes pending message
                 state.guildInfo[Guild].MsgHistory = state.guildInfo[Guild].MsgHistory.filter(msg => msg?.RequestId !== RequestId);
             }
-            state.guildInfo[action.payload.Guild].MsgHistory.unshift({...action.payload, RequestId : undefined});
+            state.guildInfo[action.payload.Guild].MsgHistory.unshift({ ...action.payload, Loaded: true/*, RequestId : undefined*/ });
         },
         msgRemove: (state, action) => { //accepts guild : int, msg : object
             if (action.payload.Id !== 0) {
                 state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild]
                     .MsgHistory.filter(msg => msg.Id !== action.payload.Id);
-            } else {
+            } else if (action.payload.RequestId !== "") { //if chat history nonexistant
+                state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild]
+                    .MsgHistory.filter(msg => msg.RequestId !== action.payload.RequestId);
+            } else { //possibly depreciated might be removed in the future not sure yet
                 state.GuildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild]
                     .MsgHistory.filter(msg => msg.Author.Id !== action.payload.Author);
             }
         },
-        msgEditSet : (state, action) => { //i dont think this is used or maybe it is idk
-            state.guildInfo[state.currentGuild].EditMessage = action.payload.Id; //investigate this
+        msgEditSet: (state, action) => {
+            state.guildInfo[state.currentGuild].EditMessage = action.payload.Id; //sets which message is currently being edited
         },
-        msgSet : (state, action) => {
-            state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.map(
-                msg => msg?.Id === action.payload.Id ? {...msg, Content : action.payload.Content, Edited : true }: msg
-            );
+        msgSet: (state, action) => {
+            if (action.payload.Id !== 0) {
+                state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.map(
+                    msg => msg?.Id === action.payload.Id ? { ...msg, Content: action.payload.Content, Edited: true } : msg
+                );
+            } else if (action.payload.RequestId !== "") {
+                state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.map(
+                    msg => msg?.RequestId === action.payload.RequestId ? { ...msg, Content: action.payload.Content, Edited: true } : msg
+                );
+            } else {
+                console.log("edited failed")
+            }
         },
-        msgRemoveFailed : (state, action) => {
+        msgRemoveFailed: (state, action) => {
             state.guildInfo[state.currentGuild].MsgHistory = state.guildInfo[state.currentGuild].MsgHistory.filter(msg => msg?.RequestId !== action.payload.requestId);
         },
-        msgClearUser : (state, action) => {
+        msgClearUser: (state, action) => {
             state.guildInfo[action.payload.Guild].MsgHistory = state.guildInfo[action.payload.Guild].MsgHistory.filter(msg => msg?.Author.Id !== action.payload.Id);
         },
-        msgClearGuild : (state, action) => {
+        msgClearGuild: (state, action) => {
             state.guildInfo[action.payload.Guild].MsgHistory = [];
         },
-        inviteAdd: (state,action) => {
+        inviteAdd: (state, action) => {
             state.guildInfo[action.payload.Guild].Invites.push(action.payload.Invite);
         },
-        inviteRemove: (state,action) => {
+        inviteRemove: (state, action) => {
             state.guildInfo[action.payload.Guild].Invites = state.guildInfo[action.payload.Guild].Invites.filter(invite => invite !== action.payload.Invite);
         },
-        setLoading : (state,action) => {
+        setLoading: (state, action) => {
             state.isLoading = action.payload;
         }
         /*
@@ -185,32 +201,33 @@ const guildSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(GetGuilds.fulfilled, (state, action) => {
             console.log(action.payload)
-                action.payload.forEach(guild => {
-                    state.guildInfo[guild.Id] = {
-                        Name: guild.Name,
-                        Icon: guild.Icon,
-                        Owner: guild.Owner,
-                        InviteLoading : false,
-                        BanKickLoading : false,
-                        ClearMsgLoading : false,
-                        Loaded: false,
-                        MsgLimitReached : false,
-                        EditMessage : 0,
-                        Invites: [],
-                        Users: [],
-                        Settings : {}, 
-                        Banned : [],
-                        MsgHistory: []
-                    };
-                    state.guildOrder.push(guild.Id);
-                });
-		state.currentGuild = state.guildOrder[0] ? state.guildOrder[0] : 0;
-            })
+            action.payload.forEach(guild => {
+                state.guildInfo[guild.Id] = {
+                    Name: guild.Name,
+                    Icon: guild.Icon,
+                    Owner: guild.Owner,
+                    InviteLoading: false,
+                    BanKickLoading: false,
+                    ClearMsgLoading: false,
+                    Loaded: false,
+                    MsgLimitReached: false,
+                    EditMessage: -1,
+                    Invites: [],
+                    Users: [],
+                    Settings: {},
+                    Banned: [],
+                    MsgHistory: []
+                };
+                state.guildOrder.push(guild.Id);
+            });
+            state.currentGuild = state.guildOrder[0] ? state.guildOrder[0] : 0;
+        })
             .addCase(GetMsgs.fulfilled, (state, action) => {// using unshift since we are also grabbing info from guilds not loaded in
-               console.log(action.payload);
-                action.payload.map(msg =>
-                    state.guildInfo[state.currentGuild].MsgHistory.push(msg)
-                );
+                console.log(action.payload);
+                action.payload.map(msg => {
+                    msg.Loaded = true;
+                    state.guildInfo[state.currentGuild].MsgHistory.push(msg);
+                });
                 if (action.payload.length < 50) {
                     console.log("msg limit reached");
                     state.guildInfo[state.currentGuild].MsgLimitReached = true;
@@ -218,13 +235,14 @@ const guildSlice = createSlice({
             })
             .addCase(SendMsgs.pending, (state, action) => {
                 console.log("pending", action);
-                const {requestId} = action.meta;
-                const {msg, guild} = action.meta.arg;
+                const { requestId } = action.meta;
+                const { msg, guild } = action.meta.arg;
                 state.guildInfo?.[guild].MsgHistory.unshift({
                     RequestId: requestId,
-                    Content : msg,
-                    Time : Date.now(),
-                    Failed : false
+                    Loaded: false,
+                    Content: msg,
+                    Time: Date.now(),
+                    Failed: false
 
                 });
             })
@@ -240,57 +258,57 @@ const guildSlice = createSlice({
             */
             .addCase(SendMsgs.rejected, (state, action) => {
                 console.log("rejected", action);
-                const {requestId} = action.meta;
-                const {guild} = action.meta.arg;
+                const { requestId } = action.meta;
+                const { guild } = action.meta.arg;
                 const index = state.guildInfo[guild].MsgHistory.findIndex(msg => msg?.RequestId === requestId);
                 if (guild in state.guildInfo) {
                     state.guildInfo[guild].MsgHistory[index].Failed = true;
                 }
             })
-            .addCase(DeleteInvite.pending, (state, action) => { 
-                const {guild} = action.meta.arg;
+            .addCase(DeleteInvite.pending, (state, action) => {
+                const { guild } = action.meta.arg;
                 if (guild in state.guildInfo) {
                     state.guildInfo[guild].InviteLoading = true;
                 }
             })
             .addCase(DeleteInvite.fulfilled, (state, action) => {
-                const {guild} = action.meta.arg;
+                const { guild } = action.meta.arg;
                 if (guild in state.guildInfo) {
                     state.guildInfo[guild].InviteLoading = false;
                 }
             })
             .addCase(BanUser.pending, (state, action) => {
-                const {guild} = action.meta.arg;
+                const { guild } = action.meta.arg;
                 if (guild in state.guildInfo) {
                     state.guildInfo[guild].BanKickLoading = true;
                 }
             })
             .addCase(BanUser.fulfilled, (state, action) => {
-                const {guild} = action.meta.arg;
+                const { guild } = action.meta.arg;
                 if (guild in state.guildInfo) {
                     state.guildInfo[guild].BanKickLoading = false;
                 }
             })
             .addCase(KickUser.pending, (state, action) => {
-                const {guild} = action.meta.arg;
+                const { guild } = action.meta.arg;
                 if (guild in state.guildInfo) {
                     state.guildInfo[guild].BanKickLoading = true;
                 }
             })
             .addCase(KickUser.fulfilled, (state, action) => {
-                const {guild} = action.meta.arg;
+                const { guild } = action.meta.arg;
                 if (guild in state.guildInfo) {
                     state.guildInfo[guild].BanKickLoading = false;
                 }
             })
             .addCase(UnbanUser.pending, (state, action) => {
-                const {guild} = action.meta.arg;
+                const { guild } = action.meta.arg;
                 if (guild in state.guildInfo) {
                     state.guildInfo[guild].BanKickLoading = true;
                 }
             })
             .addCase(UnbanUser.fulfilled, (state, action) => {
-                const {guild} = action.meta.arg;
+                const { guild } = action.meta.arg;
                 if (guild in state.guildInfo) {
                     state.guildInfo[guild].BanKickLoading = false;
                 }
@@ -308,7 +326,7 @@ const guildSlice = createSlice({
             .addCase(GetInvite.fulfilled, (state, action) => {
                 state.guildInfo[state.currentGuild].Invites = action.payload;
             })
-            .addCase(GetGuildSettings.fulfilled, (state,action) => {
+            .addCase(GetGuildSettings.fulfilled, (state, action) => {
                 state.guildInfo[state.currentGuild].Settings = action.payload;
             })
             .addCase(DeleteAllGuildMsg.pending, (state, action) => {

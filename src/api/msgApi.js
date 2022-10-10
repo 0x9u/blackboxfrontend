@@ -35,11 +35,12 @@ const SendMsgs = createAsyncThunk("msgs/post", async (args, api) => { // no disp
 });
 
 const EditMsgs = createAsyncThunk("msgs/put", async (args, api) => {
-    const { msg, guild, id } = args;
+    const { Msg, Guild, Id, RequestId } = args;
     await putApi("msg", {
-        content : msg,
-        Id : id,
-        guild
+        content : Msg,
+        Id : Id,
+        RequestId : RequestId, //requestid already exists in history
+        Guild
     }, {
         headers : {
             "Auth-Token" : api.getState().auth.token
@@ -51,6 +52,7 @@ const DeleteMsgs = createAsyncThunk("msgs/delete", async(args, api) => {
     const { Id, Author } = args;
     await deleteApi("msg", {
         Id : Id,
+        RequestId : args.RequestId, //requestid already exists in history
         Guild : api.getState().guilds.currentGuild,
         Author : Author ?? 0
     }, {

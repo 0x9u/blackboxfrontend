@@ -144,7 +144,7 @@ function RenderChatMsgs() {
     return msgsList.map((msg, index) => {
         const time = new Date(msg.Time)
         const beforeTime = new Date(msgsList?.[index + 1]?.Time)
-        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && ((msg?.Author?.Username === msgsList?.[index + 1]?.Author?.Username) || (msg?.RequestId && msgsList?.[index + 1]?.Author?.Username === username))
+        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && ((msg?.Author?.Username === msgsList?.[index + 1]?.Author?.Username) || (!msg?.Loaded && msgsList?.[index + 1]?.Author?.Username === username))
 
         //show pending message
         console.log(msg)

@@ -173,6 +173,17 @@
     /*color:white;*/
 }
 
+.unreadGuild {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: -15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background: white;
+}
+
 .guildContainer {
     /*flex-shrink: 0;*/
     height: 75px;
@@ -182,6 +193,7 @@
     margin-left: 10px;
     margin-bottom: 10px;
     border-radius: 15px;
+    position: relative;
 }
 
 .guildContainer:not(.active):hover  img{
@@ -273,15 +285,23 @@
     transition: 0.1s filter;
 }
 
-.chatContent {
+.chatContentBundle, .chatContent { /* seperate due to new messages notifications */
     display:flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     /*background:#666370;*/
     height: 100%;
-    overflow-y: auto;
+    overflow: auto; /* overflow-y changed to overflow to fix sticky bug*/
     transition: width 1s;
     flex-shrink: 1;
     flex-grow: 1;
+}
+
+.chatContent {
+    flex-direction: column-reverse;
+}
+
+.chatContentBundle {
+    position: relative; /* cannot be static because absolute only aligns with other than static which is the default for position*/
 }
 
 .chatContentContainer {
@@ -290,6 +310,7 @@
     display: flex;
     flex: 0 0;
     overflow-x: hidden;
+    
 }
 
 .msg:not(.hideUserTime) {
@@ -893,4 +914,40 @@ input[id='leaveServerButton']:active { /* for some reason active only works afte
 
 .endOfMessages {
     padding-top: 15px;
+}
+
+.unreadMsgs {
+    min-height: 25px;
+    position: sticky  ; /* relative to chatContentContainer*/
+    /*right: 15px;
+    left: 15px;*/
+    margin-left: 15px;
+    margin-right: 15px;
+    top: 0;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding-left: 25px;
+    font-size: 14px;
+    line-height: 22.5px;
+}
+
+.unreadMsgs > input[type='button'] {
+    margin-left: 50px;
+    border: none;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.unreadMsgs > input[type='button']:hover {
+    filter: brightness(75%);
+}
+
+.unreadMsgs > input[type='button']:active {
+    filter: brightness(50%);
+}
+
+.newMsgRow {
+    border-bottom: solid white 1px;
+    font-size: 14px;
+    padding-left: 15px;
 }

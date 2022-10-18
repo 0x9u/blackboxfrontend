@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { msgSetDoNotAutoRead } from "../app/reducers/guilds";
 import { postApi, getApi, deleteApi, putApi } from "./client";
 
 
@@ -18,6 +19,7 @@ const GetMsgs = createAsyncThunk("msgs/get", async (args, api) => {
 });
 
 const SendMsgs = createAsyncThunk("msgs/post", async (args, api) => { // no dispatch needed
+    api.dispatch(msgSetDoNotAutoRead({ DoNotAutoRead : false})); //fix for unread messages when client sends own messages
     const { msg, guild } = args;
     await postApi("msg", {
         content: msg,
@@ -84,4 +86,28 @@ const DeleteAllGuildMsg = createAsyncThunk("guild/deletemsg", async (args, api) 
     })
 })
 
-export {GetMsgs, SendMsgs, DeleteMsgs, EditMsgs, DeleteAllUserMsg, DeleteAllGuildMsg};
+const UnreadMsg = createAsyncThunk("msgs/unread", async (args, api) => {
+    const { Guild } = args;
+    const response = await getApi("msg/unread", {
+        Guild
+    }, {
+        headers : {
+            "Auth-Token" : api.getState().auth.token
+        }
+    })
+    return response;
+})
+
+const MarkMsgRead = createAsyncThunk("msgs/read", async (args, api) => {
+    console.log('test msg read');
+    await postApi("msg/read", {
+        Guild : api.getState().guilds.currentGuild
+    }, {
+        headers : {
+            "Auth-Token" : api.getState().auth.token
+        }
+    })
+})
+
+
+export {GetMsgs, SendMsgs, DeleteMsgs, EditMsgs, DeleteAllUserMsg, DeleteAllGuildMsg, UnreadMsg, MarkMsgRead};

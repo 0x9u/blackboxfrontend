@@ -16,6 +16,10 @@ format for guilds (guildInfo)
     //investigate additional solutions for data storage in EditMessage
     //use union when converting to typescript
     EditMessage : int | str, //must be set at default -1 to make space for non saved messages
+    LastMessageRead : int, //stores last message read defualt 0 but should be set to last message id when received from guilds GET
+    LastMesssageReadTime : int, //stores last message read time default 0 but should be set to last message time when received from guilds GET
+    UnreadMsgCount : int, //stores unread message count default 0 but should be set to unread message count when received from guilds GET
+    DoNotAutoRead : bool, //sets to no auto read if user is not in guild and then sets it back after user marks as read
     Users : [
         {
             Id : int,
@@ -62,6 +66,8 @@ format for guilds (guildInfo)
 }
 */
 
+/* dont mess around with failed and loaded in msg*/
+
 const guildSlice = createSlice({
     name: "guilds",
     initialState: {
@@ -81,6 +87,10 @@ const guildSlice = createSlice({
                 ClearMsgLoading: false,
                 Loaded: false,
                 MsgLimitReached: false,
+                LastMsgRead : 0,
+                LastMsgReadTime : 0,
+                UnreadMsgCount : 0,
+                DoNotAutoRead : true,
                 EditMessage: -1,
                 Invites: [],
                 Users: [],
@@ -145,7 +155,11 @@ const guildSlice = createSlice({
             if (Guild in state.guildInfo) { //removes pending message
                 state.guildInfo[Guild].MsgHistory = state.guildInfo[Guild].MsgHistory.filter(msg => msg?.RequestId !== RequestId);
             }
+            if (Guild !== state.currentGuild) {
+                state.guildInfo[Guild].DoNotAutoRead = true;
+            }
             state.guildInfo[action.payload.Guild].MsgHistory.unshift({ ...action.payload, Loaded: true/*, RequestId : undefined*/ });
+            state.guildInfo[action.payload.Guild].UnreadMsgCount++;
         },
         msgRemove: (state, action) => { //accepts guild : int, msg : object
             if (action.payload.Id !== 0) {
@@ -174,6 +188,18 @@ const guildSlice = createSlice({
             } else {
                 console.log("edited failed")
             }
+        },
+        msgReadSet : (state, action) => {
+            state.guildInfo[state.currentGuild].LastMsgRead = state.guildInfo[state.currentGuild]?.MsgHistory[0]?.Id;
+            state.guildInfo[state.currentGuild].UnreadMsgCount = 0;
+            state.guildInfo[state.currentGuild].LastMsgReadTime = state.guildInfo[state.currentGuild]?.MsgHistory[0]?.Time;
+            state.guildInfo[state.currentGuild].DoNotAutoRead = false;
+        },
+        msgIncrementUnread : (state, action) => {
+            state.guildInfo[action.payload.Guild].UnreadMsgCount++;
+        },
+        msgSetDoNotAutoRead : (state, action) => {
+            state.guildInfo[state.currentGuild].DoNotAutoRead = action.payload.DoNotAutoRead;
         },
         msgRemoveFailed: (state, action) => {
             state.guildInfo[state.currentGuild].MsgHistory = state.guildInfo[state.currentGuild].MsgHistory.filter(msg => msg?.RequestId !== action.payload.requestId);
@@ -211,6 +237,10 @@ const guildSlice = createSlice({
                     ClearMsgLoading: false,
                     Loaded: false,
                     MsgLimitReached: false,
+                    LastMsgRead : guild.Unread.Id,
+                    UnreadMsgCount : guild.Unread.Count,
+                    LastMsgReadTime : guild.Unread.Time,
+                    DoNotAutoRead : true,
                     EditMessage: -1,
                     Invites: [],
                     Users: [],
@@ -341,6 +371,6 @@ const guildSlice = createSlice({
 });
 //use ellipsis later
 export const { guildAdd, guildRemove, guildSet, guildChange, guildReset, guildSettingsChange, guildCurrentSet,
-    guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, msgEditSet, msgSet, msgRemoveFailed, msgClearUser, msgClearGuild, guildRemoveUserList,
+    guildSetInvite, guildRemoveInvite, guildUpdateUserList, msgAdd, msgRemove, msgEditSet, msgSet, msgRemoveFailed, msgClearUser, msgClearGuild, msgIncrementUnread, msgSetDoNotAutoRead, msgReadSet, guildRemoveUserList,
     guildRemoveBannedList, guildUpdateBannedList, inviteAdd, inviteRemove, setLoading } = guildSlice.actions;
 export default guildSlice.reducer;

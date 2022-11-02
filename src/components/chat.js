@@ -4,20 +4,21 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
-//import { useInView } from 'react-intersection-observer';
+import { InView } from 'react-intersection-observer';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Linkify from 'react-linkify';
+import moment from 'moment/moment';
 
 import './themes.css';
 import styles from './chat.module.css';
 
 import { UserMenu, ServerMenu, Modal, CheckBox, InputBox, PictureSelector, PageChange, PageChangeAfter } from './modals';
 import { useStartWSQuery } from '../api/websocket';
-import { GetMsgs, SendMsgs, DeleteMsgs, EditMsgs } from '../api/msgApi';
+import { GetMsgs, SendMsgs, DeleteMsgs, EditMsgs, MarkMsgRead } from '../api/msgApi';
 import { GetGuildUsers, GenInvite, GetInvite, CreateGuild, JoinGuild, LeaveGuild, GetGuildSettings, GetBannedUsers } from '../api/guildApi';
 import { authClear } from '../app/reducers/auth';
-import { guildCurrentSet, guildReset, msgEditSet, msgRemoveFailed } from '../app/reducers/guilds';
+import { guildCurrentSet, guildReset, msgEditSet, msgRemoveFailed, msgReadSet } from '../app/reducers/guilds';
 import { userClear } from '../app/reducers/userInfo';
 import { websocketApi } from '../api/websocket';
 import { clientLastGuildActiveSet, clientClear } from '../app/reducers/client';
@@ -94,12 +95,12 @@ function Msg(props) { //TODO add id to return in backend
                     </>
                     : <p className={`${props.hideUserTime ? styles.hideUserTime : ""} ${props.loading ? styles.msgSentLoading : ""} ${props.failed ? "themeOneImportantText" : "themeOneText"}`}>
                         <Linkify>
-                        {(() => { //splits new lines
-                            const splitMsgs = props.msg.split(/\n/);
-                            return splitMsgs.map((line, index) =>
-                                <React.Fragment key={index}>{line}{index !== (splitMsgs.length - 1) && <br className={styles.msgNewLine} />}</React.Fragment>
-                            )
-                        })()}
+                            {(() => { //splits new lines
+                                const splitMsgs = props.msg.split(/\n/);
+                                return splitMsgs.map((line, index) =>
+                                    <React.Fragment key={index}>{line}{index !== (splitMsgs.length - 1) && <br className={styles.msgNewLine} />}</React.Fragment>
+                                )
+                            })()}
                         </Linkify>
                         {props.edited && <span className={styles.msgEdited}> (edited)</span>}
                     </p>
@@ -111,7 +112,7 @@ function Msg(props) { //TODO add id to return in backend
                         !props.failed
                         && <>
                             <input className={`${styles.msgButtonChild} themeOneImportant themeOneButton`}
-                                type="button" value="Delete" onClick={() => { dispatch(DeleteMsgs({ Id: props.Id, Author: props.AuthorId, RequestId : !props.msgSaved ? props.RequestId : undefined })) }} />
+                                type="button" value="Delete" onClick={() => { dispatch(DeleteMsgs({ Id: props.Id, Author: props.AuthorId, RequestId: !props.msgSaved ? props.RequestId : undefined })) }} />
                             {
                                 (editMessage !== props.Id && editMessage !== props.RequestId && userId === props.AuthorId) && <input className={`${styles.msgButtonChild} themeOneButton`} type="button" value="Edit"
                                     onClick={() => { dispatch(msgEditSet({ Id: props.msgSaved ? props.Id : props.RequestId })) }} />
@@ -128,12 +129,22 @@ function Msg(props) { //TODO add id to return in backend
     );
 }
 
-function RenderChatMsgs() {
+function RenderChatMsgs(ref) {
     const msgsList = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgHistory ?? []);
+    const lastMsgRead = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.LastMsgRead ?? 0);
+    const doNotAutoRead = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.DoNotAutoRead ?? false);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
     const guildLoaded = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Loaded ?? false)
     const userId = useSelector(state => state.auth.userId);
     const username = useSelector(state => state.userInfo.username);
+
+    const dispatch = useDispatch();
+    
+    function markAsRead() {
+        console.log('activated the onscroll');
+        dispatch(MarkMsgRead());
+        dispatch(msgReadSet());
+    }
 
     if (currentGuild === 0) {
         return;
@@ -141,17 +152,31 @@ function RenderChatMsgs() {
     if (msgsList?.length === 0) {
         return (<div className={styles.noMessages}>{guildLoaded ? "Start the chat with a message!" : "Chat is loading"}</div>)
     }
-    return msgsList.map((msg, index) => {
-        const time = new Date(msg.Time)
-        const beforeTime = new Date(msgsList?.[index + 1]?.Time)
-        const hideUserTime = beforeTime?.getMinutes() === time.getMinutes() && beforeTime?.getHours() === time.getHours() && ((msg?.Author?.Username === msgsList?.[index + 1]?.Author?.Username) || (!msg?.Loaded && msgsList?.[index + 1]?.Author?.Username === username))
+    console.log(ref)
 
+    return msgsList.map((msg, index) => {
+        const time = moment(new Date(msg.Time));
+        const beforeTime = moment(new Date(msgsList?.[index + 1]?.Time))
+        const hideUserTime =  !(msgsList?.[index + 1]?.Id === lastMsgRead) && beforeTime?.minute() === time.minute() && beforeTime?.hour() === time.hour() && ((msg?.Author?.Username === msgsList?.[index + 1]?.Author?.Username) || (!msg?.Loaded && msgsList?.[index + 1]?.Author?.Username === username))
+        const REFERENCE = moment();
+        const TODAY = REFERENCE.clone().startOf('day');
+        const YESTERDAY = REFERENCE.clone().subtract(1, 'days').startOf('day');
+        /* weird bug date issue (it fixed itself wtf)*/
+        const strTime = time.isSame(TODAY, 'd') ? time.format('[Today] [at] HH:mm') : time.isSame(YESTERDAY, 'd') ? time.format('[Yesterday] [at] HH:mm') : time.format('DD MMM YYYY [at] HH:mm');
         //show pending message
-        console.log(msg)
-        if (!msg?.Loaded) {
-            return <Msg key={msg.RequestId} Id={0} AuthorId={userId} RequestId={msg.RequestId} img="/profileImg.png" username={username} time={time.toLocaleString()} msg={msg.Content} loading={true} failed={msg?.Failed} hideUserTime={hideUserTime} />
-        } //msg.Id || index because sometimes chat isnt saved and therefore index is required instead
-        return <Msg key={msg.Id || index} Id={msg.Id} AuthorId={msg.Author.Id} RequestId={msg.RequestId} edited={msg.Edited} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={time.toLocaleString()} hideUserTime={hideUserTime} />
+        //console.log(msg)
+        const msgReturn = !msg?.Loaded ? <Msg key={msg.RequestId} Id={0} AuthorId={userId} RequestId={msg.RequestId} img="/profileImg.png" username={username} time={time.toLocaleString()} msg={msg.Content} loading={true} failed={msg?.Failed} hideUserTime={hideUserTime} />
+        : <Msg key={msg.Id || index} Id={msg.Id} AuthorId={msg.Author.Id} RequestId={msg.RequestId} edited={msg.Edited} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={strTime} hideUserTime={hideUserTime} />;
+        return (
+        <React.Fragment key={index}>
+            { 0 === index ?
+            <InView as="div" onChange={(inView, entry) => inView && !doNotAutoRead && markAsRead()} key={index}>
+                {!msg?.Loaded ? <Msg key={msg.RequestId} Id={0} AuthorId={userId} RequestId={msg.RequestId} img="/profileImg.png" username={username} time={strTime} msg={msg.Content} loading={true} failed={msg?.Failed} hideUserTime={hideUserTime} />
+        : <Msg key={msg.Id || index} Id={msg.Id} AuthorId={msg.Author.Id} RequestId={msg.RequestId} edited={msg.Edited} msgSaved={msg.MsgSaved} img="/profileImg.png" username={msg.Author.Username} msg={msg.Content} time={strTime} hideUserTime={hideUserTime} />}
+            </InView>  : msgReturn}
+            { msgsList?.[index + 1]?.Id === lastMsgRead && msg?.Loaded && <div className={styles.newMsgRow}>New!!!</div>}
+        </React.Fragment>
+        )
     });
 }
 
@@ -187,6 +212,7 @@ function Guild(props) {
                 <p className={"themeOneText"}>{props.name}</p>
             </div>
             <img src={props.img} alt="server pfp" />
+            <div className={`${props.hasUnread ? styles.unreadGuild: ""}`} /> {/* replace with div wrapped relative flex row instead of absolute later*/}
         </div>
     );
 }
@@ -195,7 +221,10 @@ function RenderGuilds() {
     const guildInfo = useSelector(state => state.guilds.guildInfo);
     const guildOrder = useSelector(state => state.guilds.guildOrder);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
-    return guildOrder.map((guild, index) => <Guild key={guild} guildId={guild} img="/guildImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} active={guild === currentGuild} />);
+    return guildOrder.map((guild, index) => {
+        const hasUnread = guildInfo[guild]?.UnreadMsgCount > 0;
+        return <Guild key={guild} guildId={guild} img="/guildImg.png" icon={guildInfo[guild].Icon} name={guildInfo[guild].Name} active={guild === currentGuild} hasUnread={hasUnread} />;
+    });
 }
 
 function RenderChatName() {
@@ -273,6 +302,8 @@ function Chat() { //might turn into class
     const dummyMsgBottomRef = React.useRef(null); //used to scroll down to bottom of chat when new message appears (CHANGE LATER NOT GOOD DESIGN!!!)
     //    const loadMoreMsgRef = React.useRef(null); //used to load more messages when scrolled to top of chat
     const chatContentRef = React.useRef(null); //scroll down to hide loadmoremsg element
+
+    const test = React.useRef(null);
     /*
         const {ref: inViewRef} = useInView({onChange : (inView, entry) => {
             if (inView) {
@@ -305,6 +336,10 @@ function Chat() { //might turn into class
     const isOwner = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.Owner === state.auth.userId);
     const msgLimitReached = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.MsgLimitReached);
     const currentGuild = useSelector(state => state.guilds.currentGuild);
+    const unreadMsgCount = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.UnreadMsgCount ?? 0);
+    const lastMsgRead = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.LastMsgRead ?? 0);
+    const lastMsgReadTime = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.LastMsgReadTime ?? 0);
+    const doNotAutoRead = useSelector(state => state.guilds.guildInfo?.[state.guilds.currentGuild]?.DoNotAutoRead ?? false);
 
     const keyBindList = useSelector((state) => Object.keys(state.client.keyBind));
     const panicLink = useSelector((state) => state.client.link);
@@ -355,6 +390,11 @@ function Chat() { //might turn into class
         }
     }
 
+    function markAsRead() {
+        dispatch(MarkMsgRead());
+        dispatch(msgReadSet());
+    }
+
     React.useEffect(
         () => {
             if (Date.now() > expires) {
@@ -389,6 +429,9 @@ function Chat() { //might turn into class
     React.useEffect( //maybe temp?
         () => { //fix (chat scrolls to bottom when getting old messages)
             dummyMsgBottomRef.current?.scrollIntoView();
+            if (currentGuild !== 0 && !doNotAutoRead) {
+                markAsRead();
+            }
         }, [messages?.[0]] //temp fix
     )
 
@@ -518,32 +561,51 @@ function Chat() { //might turn into class
                     </div>
                 </div>
                 <div className={styles.chatContentContainer} >
-                    <div ref={chatContentRef} className={`${styles.chatContent} themeOneDivOne`} id="Iwanttodie">
-                        <InfiniteScroll
-                            dataLength={messages.length}
-                            next={async () => { console.log("getting more"); await dispatch(GetMsgs()); }}
-                            hasMore={!msgLimitReached && guildLoaded}
-                            inverse={true}
-                            style={{ display: 'flex', flexDirection: 'column-reverse' }}
-                            loader={<div className={`${styles.startMsgDiv} themeOneText`}>Loading...</div>}
-                            scrollableTarget={"Iwanttodie"}
-                        >
-                            {
-                                messages.length > 0
-                                &&
-                                <div ref={dummyMsgBottomRef} className={styles.endMsgDiv}
-                                ></div>} {/* used to scroll automatically down at bottom of chat lmao*/}
-                            {
-                                RenderChatMsgs()
-                            }
-                            {(msgLimitReached && messages.length > 0)
-                                &&
-                                <div className={styles.endOfMessages}>
-                                    This is the end of the chat.
-                                </div>
-                            }
-                        </InfiniteScroll>
+                    <div className={`${styles.chatContentBundle} themeOneDivOne themeOneText`}>
+                        {
+                            unreadMsgCount > 0 &&
+                            (() => {
+                                const TIME = moment(new Date(lastMsgReadTime));
+                                console.log(lastMsgReadTime);
+                                console.log(TIME.format('DD MMM YYYY [at] HH:mm'))
+                                return <div className={`${styles.unreadMsgs} themeOneDivThree`}>
+                                    {unreadMsgCount < 50 ? unreadMsgCount : "50+"} messages {TIME.format("[since] HH:mm [on] DD/MM/YYYY")}
+                                    <input className={"themeOneButton themeOneImportant"} value="Mark as read" type="button" onClick={markAsRead} />
+                                </div>;
+                            })()
+                        }
+                        <div className={`${styles.chatContent}`} ref={chatContentRef} id="Iwanttodie">
+                            <InfiniteScroll
+                                dataLength={messages.length}
+                                next={async () => { console.log("getting more"); await dispatch(GetMsgs()); }}
+                                hasMore={!msgLimitReached && guildLoaded}
+                                inverse={true}
+                                style={{ display: 'flex', flexDirection: 'column-reverse' }}
+                                loader={<div className={`${styles.startMsgDiv} themeOneText`}>Loading...</div>}
+                                scrollableTarget={"Iwanttodie"}
+                                ref = {test}
+                            >
+                                {
+                                    messages.length > 0
+                                    &&
+                                    <div ref={dummyMsgBottomRef} className={styles.endMsgDiv}
+                                    ></div>} {/* used to scroll automatically down at bottom of chat lmao*/}
+                                {
+                                    RenderChatMsgs(chatContentRef)
+                                }
+                                {(msgLimitReached && messages.length > 0)
+                                    &&
+                                    <div className={styles.endOfMessages}>
+                                        This is the end of the chat.
+                                    </div>
+                                }
+
+                            </InfiniteScroll>
+
+                        </div>
+
                     </div>
+
                     <div className={`${userList ? styles.chatUserList : styles.chatUserListHidden} themeOneDivThree`}>
                         {
                             RenderUserList()
@@ -608,7 +670,7 @@ function Chat() { //might turn into class
             <InviteModal show={invite} exit={() => setInvite(false)} />
             {
                 !isLoading &&
-                <PageChangeAfter/>
+                <PageChangeAfter />
             }
             {
                 isLoading &&

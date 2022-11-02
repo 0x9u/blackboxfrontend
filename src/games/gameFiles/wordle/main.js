@@ -6,7 +6,7 @@ import { WRONG, WRONG_POSITION, CORRECT, CompileWord, CheckWin, WordToStr } from
 import KeyHandler from './keyboard.js';
 import { Dictionary } from './dictionary';
 
-const NUM_ROWS = 5;
+const NUM_ROWS = 6;
 
 function Row(props) {
     const word = React.useMemo(() => new Array(5).fill(0), []);
@@ -24,20 +24,33 @@ function Row(props) {
                     let letter = props.guess?.[index];
                     let type = "";
                     let char = letter?.char;
+                    let cubeSwitch = false;
                     switch (letter?.type) {
                         case WRONG:
                             type = styles.cubeWRONG;
+                            cubeSwitch = true;
                             break;
                         case WRONG_POSITION:
                             type = styles.cubeWRONGPOS;
+                            cubeSwitch = true;
                             break;
                         case CORRECT:
                             type = styles.cubeCORRECT;
+                            cubeSwitch = true;
                             break;
                         default:
                             break;
                     }
-                    return <div className={`${styles.gridCube} ${type}`} key={index}>{char}</div>
+                    return <div className={`${styles.gridCube} ${ cubeSwitch ? styles.gridCubeSwitch : ""}`} key={index}>
+                        <div className={styles.gridCubeInner} style={{ animationDelay: `${(index + 1) *100}ms` }}>
+                            <div className={`${styles.cubeOuter}`}>
+                                {char}
+                            </div>
+                            <div className={`${styles.cubeInner} ${type}`}>
+                                {char}
+                            </div>
+                        </div>
+                    </div>
                 })
             }
         </div>
@@ -92,14 +105,14 @@ function Game(props) {
             return
         }
         let strWord = WordToStr(guesses[currentGuess]);
-        if ( Dictionary.find(word => word === strWord) === undefined) {
+        if (Dictionary.find(word => word === strWord) === undefined) {
             setNotActualWord(true);
             setTempWord(strWord);
             return;
         }
         console.log(guesses)
         let word = CompileWord(guesses[currentGuess], answer);
-        console.log(currentGuess, guesses)  
+        console.log(currentGuess, guesses)
         setGuesses([...guesses.slice(0, currentGuess), word, []]);
         console.log([...guesses.slice(0, currentGuess), word, []]);
         setCurrentGuess(currentGuess + 1);
@@ -124,14 +137,14 @@ function Game(props) {
             <div className={styles.grid}>
                 {
                     rows.map((word, index) => {
-                        return <Row key={index} guess={guesses[index]}/>
+                        return <Row key={index} guess={guesses[index]} />
                     })
                 }
             </div>
-            <h1 className={styles.winLose}>{ winLose !== 0 ? (winLose === -1 ? `You lose the answer was ${answer}` : "You Win") : notActualWord ? `${tempWord} is not a word` :""}</h1>
+            <h1 className={styles.winLose}>{winLose !== 0 ? (winLose === -1 ? `You lose the answer was ${answer}` : "You Win") : notActualWord ? `${tempWord} is not a word` : ""}</h1>
             <div className={styles.menu}>
-                <input type="button" value="Retry" className={styles.button} onClick={intialise} onKeyDown={ (e) => e.preventDefault()}/>
-                <input type="button" value="New Game" className={styles.button} onClick={newGame} onKeyDown={ (e) => e.preventDefault()}/>
+                <input type="button" value="Retry" className={styles.button} onClick={intialise} onKeyDown={(e) => e.preventDefault()} />
+                <input type="button" value="New Game" className={styles.button} onClick={newGame} onKeyDown={(e) => e.preventDefault()} />
             </div>
             <KeyHandler deleteKey={deleteKey} addKey={addKey} submit={submit} winLose={winLose} />
         </div>

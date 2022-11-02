@@ -3,7 +3,10 @@
     height: 100vh;
     width: 100vw;
     flex-direction: column;
+    font-family: "Clear Sans","Helvetica Neue",Arial,sans-serif;
 }
+
+
 
 .wordleGame { /* placeholder */
     margin: auto;
@@ -14,6 +17,7 @@
     font-weight: bold;
     text-align: center;
     font-size: 4em;
+    margin: 25px 0;
 }
 
 .menu {
@@ -31,14 +35,51 @@
 .gridRow {
     display: flex;
     flex-direction: row;
+    justify-content: center;
 }
 
 .gridCube {
-    text-transform: uppercase;
+    background-color: transparent;
     width: 7.5vh;
     height: 7.5vh;
-    border: 1px black solid;
-    margin: 4px;
+    margin: 5px;
+    perspective: 500px;
+}
+
+@keyframes flip {
+    100% {
+        transform: rotateX(180deg);
+    }
+}
+
+.gridCubeInner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+.gridCube.gridCubeSwitch .gridCubeInner {
+    animation: flip 0.5s;
+    animation-fill-mode: forwards;
+}
+
+.cubeOuter {
+    background: white;
+    color: black;
+    border: 2px #86888a solid;
+}
+
+.cubeInner {
+    transform: rotateX(180deg);
+}
+.cubeOuter, .cubeInner {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+
+    text-transform: uppercase;
     font-weight: bold;
     font-size: 4vh;
     font-stretch: expanded;
@@ -46,33 +87,28 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
 }
 
 .cubeWRONGPOS {
-    background: orange;
-    transform: rotateX(360deg);
-    transition: 1s transform;
+    background:#c9b458;
     color: white;
 }
 
 .cubeCORRECT {
-    background: green;
-    transform: rotateX(360deg);
-    transition: 1s transform;
+    background: #6aaa64;
     color: white;
 }
 
 .cubeWRONG {
-    background: red;
-    transform: rotateX(360deg);
-    transition: 1s transform;
+    background: #86888a;
     color: white;
 }
 
 .button {
     border: 1px black solid;
     font-weight: bold;
-    font-size: 1.25em;
+    font-size: 1em;
     min-width: 125px;
     min-height: 25px;
     width: 10vh;
@@ -82,6 +118,7 @@
 
 .winLose {
     text-align: center;
-    height: 50px;
-    font-size: 1.5em;
+    height: 35px;
+    font-size: 1em;
+    word-wrap: break-word;
 }

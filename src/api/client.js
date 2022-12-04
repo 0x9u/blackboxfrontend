@@ -1,4 +1,4 @@
-const gateway = "https://blckbox.herokuapp.com/api/"//"https://blckbox.herokuapp.com/api/";//"http://localhost:8090/api/";
+const gateway = "http://localhost:8090/api/"//"https://blckbox.herokuapp.com/api/";//"http://localhost:8090/api/";
 
 //change this to use create api instead 
 //this is unneccessary additional code

@@ -14,7 +14,7 @@ import {GetGuilds} from './guildApi';
 import {GetUserInfo} from './userInfoApi';
 //import { useDispatch } from 'react-redux';
 
-const WEBSOCKET_URL = 'wss://blckbox.herokuapp.com/api/ws';//'wss://blckbox.herokuapp.com/api/ws'//'ws://localhost:8090/api/ws';
+const WEBSOCKET_URL = 'ws://localhost:8090/api/ws';//'wss://blckbox.herokuapp.com/api/ws'//'ws://localhost:8090/api/ws';
 
 const
     PING = 0,

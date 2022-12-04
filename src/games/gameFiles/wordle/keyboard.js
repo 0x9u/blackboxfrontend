@@ -15,7 +15,7 @@ function KeyHandler(props) {
             if (regex.test(e.key)) {
                 console.log(e.key);
                 props.addKey({
-                    char : e.key,
+                    char : e.key.toLowerCase(),
                     type : -1
                 });
             }

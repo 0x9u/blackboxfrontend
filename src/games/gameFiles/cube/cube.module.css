@@ -1,0 +1,17 @@
+.loading {
+    text-align: center;
+    margin: auto;
+}
+
+.game {
+    width: 800px;
+    height: 100vh;
+    margin: center;
+}
+
+.gameContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}

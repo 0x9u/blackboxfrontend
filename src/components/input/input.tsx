@@ -1,5 +1,4 @@
 import React, {FC} from 'react';
-import styles from './input.module.scss';
 
 type InputProps = {
     value : string;
@@ -8,7 +7,7 @@ type InputProps = {
 
 const Input : FC<InputProps> = ({value, onChange}) => {
     return (
-        <input className={styles.InputDefault} type="text" value={value} onChange={(e) => onChange(e.target.value)}/>
+        <input className="relative bg-shade-1 outline-offset-2 outline-shade-5  rounded w-56 h-10" type="text" value={value} onChange={(e) => onChange(e.target.value)}/>
     )
 }
 

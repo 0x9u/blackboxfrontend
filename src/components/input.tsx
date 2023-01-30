@@ -36,7 +36,7 @@ const Input: FC<InputProps> = ({
         </span>
       </p>
       <input
-        className="h-10 w-64 rounded  bg-shade-1 px-2 font-medium text-white outline-offset-2 outline-shade-5"
+        className="h-10 w-64 rounded  bg-shade-1 px-2 font-medium text-white outline-none focus:outline-shade-5"
         type={type}
         value={value}
         onBlur={onBlur}

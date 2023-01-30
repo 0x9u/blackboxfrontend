@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 
-type ButtonProps = {
+interface ButtonProps {
   onClick?: () => void;
   type: "button" | "submit";
   value?: string;
@@ -20,7 +20,7 @@ const Input: FC<ButtonProps> = ({
   return (
     <input
       className="w-22 relative h-10 rounded bg-shade-5 px-4 font-bold text-white hover:brightness-90 active:brightness-75 disabled:opacity-50"
-      type={"button"}
+      type={type}
       value={value}
       onClick={onClick}
       width={width}

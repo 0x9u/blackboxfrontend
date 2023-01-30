@@ -1,13 +1,20 @@
 import React, { FC, Ref } from "react";
-import { ChangeHandler } from "react-hook-form";
+import { ChangeHandler, FieldError } from "react-hook-form";
 
-type InputProps = {
+interface InputProps {
   value?: string;
   type?: "text" | "password";
+  register?: {
+    onChange: ChangeHandler;
+    onBlur: ChangeHandler;
+    ref: Ref<HTMLInputElement>;
+    name: string;
+  };
   onChange?: ChangeHandler;
   onBlur?: ChangeHandler;
   name?: string;
-  ref?: Ref<any>;
+  label?: string;
+  error?:  FieldError | undefined;
 };
 
 const Input: FC<InputProps> = ({
@@ -16,18 +23,28 @@ const Input: FC<InputProps> = ({
   onChange,
   onBlur,
   name,
-  ref,
+  label,
+  error,
+  register,
 }) => {
   return (
-    <input
-      className="relative h-10 w-56 rounded  bg-shade-1 px-2 font-medium text-white outline-offset-2 outline-shade-5"
-      type={type}
-      value={value}
-      onBlur={onBlur}
-      name={name}
-      ref={ref}
-      onChange={onChange}
-    />
+    <div className="flex flex-col w-64">
+      <p className=" my-2 text-xs font-bold break-words uppercase text-white">
+        {label}{" "}
+        <span className="italic text-xs font-medium text-[#ff3333]">
+          {error?.message && "-"} {error?.message}
+        </span>
+      </p>
+      <input
+        className="h-10 w-64 rounded  bg-shade-1 px-2 font-medium text-white outline-offset-2 outline-shade-5"
+        type={type}
+        value={value}
+        onBlur={onBlur}
+        name={name}
+        onChange={onChange}
+        {...register}
+      />
+    </div>
   );
 };
 

@@ -8,9 +8,9 @@ const Entry: FC = () => {
   const [mode, setMode] = React.useState<string>("login");
   return (
     <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-shade-2 sm:py-12 ">
-      <div className="relative mx-auto py-16 text-white">
+      <div className="relative mx-auto py-8 text-white">
         <p className="text-7xl font-bold ">BlackBox ;)</p>
-        <p className="font-bold sm:absolute sm:-right-20 sm:top-36 sm:-rotate-12">
+        <p className="font-bold">
           We are fucking back at it again!
         </p>
       </div>

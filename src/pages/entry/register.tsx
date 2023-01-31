@@ -3,8 +3,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, Resolver } from "react-hook-form";
 import * as yup from "yup";
 
-import Input from "../../components/input";
-import Button from "../../components/button";
+import Input from "../../components/inputComponent";
+import Button from "../../components/buttonComponent";
 
 interface RegisterProps {
   changeMode: () => void;
@@ -87,7 +87,7 @@ const Register: FC<RegisterProps> = ({ changeMode }) => {
           register={register("confirmPassword")}
         />
       </div>
-      <div className="ml-auto flex flex-col py-4">
+      <div className="flex flex-col py-4">
         <Button type="submit" value="Register" />
       </div>
       <div className="mb-16 flex flex-col text-sm">

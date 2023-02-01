@@ -92,7 +92,7 @@ const Register: FC<RegisterProps> = ({ changeMode }) => {
       </div>
       <div className="mb-16 flex flex-col text-sm">
         <a
-          className=" cursor-pointer font-medium text-shade-5 hover:underline"
+          className=" cursor-pointer font-medium text-shade-5 hover:underline text-center"
           onClick={changeMode}
         >
           Already have an account?

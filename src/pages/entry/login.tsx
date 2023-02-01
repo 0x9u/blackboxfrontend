@@ -65,13 +65,13 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
       </div>
       <div className="mb-16 flex flex-col space-y-2 text-sm">
         <a
-          className=" cursor-pointer font-medium text-shade-5 hover:underline"
+          className=" cursor-pointer font-medium text-shade-5 hover:underline text-center"
           onClick={changeMode}
         >
           Create an account
         </a>
         <a
-          className=" cursor-pointer font-medium text-shade-5 hover:underline"
+          className=" cursor-pointer font-medium text-shade-5 hover:underline text-center"
           onClick={changeMode}
         >
           Reset my password

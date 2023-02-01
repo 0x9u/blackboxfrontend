@@ -1,0 +1,18 @@
+import { User } from './user';
+
+export interface UnreadMsg {
+    Id : number;
+    Count : number;
+    Time : number;
+};
+
+export interface Msg {
+    MsgId : number;
+    Author : User;
+    GuildId : number;
+    Content : string;
+    Created : number;
+    Modified : number;
+    MsgSaved : boolean;
+    RequestId : string;
+};

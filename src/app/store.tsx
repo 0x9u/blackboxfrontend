@@ -1,14 +1,24 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
+import { chatApi } from "../api/api";
 
-import user from "../reducer/userReducer";
-import auth from "../reducer/authReducer";
+import auth from "./reducers/authReducer";
+import client from "./reducers/clientReducer";
+import user from "./reducers/userReducer";
+import guild from "./reducers/guildReducer";
+import msg from "./reducers/msgReducer";
 
 const store = configureStore({
   reducer: {
-    user,
+    [chatApi.reducerPath]: chatApi.reducer,
     auth,
+    client,
+    user,
+    guild,
+    msg,
   },
+  middleware: (getDefaultMiddleware) =>
+  getDefaultMiddleware().concat(chatApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

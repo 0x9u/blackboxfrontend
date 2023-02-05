@@ -1,26 +1,15 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { chatApi } from './api'
 
-import ApiUrl from './api'
-export const gateway = createApi({
-    baseQuery : fetchBaseQuery({ baseUrl : ApiUrl }),
+export const gatewayApi = chatApi.injectEndpoints({
     endpoints : (builder) => ({
         startWS : builder.query({
             queryFn: () => ({ data: null }),
             onCacheEntryAdded : async (
                 arg,
-                { dispatch, getState, extra, requestId, signal },
+                { dispatch, getState, extra, requestId },
             ) => {
-                const { gateway } = getState()
-                const { data } = gateway.endpoints.startWS.select(requestId)
-                if (data) return
-                const ws = new WebSocket('ws://' + ApiUrl + '/ws')
-                ws.onopen = () => {
-                    dispatch(gateway.endpoints.startWS.initiate())
-                }
-                ws.onmessage = (e) => {
-                    const data = JSON.parse(e.data)
-                    dispatch(gateway.util.updateQueryData('startWS', data))
-                }
+                const ws = new WebSocket('ws://localhost:8080/ws')
             }
         }),
     }),

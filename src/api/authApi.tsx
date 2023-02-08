@@ -18,16 +18,16 @@ export interface LoginReq {
 }
 
 
-export const authApi = chatApi.injectEndpoints({
+const authApi = chatApi.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation<AuthRes, LoginReq>({
+    postAuth: builder.mutation<AuthRes, LoginReq>({
       query: (body) => ({
         url: "/users/auth",
         method: "POST",
         body,
       }),
     }),
-    register: builder.mutation<AuthRes, RegisterReq>({
+    createAccount: builder.mutation<AuthRes, RegisterReq>({
       query: (body) => ({
         url: "/users/",
         method: "POST",
@@ -36,3 +36,7 @@ export const authApi = chatApi.injectEndpoints({
     }),
   }),
 });
+
+export const {postAuth, createAccount}  = authApi.endpoints;
+
+export default authApi;

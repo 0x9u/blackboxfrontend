@@ -41,7 +41,9 @@ planned schema
     }
 }
 */
-export const chatApi = createApi({
+
+//we are not using the cache since I can't really stream updates to the cache properly without making it a mess
+export const chatApi = createApi({ //memory should be fine since its all referenced
   reducerPath: "chatApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:8080",
@@ -53,5 +55,7 @@ export const chatApi = createApi({
       return headers;
     },
   }),
+  keepUnusedDataFor: 0, //dont bother keeping data when we exit to page e.g to games page
+  refetchOnReconnect: true,
   endpoints: (builder) => ({}),
 });

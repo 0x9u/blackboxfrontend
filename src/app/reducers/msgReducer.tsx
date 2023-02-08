@@ -6,11 +6,15 @@ import { getGuildMsgs } from "../../api/guildApi";
 type MsgState = {
     msgs : Record<number, Msg>;
     author : Record<number, number[]>;
+    guildMsgIds : Record<number, number[]>; //order newest to oldest
+    dmMsgIds : Record<number, number[]>; //order newest to oldest
 }
 
 const initialState : MsgState = {
     msgs : {},
     author : {},
+    guildMsgIds : {},
+    dmMsgIds : {},
 }
 
 const msgSlice = createSlice({

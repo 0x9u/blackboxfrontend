@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { authApi, AuthRes } from "../../api/authApi";
+import { createAccount, postAuth, AuthRes } from "../../api/authApi";
 
 type AuthState = {
   token: string | null;
@@ -17,14 +17,14 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addMatcher(
-      authApi.endpoints.login.matchFulfilled,
+      createAccount.matchFulfilled,
       (state, action: PayloadAction<AuthRes>) => {
         state.token = action.payload.token;
         state.expires = action.payload.expires;
       }
     );
     builder.addMatcher(
-      authApi.endpoints.register.matchFulfilled,
+      postAuth.matchFulfilled,
       (state, action: PayloadAction<AuthRes>) => {
         state.token = action.payload.token;
         state.expires = action.payload.expires;

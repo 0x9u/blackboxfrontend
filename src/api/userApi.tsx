@@ -91,3 +91,5 @@ export const {
   deleteDM,
   getFriends,
 } = userApi.endpoints;
+
+export default userApi;

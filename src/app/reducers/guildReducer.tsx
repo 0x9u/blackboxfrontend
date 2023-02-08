@@ -4,11 +4,13 @@ import { getGuilds } from "../../api/userApi";
 type GuildState = {
     guildIds : number[];
     guilds : Record<number, Guild>;
+    invites : Record<number, string[]>;
 }
 
 const initialState : GuildState = {
     guildIds : [],
     guilds : {},
+    invites : {},
 }
 
 const guildSlice = createSlice({

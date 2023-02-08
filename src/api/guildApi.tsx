@@ -3,6 +3,7 @@ import { chatApi } from "./api";
 import { Msg } from "./types/msg";
 import { Guild } from "./types/guild";
 import { User } from "./types/user";
+import { number } from "yup";
 
 const guildApi = chatApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -24,10 +25,11 @@ const guildApi = chatApi.injectEndpoints({
         method: "GET",
       }),
     }),
-    getGuildMsgs: builder.query<Msg[], number>({
-      query: (id) => ({
+    getGuildMsgs: builder.query<Msg[], {id : number; time : number}>({
+      query: ({id, time}) => ({
         url: `/guilds/${id}/msgs`,
         method: "GET",
+        params: {time}
       }),
     }),
     postGuildMsg: builder.query<void, { id: number; msg: Msg }>({
@@ -77,3 +79,4 @@ export const {
   getGuildInvites,
 } = guildApi.endpoints;
 
+export default guildApi;

@@ -14,5 +14,5 @@ export interface Msg {
     Created : number;
     Modified : number;
     MsgSaved : boolean;
-    RequestId : string;
+    RequestId : string; //we randomize up to 5 char
 };

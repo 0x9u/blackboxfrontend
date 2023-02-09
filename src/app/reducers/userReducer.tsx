@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { getGuildMembers } from "../../api/guildApi";
+import { GuildMembers } from "../../api/types/guild";
 import { User } from "../../api/types/user";
 import { getDMs, getSelf, getUser, getFriends } from "../../api/userApi";
 
@@ -9,7 +11,8 @@ type UserState = {
     blockedIds : number[];
     dmIds : number[];
     selfUser : number | null;
-    membersIds : Record<number, number[]>;
+    guildMembersIds : Record<number, number[]>;
+    userMemberCount : Record<number, number>;
 }
 
 const initialState : UserState = {
@@ -19,33 +22,49 @@ const initialState : UserState = {
     blockedIds : [],
     dmIds : [],
     selfUser : null,
-    membersIds : {},
+    guildMembersIds : {},
+    userMemberCount : {},
 }
 
 const userSlice = createSlice({
     name : "user",
     initialState,
     reducers : {
-        addFriendID : (state, action : PayloadAction<number>) => {
-            state.friendIds.push(action.payload);
+        addFriendID : (state, action : PayloadAction<User>) => {
+            state.friendIds.push(action.payload.UserId);
+            state.users[action.payload.UserId] = action.payload;
         },
-        addRequestedFriendID : (state, action : PayloadAction<number>) => {
-            state.requestedFriendIds.push(action.payload);
+        addRequestedFriendID : (state, action : PayloadAction<User>) => {
+            state.requestedFriendIds.push(action.payload.UserId);
+            state.users[action.payload.UserId] = action.payload;
         },
-        addBlockedID : (state, action : PayloadAction<number>) => {
-            state.blockedIds.push(action.payload);
+        addBlockedID : (state, action : PayloadAction<User>) => {
+            state.blockedIds.push(action.payload.UserId);
+            state.users[action.payload.UserId] = action.payload;
         },
-        addDMID : (state, action : PayloadAction<number>) => {
-            state.dmIds.push(action.payload);
+        addDMID : (state, action : PayloadAction<User>) => {
+            state.dmIds.push(action.payload.UserId);
+            state.users[action.payload.UserId] = action.payload;
         },
-        removeFriendID : (state, action : PayloadAction<number>) => {
-            state.friendIds = state.friendIds.filter((id) => id !== action.payload);
+        removeFriendID : (state, action : PayloadAction<User>) => {
+            state.friendIds = state.friendIds.filter((id) => id !== action.payload.UserId);
+            if (state.userMemberCount[action.payload.UserId] === 0
+                && state.friendIds.indexOf(action.payload.UserId) === -1
+                && state.requestedFriendIds.indexOf(action.payload.UserId) === -1
+                && state.blockedIds.indexOf(action.payload.UserId) === -1
+                && state.dmIds.indexOf(action.payload.UserId) === -1
+                && state.selfUser !== action.payload.UserId
+                ) {
+                delete state.users[action.payload.UserId];
+                }
+
+            
         },
-        removeRequestedFriendID : (state, action : PayloadAction<number>) => {
-            state.requestedFriendIds = state.requestedFriendIds.filter((id) => id !== action.payload);
+        removeRequestedFriendID : (state, action : PayloadAction<User>) => {
+            state.requestedFriendIds = state.requestedFriendIds.filter((id) => id !== action.payload.UserId);
         },
-        removeBlockedID : (state, action : PayloadAction<number>) => {
-            state.blockedIds = state.blockedIds.filter((id) => id !== action.payload);
+        removeBlockedID : (state, action : PayloadAction<User>) => {
+            state.blockedIds = state.blockedIds.filter((id) => id !== action.payload.UserId);
         }
     },
     extraReducers : (builder) => {
@@ -77,6 +96,18 @@ const userSlice = createSlice({
                 for (const user of action.payload) {
                     state.friendIds.push(user.UserId);
                     state.users[user.UserId] = user;
+                }
+            }
+        )
+        builder.addMatcher(
+            getGuildMembers.matchFulfilled,
+            (state, action : PayloadAction<GuildMembers> ) => {
+                const { GuildId, Members } = action.payload;
+                state.guildMembersIds[GuildId] = [];
+                for (const member of Members) {
+                    state.guildMembersIds[GuildId].push(member.UserId);
+                    state.users[member.UserId] = member;
+                    state.userMemberCount[member.UserId] = (state.userMemberCount[member.UserId] || 0) + 1;
                 }
             }
         )

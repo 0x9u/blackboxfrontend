@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Guild } from "../../api/types/guild";
+import { getGuildInvites } from "../../api/guildApi";
+import { Guild, guildInvites } from "../../api/types/guild";
 import { getGuilds } from "../../api/userApi";
 type GuildState = {
     guildIds : number[];
@@ -26,6 +27,13 @@ const guildSlice = createSlice({
                     state.guilds[guild.GuildId] = guild;
                 }
             }
+        )
+        builder.addMatcher(
+            getGuildInvites.matchFulfilled,
+            (state, action : PayloadAction<guildInvites>) => {
+                state.invites[action.payload.GuildId] = action.payload.Invites;
+            }
+            
         )
     }
 });

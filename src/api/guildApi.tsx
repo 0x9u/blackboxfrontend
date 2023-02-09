@@ -1,9 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { chatApi } from "./api";
 import { Msg } from "./types/msg";
-import { Guild } from "./types/guild";
+import { Guild, guildInvites, GuildMembers } from "./types/guild";
 import { User } from "./types/user";
-import { number } from "yup";
 
 const guildApi = chatApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -13,7 +12,7 @@ const guildApi = chatApi.injectEndpoints({
         method: "GET",
       }),
     }),
-    getGuildMembers: builder.query<User[], number>({
+    getGuildMembers: builder.query<GuildMembers, number>({
       query: (id) => ({
         url: `/guilds/${id}/members`,
         method: "GET",
@@ -58,7 +57,7 @@ const guildApi = chatApi.injectEndpoints({
         method: "GET",
       }),
     }),
-    getGuildInvites: builder.query<string[], number>({
+    getGuildInvites: builder.query<guildInvites, number>({
       query: (id) => ({
         url: `/guilds/${id}/invites`,
         method: "GET",

@@ -3,12 +3,13 @@ import {
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
-import { setLoadingWS } from "../app/reducers/clientReducer";
+import { setLoadingWS } from "../app/slices/clientSlice";
 import { RootState } from "../app/store";
 import { chatApi } from "./api";
 import { Msg } from "./types/msg";
 import Events from "./types/events";
-import guildApi from "./guildApi";
+import guildApi, { deleteGuildMsg } from "./guildApi";
+import { addGuildMsg, editMsg, removeGuildMsg } from "../app/slices/msgSlice";
 
 enum OpCodes {
   DISPATCH = 0,
@@ -82,30 +83,32 @@ export const gatewayApi = chatApi.injectEndpoints({
               console.log("dispatch");
 
               switch (data.Event) {
-                case Events.CREATE_MESSAGE: {
+                case Events.CREATE_GUILD_MESSAGE: {
                   const eventData: Msg = data.Data;
                   dispatch(
-                    guildApi.util.updateQueryData(
-                      "getGuildMsgs",
-                      eventData.GuildId,
-                      (msgs) => {
-                        msgs.push(eventData);
-                      }
-                    )
+                    addGuildMsg({
+                      guildId: eventData.GuildId,
+                      msg: eventData,
+                    })
                   );
                   break;
                 }
-                case Events.DELETE_MESSAGE: {
+                case Events.DELETE_GUILD_MESSAGE: {
                   const eventData: Msg = data.Data;
                   dispatch(
-                    guildApi.util.updateQueryData(
-                      "getGuildMsgs",
-                      eventData.GuildId,
-                      (msgs) => {
-                        msgs = msgs.filter((msg) => msg.MsgId !== eventData.MsgId);
-                      }
-                    )
+                    removeGuildMsg({
+                      guildId: eventData.GuildId,
+                      msg: eventData,
+                    })
                   );
+                  break;
+                }
+                case Events.UPDATE_GUILD_MESSAGE:
+                case Events.UPDATE_DM_MESSAGE: {
+                  const eventData: Msg = data.Data;
+                  dispatch(
+                    editMsg(eventData)
+                  )
                   break;
                 }
               }

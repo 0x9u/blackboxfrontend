@@ -2,11 +2,11 @@ import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import { chatApi } from "../api/api";
 
-import auth from "./reducers/authReducer";
-import client from "./reducers/clientReducer";
-import user from "./reducers/userReducer";
-import guild from "./reducers/guildReducer";
-import msg from "./reducers/msgReducer";
+import auth from "./slices/authSlice";
+import client from "./slices/clientSlice";
+import user from "./slices/userReducer";
+import guild from "./slices/guildReducer";
+import msg from "./slices/msgReducer";
 
 const store = configureStore({
   reducer: {

@@ -1,5 +1,6 @@
 import { createEntityAdapter } from "@reduxjs/toolkit";
 import { chatApi } from "./api";
+import { Dm } from "./types/dm";
 import { Guild, UserGuild } from "./types/guild";
 import { Msg } from "./types/msg";
 import { User } from "./types/user";
@@ -26,7 +27,7 @@ const userApi = chatApi.injectEndpoints({
         method: "GET",
       }),
     }),
-    getDMs: builder.query<User[], void>({
+    getDMs: builder.query<Dm[], void>({
       query: () => ({
         url: "/users/@me/dms",
         method: "GET",

@@ -5,3 +5,8 @@ export interface User {
     Icon : number;
     Flags : number;
 }
+
+export interface Member {
+    GuildId : number;
+    UserInfo : User;
+}

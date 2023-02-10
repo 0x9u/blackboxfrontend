@@ -15,12 +15,7 @@ export interface Guild {
     SaveChat : boolean;
 };
 
-export interface GuildMembers {
+export interface Invite {
     GuildId : number;
-    Members : User[];
-}
-
-export interface guildInvites {
-    GuildId : number;
-    Invites : string[];
+    Invite: string;
 }

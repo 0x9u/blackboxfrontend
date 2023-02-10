@@ -10,6 +10,7 @@ export interface Msg {
     MsgId : number;
     Author : User;
     GuildId : number;
+    DmId : number;
     Content : string;
     Created : number;
     Modified : number;

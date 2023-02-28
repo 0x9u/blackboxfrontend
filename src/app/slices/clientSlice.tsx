@@ -4,14 +4,18 @@ import { createAccount, AuthRes, postAuth } from "../../api/authApi";
 type ClientState = {
   currentGuild: number | null;
   currentDM: number | null;
-  currentMode: "guild" | "dm";
+  currentChatMode: "guild" | "dm";
+  currentMode: "chat" | "friends" | "games";
   loadingWS: boolean;
 };
+
+//ClientState stores local information not stored/sent by the backend
 
 const initialState: ClientState = {
   currentGuild: null,
   currentDM: null,
-  currentMode: "guild",
+  currentChatMode: "guild",
+  currentMode: "chat",
   loadingWS : false,
 };
 
@@ -25,7 +29,10 @@ const clientSlice = createSlice({
     setCurrentDM: (state, action: PayloadAction<number | null>) => {
       state.currentDM = action.payload;
     },
-    setCurrentMode: (state, action: PayloadAction<"guild" | "dm">) => {
+    setCurrentChatMode: (state, action: PayloadAction<"guild" | "dm">) => {
+      state.currentChatMode = action.payload;
+    },
+    setCurrentMode : (state, action : PayloadAction<"chat" | "friends" | "games">) => {
       state.currentMode = action.payload;
     },
     setLoadingWS : (state, action : PayloadAction<boolean>) => {
@@ -39,6 +46,7 @@ export default clientSlice.reducer;
 export const {
   setCurrentGuild,
   setCurrentDM,
+  setCurrentChatMode,
   setCurrentMode,
   setLoadingWS,
 } = clientSlice.actions;

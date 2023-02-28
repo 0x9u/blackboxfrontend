@@ -45,7 +45,7 @@ planned schema
 //we are not using the cache since I can't really stream updates to the cache properly without making it a mess
 export const chatApi = createApi({ //memory should be fine since its all referenced
   reducerPath: "chatApi",
-  baseQuery: fetchBaseQuery({
+  baseQuery: fetchBaseQuery({ 
     baseUrl: "http://localhost:8080",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;

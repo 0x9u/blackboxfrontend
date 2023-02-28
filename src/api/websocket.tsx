@@ -3,6 +3,7 @@ import { RootState } from "../app/store";
 import { chatApi } from "./api";
 import { Msg } from "./types/msg";
 import { Guild } from "./types/guild";
+import { User, Member } from "./types/user";
 import Events from "./types/events";
 import {
   addDmMsg,
@@ -12,8 +13,17 @@ import {
   removeDmMsg,
   removeGuildMsg,
 } from "../app/slices/msgSlice";
-import { addGuild, addInvite, removeGuild, removeInvite, updateGuild } from "../app/slices/guildSlice";
+import {
+  addGuild,
+  addInvite,
+  removeGuild,
+  removeInvite,
+  updateGuild,
+} from "../app/slices/guildSlice";
 import { Invite } from "./types/guild";
+import { addBlockedID, addDMID, addFriendID, addGuildBannedID, addGuildMembersID, addPendingFriendID, addRequestedFriendID, removeBlockedID, removeDMID, removeFriendID, removeGuildBannedID, removeGuildMembersID, removePendingFriendID, removeRequestedFriendID } from "../app/slices/userSlice";
+import { Dm, DmUser } from "./types/dm";
+import { clearToken } from "../app/slices/authSlice";
 
 enum OpCodes {
   DISPATCH = 0,
@@ -148,6 +158,81 @@ export const gatewayApi = chatApi.injectEndpoints({
                 case Events.UPDATE_GUILD: {
                   const eventData: Guild = data.Data;
                   dispatch(updateGuild(eventData));
+                  break;
+                }
+                case Events.ADD_USER_GUILDLIST: {
+                  const eventData: Member = data.Data;
+                  dispatch(addGuildMembersID(eventData));
+                  break;
+                }
+                case Events.REMOVE_USER_GUILDLIST: {
+                  const eventData: Member = data.Data;
+                  dispatch(removeGuildMembersID(eventData));
+                  break;
+                }
+                case Events.ADD_USER_BANLIST: {
+                  const eventData: Member = data.Data;
+                  dispatch(addGuildBannedID(eventData));
+                  break;
+                }
+                case Events.REMOVE_USER_BANLIST: {
+                  const eventData: Member = data.Data;
+                  dispatch(removeGuildBannedID(eventData));
+                  break;
+                }
+                case Events.CREATE_DM: {
+                  const eventData: DmUser = data.Data;
+                  dispatch(addDMID(eventData));
+                  break;
+                }
+                case Events.DELETE_DM: {
+                  const eventData: DmUser = data.Data;
+                  dispatch(removeDMID(eventData));
+                  break;
+                }
+                case Events.ADD_FRIEND_REQUEST: {
+                  const eventData: User = data.Data;
+                  dispatch(addRequestedFriendID(eventData));
+                  break;
+                }
+                case Events.REMOVE_FRIEND_REQUEST: {
+                  const eventData: User = data.Data;
+                  dispatch(removeRequestedFriendID(eventData));
+                  break;
+                }
+                case Events.ADD_USER_FRIENDLIST: {
+                  const eventData: User = data.Data;
+                  dispatch(addFriendID(eventData));
+                  break;
+                }
+                case Events.REMOVE_USER_FRIENDLIST: {
+                  const eventData: User = data.Data;
+                  dispatch(removeFriendID(eventData));
+                  break;
+                }
+                case Events.ADD_FRIEND_INCOMING_REQUEST: {
+                  const eventData: User = data.Data;
+                  dispatch(addPendingFriendID(eventData));
+                  break;
+                }
+                case Events.REMOVE_FRIEND_INCOMING_REQUEST: {
+                  const eventData: User = data.Data;
+                  dispatch(removePendingFriendID(eventData));
+                  break;
+                }
+                case Events.ADD_USER_BLOCKEDLIST: {
+                  const eventData: User = data.Data;
+                  dispatch(addBlockedID(eventData));
+                  break;
+                }
+                case Events.REMOVE_USER_BLOCKEDLIST: {
+                  const eventData: User = data.Data;
+                  dispatch(removeBlockedID(eventData));
+                  break;
+                }
+                case Events.LOG_OUT: {
+                  //no data received from log
+                  dispatch(clearToken());
                   break;
                 }
               }

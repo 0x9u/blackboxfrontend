@@ -4,9 +4,9 @@ import { chatApi } from "../api/api";
 
 import auth from "./slices/authSlice";
 import client from "./slices/clientSlice";
-import user from "./slices/userReducer";
-import guild from "./slices/guildReducer";
-import msg from "./slices/msgReducer";
+import user from "./slices/userSlice";
+import guild from "./slices/guildSlice";
+import msg from "./slices/msgSlice";
 
 const store = configureStore({
   reducer: {
@@ -18,7 +18,7 @@ const store = configureStore({
     msg,
   },
   middleware: (getDefaultMiddleware) =>
-  getDefaultMiddleware().concat(chatApi.middleware),
+    getDefaultMiddleware().concat(chatApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

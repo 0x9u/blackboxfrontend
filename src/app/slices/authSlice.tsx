@@ -14,7 +14,12 @@ const initialState: AuthState = {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    clearToken: (state) => { //used for logout (called by websocket or button)
+      state.token = null;
+      state.expires = null;
+    },
+  },
   extraReducers: (builder) => {
     builder.addMatcher(
       createAccount.matchFulfilled,
@@ -34,3 +39,5 @@ const authSlice = createSlice({
 });
 
 export default authSlice.reducer;
+
+export const { clearToken } = authSlice.actions;

@@ -3,7 +3,7 @@ import { chatApi } from "./api";
 import { DmUser } from "./types/dm";
 import { Guild, UserGuild } from "./types/guild";
 import { Msg } from "./types/msg";
-import { User } from "./types/user";
+import { FriendRequest, User } from "./types/user";
 
 const userApi = chatApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -83,6 +83,12 @@ const userApi = chatApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getRequestedFriends: builder.query<FriendRequest, void>({
+      query: () => ({
+        url: `/users/@me/requests`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -97,6 +103,9 @@ export const {
   openDM,
   deleteDM,
   getFriends,
+  getBlocked,
+  getRequestedFriends,
+
 } = userApi.endpoints;
 
 export default userApi;

@@ -10,3 +10,8 @@ export interface Member {
     GuildId : number;
     UserInfo : User;
 }
+
+export interface FriendRequest {
+    Requested : User[];
+    Pending : User[];
+}

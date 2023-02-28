@@ -87,7 +87,7 @@ const msgSlice = createSlice({
       }
       state.author[msg.Author.UserId] = [];
     },
-    resetMsgs: (state, action: PayloadAction<void>) => {
+    resetMsgs: (state) => {
       state.msgs = {};
       state.author = {};
       state.guildMsgIds = {};

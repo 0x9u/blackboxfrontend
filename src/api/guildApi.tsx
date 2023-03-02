@@ -1,8 +1,7 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { chatApi } from "./api";
 import { Msg } from "./types/msg";
 import { Guild, Invite } from "./types/guild";
-import { User, Member } from "./types/user";
+import { Member } from "./types/user";
 
 const guildApi = chatApi.injectEndpoints({
   endpoints: (builder) => ({

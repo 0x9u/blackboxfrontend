@@ -12,10 +12,25 @@
     }
 
     ::-webkit-scrollbar {
+        width: 12px;
+        
         /* design scrollbar later */
     }
 
     :root {
-        /* scroll bar design later */
+        scrollbar-width: thin;
+        scrollbar-color: theme('colors.shade-2') theme('colors.shade-1');
     }
+
+    ::-webkit-scrollbar-track {
+        background: theme('colors.shade-2');
+        margin: 5px;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: theme('colors.shade-1');
+        border-radius: 10px;
+    }
+    
 }

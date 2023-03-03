@@ -15,6 +15,7 @@ interface InputProps {
   name?: string;
   label?: string;
   error?:  FieldError | undefined;
+  className? : string;
 };
 
 const Input: FC<InputProps> = ({
@@ -26,6 +27,7 @@ const Input: FC<InputProps> = ({
   label,
   error,
   register,
+  className,
 }) => {
   return (
     <div className="flex flex-col w-64">
@@ -36,7 +38,7 @@ const Input: FC<InputProps> = ({
         </span>
       </p>
       <input
-        className="h-10 w-64 rounded  bg-shade-1 px-2 font-medium text-white outline-none focus:outline-shade-5"
+        className={"h-10 w-64 rounded  bg-shade-1 px-2 font-medium text-white outline-none focus:outline-shade-5 "+className}
         type={type}
         value={value}
         onBlur={onBlur}

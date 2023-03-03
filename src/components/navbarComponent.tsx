@@ -11,33 +11,30 @@ const NavBar : FC = () => {
   );
   return (
     <div className="flex min-h-screen w-20 flex-col bg-shade-1">
-      <a
+      <div
         className={`m-2 rounded-xl p-2  ${
           currentMode == "chat" ? "bg-white/50" : "hover:bg-white/25"
         }`}
-        href="#"
         onClick={() => dispatch(setCurrentMode("chat"))}
       >
         <MdChat className="text-5xl text-white" />
-      </a>
-      <a
+      </div>
+      <div
         className={`m-2 rounded-xl p-2  ${
           currentMode == "friends" ? "bg-white/50" : "hover:bg-white/25"
         }`}
-        href="#"
         onClick={() => dispatch(setCurrentMode("friends"))}
       >
         <MdPeople className="text-5xl text-white" />
-      </a>
-      <a
+      </div>
+      <div
         className={`m-2 rounded-xl p-2  ${
           currentMode == "games" ? "bg-white/50" : "hover:bg-white/25"
         }`}
-        href="#"
         onClick={() => dispatch(setCurrentMode("games"))}
       >
         <MdGames className="text-5xl text-white" />
-      </a>
+      </div>
     </div>
   );
 }

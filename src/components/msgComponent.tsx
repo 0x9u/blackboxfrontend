@@ -9,16 +9,16 @@ interface msgProps {
 }
 
 const Msg: FC<msgProps> = ({ content, failed, username, created, modified }) => {
-    return (<div className="flex flex-row space-x-4">
-        <div className="h-14 w-14 rounded-full border-black border shrink-0">
+    return (<div className="flex flex-row space-x-4 px-4 py-1 hover:bg-black/25">
+        <div className="h-12 w-12 rounded-full border-black border shrink-0">
             {/* for pfp */}
         </div>
-        <div>
-            <div className="flex flex row space-x-3  items-center">
-                <p className="text-lg font-semibold text-white">
+        <div className="flex flex-col">
+            <div className="flex flex-row space-x-2 items-center">
+                <p className="text-lg font-semibold text-white leading-relaxed">
                     {username}
                 </p>
-                <p className="text-xs font-medium text-white brightness-75">
+                <p className="text-xs font-medium text-white leading-relaxed brightness-75">
                     Created on {created} {modified && `and Edited at ${modified}`}
                 </p>
             </div>

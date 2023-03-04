@@ -10,7 +10,7 @@ module.exports = {
       'shade-1' : '#302F2F',
       'shade-2' : '#3E3C3B',
       'shade-3' : '#454545',
-      'shade-4' : '#8E9EA3',
+      'shade-4' : '#4B4C4C',
       'shade-5' : '#3AB5DB',
       'white' : '#FFFFFF',
       'black' : '#000000',

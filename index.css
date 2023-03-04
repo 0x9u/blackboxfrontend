@@ -12,9 +12,45 @@
     }
 
     ::-webkit-scrollbar {
-        width: 12px;
-        
+        width: 18px;
+
         /* design scrollbar later */
+    }
+    
+    .textbox-scrollbar {
+        scrollbar-width: thin;
+    }
+
+    .textbox-scrollbar::-webkit-scrollbar {
+        width: 14px;
+    }
+
+    .textbox-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0);
+    }
+
+    .textbox-scrollbar::-webkit-scrollbar-thumb {
+        background: theme('colors.shade-2');
+    }
+
+    .list-scrollbar {
+        scrollbar-width: thin;
+    }
+
+    .list-scrollbar::-webkit-scrollbar {
+        width: 14px;
+    }
+
+    .list-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0);
+    }
+
+    *:hover.list-scrollbar::-webkit-scrollbar-thumb {
+        background-color: theme('colors.shade-1');
+    }
+
+    *:not(:hover).list-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0);
     }
 
     :root {
@@ -24,13 +60,18 @@
 
     ::-webkit-scrollbar-track {
         background: theme('colors.shade-2');
-        margin: 5px;
+        margin: 10px;
         border-radius: 10px;
+        background-clip: padding-box;
+        border: 4px solid rgba(0,0,0,0);
+
     }
 
     ::-webkit-scrollbar-thumb {
         background: theme('colors.shade-1');
         border-radius: 10px;
+        background-clip: padding-box;
+        border: 4px solid rgba(0,0,0,0);
     }
     
 }

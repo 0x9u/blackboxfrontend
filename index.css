@@ -22,7 +22,7 @@
     }
 
     .textbox-scrollbar::-webkit-scrollbar {
-        width: 14px;
+        width: 5px;
     }
 
     .textbox-scrollbar::-webkit-scrollbar-track {
@@ -30,7 +30,7 @@
     }
 
     .textbox-scrollbar::-webkit-scrollbar-thumb {
-        background: theme('colors.shade-2');
+        background: theme('colors.shade-1');
     }
 
     .list-scrollbar {

@@ -7,7 +7,7 @@ interface pageProps {
 
 const Page: FC<pageProps> = ({ children }) => {
   return (
-    <div className="flex grow min-h-screen flex-col bg-shade-3">
+    <div className="flex grow min-h-screen flex-col bg-shade-4">
       {children}
     </div>
   );

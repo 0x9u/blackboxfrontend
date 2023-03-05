@@ -7,10 +7,10 @@ module.exports = {
   ],
   theme: {
     colors: {
-      'shade-1' : '#302F2F',
-      'shade-2' : '#3E3C3B',
-      'shade-3' : '#454545',
-      'shade-4' : '#4B4C4C',
+      'shade-1' : '#242424',
+      'shade-2' : '#302F2F',
+      'shade-3' : '#3E3C3B',
+      'shade-4' : '#454545',
       'shade-5' : '#3AB5DB',
       'white' : '#FFFFFF',
       'black' : '#000000',

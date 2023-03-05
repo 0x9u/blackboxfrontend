@@ -13,7 +13,7 @@ const NavBar : FC = () => {
     <div className="flex min-h-screen w-20 flex-col bg-shade-1">
       <div
         className={`m-2 rounded-xl p-2  ${
-          currentMode == "chat" ? "bg-white/50" : "hover:bg-white/25"
+          currentMode == "chat" ? "bg-white/50 cursor-default " : "hover:bg-white/25 cursor-pointer"
         }`}
         onClick={() => dispatch(setCurrentMode("chat"))}
       >
@@ -21,7 +21,7 @@ const NavBar : FC = () => {
       </div>
       <div
         className={`m-2 rounded-xl p-2  ${
-          currentMode == "friends" ? "bg-white/50" : "hover:bg-white/25"
+          currentMode == "friends" ? "bg-white/50 cursor-default" : "hover:bg-white/25 cursor-pointer"
         }`}
         onClick={() => dispatch(setCurrentMode("friends"))}
       >
@@ -29,7 +29,7 @@ const NavBar : FC = () => {
       </div>
       <div
         className={`m-2 rounded-xl p-2  ${
-          currentMode == "games" ? "bg-white/50" : "hover:bg-white/25"
+          currentMode == "games" ? "bg-white/50 cursor-default" : "hover:bg-white/25 cursor-pointer"
         }`}
         onClick={() => dispatch(setCurrentMode("games"))}
       >

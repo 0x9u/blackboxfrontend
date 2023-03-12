@@ -39,20 +39,18 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
   return (
     <form
-      className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-10 px-16 shadow-2xl"
+      className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-8 px-14 shadow-2xl"
       onSubmit={handleSubmit((d) => console.log(d))}
     >
-      <div className="mx-auto flex flex-col pb-10">
-        <p className="my-2 text-4xl font-bold text-white">Welcome back!</p>
+      <div className="flex flex-col py-2">
+        <p className="text-4xl font-bold text-white">Welcome back!</p>
       </div>
-      <div className="mx-auto">
+      <div className="py-4 mx-auto">
         <Input
           label="username"
           error={errors.username}
           register={register("username")}
         />
-      </div>
-      <div className="mx-auto">
         <Input
           type="password"
           label="password"
@@ -60,10 +58,10 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
           register={register("password")}
         />
       </div>
-      <div className="flex flex-col py-4">
+      <div className="flex flex-col py-2">
         <Button type="submit" value="Login" />
       </div>
-      <div className="mb-16 flex flex-col space-y-2 text-sm">
+      <div className="py-4 flex flex-col space-y-2 text-sm">
         <a
           className=" cursor-pointer font-medium text-shade-5 hover:underline text-center"
           onClick={changeMode}

@@ -1,12 +1,12 @@
 import React, { FC } from "react";
 
-interface pageProps {
+interface modalProps {
   children: React.ReactNode; //buttons
 }
 
-const Page: FC<pageProps> = ({ children }) => {
+const Page: FC<modalProps> = ({ children }) => {
   return (
-    <div className="flex grow min-h-screen flex-col bg-shade-4">
+    <div className="absolute flex grow min-h-screen flex-col bg-shade-4">
       {children}
     </div>
   );

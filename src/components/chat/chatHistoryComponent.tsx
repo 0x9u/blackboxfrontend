@@ -1,6 +1,9 @@
 import React, { FC } from "react";
+
+
 import Msg from "./msgComponent";
 import ChatInput from "./chatInputComponent";
+
 
 const ChatHistory: FC = () => {
   return (
@@ -14,6 +17,7 @@ const ChatHistory: FC = () => {
           modified={111}
         />
       ))}
+       
     </div>
     <ChatInput/>
   </div>

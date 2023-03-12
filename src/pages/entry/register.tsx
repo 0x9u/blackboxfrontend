@@ -49,37 +49,31 @@ const Register: FC<RegisterProps> = ({ changeMode }) => {
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
   return (
     <form
-      className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-10 px-16 shadow-2xl"
+      className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-4 px-8 shadow-2xl"
       onSubmit={handleSubmit((d) => console.log(d))}
     >
-      <div className="mx-auto flex flex-col pb-10">
-        <p className="my-2 text-2xl font-bold uppercase text-white">
+      <div className="flex flex-col py-4">
+        <p className="mx-auto text-4xl font-bold text-white">
           Create an account
         </p>
       </div>
-      <div className="mx-auto">
+      <div className="mx-auto py-4">
         <Input
           error={errors.username}
           register={register("username")}
           label="username"
         />
-      </div>
-      <div className="mx-auto">
         <Input
           label="email"
           error={errors.email}
           register={register("email")}
         />
-      </div>
-      <div className="mx-auto">
         <Input
           type="password"
           label="password"
           error={errors.password}
           register={register("password")}
         />
-      </div>
-      <div className="mx-auto flex flex-col">
         <Input
           type="password"
           label="confirm password"
@@ -87,12 +81,12 @@ const Register: FC<RegisterProps> = ({ changeMode }) => {
           register={register("confirmPassword")}
         />
       </div>
-      <div className="flex flex-col py-4">
+      <div className="flex flex-col py-2 px-6">
         <Button type="submit" value="Register" />
       </div>
-      <div className="mb-16 flex flex-col text-sm">
+      <div className="py-4 flex flex-col text-sm">
         <a
-          className=" cursor-pointer font-medium text-shade-5 hover:underline text-center"
+          className="cursor-pointer font-medium text-shade-5 hover:underline text-center"
           onClick={changeMode}
         >
           Already have an account?

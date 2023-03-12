@@ -31,14 +31,14 @@ const Input: FC<InputProps> = ({
 }) => {
   return (
     <div className="flex flex-col w-64">
-      <p className=" my-2 text-xs font-bold break-words uppercase text-white">
+      <p className=" my-2 text-xs font-semibold break-words uppercase text-white">
         {label}{" "}
         <span className="italic text-xs font-medium text-[#ff3333]">
           {error?.message && "-"} {error?.message}
         </span>
       </p>
       <input
-        className={"h-10 w-64 rounded  bg-shade-2 px-2 font-medium text-white outline-none focus:outline-shade-5 "+className}
+        className={"h-10 rounded w-64 bg-shade-2 px-2 font-medium text-white outline-none focus:outline-shade-5 "+className}
         type={type}
         value={value}
         onBlur={onBlur}

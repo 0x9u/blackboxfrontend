@@ -4,7 +4,7 @@ import Button from "../../buttonComponent";
 const BansGuildSettings: FC = () => {
   return (
     <div>
-      <h1 className="mb-5 text-2xl text-white">Invites</h1>
+      <h1 className="mb-5 text-2xl text-white">Bans</h1>
       <div className="flex h-96 flex-col border-b-2 border-t-2 border-gray p-2 text-white">
         <div className="col mb-2 flex flex-row justify-between text-lg font-medium">
           <p>Name</p>

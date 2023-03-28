@@ -7,7 +7,11 @@ import SettingsPanel from "../settingsPanel";
 import SettingsSideBar from "../settingsSideBar";
 import SettingsSideBarButton from "../settingsSideBarButton";
 import SettingsSideBarGroup from "../settingsSideBarGroup";
+import AccessibilityUserSettings from "./accessabilityUserSettings";
 import AccountUserSettings from "./accountUserSettings";
+import FriendUserSettings from "./friendUserSettings";
+import PrivacyUserSettings from "./privacyUserSettings";
+import TextUserSettings from "./textUserSettings";
 
 const UserSettings: FC = () => {
   const dispatch = useDispatch();
@@ -48,7 +52,17 @@ const UserSettings: FC = () => {
         </SettingsSideBarGroup>
       </SettingsSideBar>
       <SettingsPanel closeFunc={() => dispatch(setShowUserSettings(false))}>
-        <AccountUserSettings/>
+        {settingsMode === "account" ? (
+          <AccountUserSettings />
+        ) : settingsMode === "friends" ? (
+          <FriendUserSettings />
+        ) : settingsMode === "privacy" ? (
+          <PrivacyUserSettings />
+        ) : settingsMode === "text" ? (
+          <TextUserSettings />
+        ) : settingsMode === "accessability" ? (
+          <AccessibilityUserSettings />
+        ) : null}
       </SettingsPanel>
     </SettingsPage>
   );

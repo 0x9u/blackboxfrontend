@@ -1,5 +1,10 @@
 import React, { FC } from "react";
-import { MdOutlineEmojiPeople, MdPerson, MdPersonAdd } from "react-icons/md";
+import {
+  MdOutlineEmojiPeople,
+  MdPerson,
+  MdPersonAdd,
+  MdPersonRemove,
+} from "react-icons/md";
 
 import NavbarChild from "../../../components/navbarChildComponent";
 import NavbarItem from "../../../components/navItemComponent";
@@ -16,7 +21,9 @@ const Friends: FC = () => {
           </NavbarItem>
           <NavbarItem onClick={() => console.log("clicked")}>
             <MdPersonAdd className="h-12 w-12 shrink-0"></MdPersonAdd>
-            <p className="m-auto truncate pl-2 leading-relaxed">Friend Requests</p>
+            <p className="m-auto truncate pl-2 leading-relaxed">
+              Friend Requests
+            </p>
           </NavbarItem>
           <NavbarItem onClick={() => console.log("clicked")}>
             <MdPersonAdd className="h-12 w-12 shrink-0"></MdPersonAdd>
@@ -29,7 +36,19 @@ const Friends: FC = () => {
         </div>
       </NavbarChild>
       <Page>
-        
+        <div className="flex flex-col p-8 space-y-4 h-0 grow overflow-auto">
+          {[...Array(50)].map(() => (
+            <div className="flex flex-row justify-between border-b border-gray pb-4">
+              <div className="flex flex-row space-x-4">
+                <div className="m-auto h-14 w-14 rounded-full border border-black"></div>
+                <p className="m-auto text-xl font-semibold text-white">Bov</p>
+              </div>
+              <div>
+                <MdPersonRemove className="m-auto h-12 w-12 text-white" />
+              </div>
+            </div>
+          ))}
+        </div>
       </Page>
     </div>
   );

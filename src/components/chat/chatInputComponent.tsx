@@ -13,7 +13,12 @@ const chatInputArea: FC = () => {
   return (
     <div className="min-h-16 shrink-0 px-4">
       <div className="min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ">
-        <MdOutlineAddCircle className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white cursor-pointer" />
+        <div className="my-auto shrink-0">
+          <input id="file-upload" type="file" className="hidden h-10 w-10" />
+          <label htmlFor="file-upload">
+            <MdOutlineAddCircle className="h-10 w-10 text-white/90 hover:text-white cursor-pointer" />
+          </label>
+        </div>
         <textarea
           rows={1}
           autoCorrect="off"

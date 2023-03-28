@@ -7,6 +7,8 @@ type ClientState = {
   currentChatMode: "guild" | "dm";
   currentMode: "chat" | "friends" | "games";
   loadingWS: boolean;
+  showGuildDMSettings: boolean;
+  showUserSettings: boolean;
 };
 
 //ClientState stores local information not stored/sent by the backend
@@ -17,6 +19,8 @@ const initialState: ClientState = {
   currentChatMode: "guild",
   currentMode: "chat",
   loadingWS : false,
+  showGuildDMSettings : false,
+  showUserSettings : false,
 };
 
 const clientSlice = createSlice({
@@ -37,7 +41,13 @@ const clientSlice = createSlice({
     },
     setLoadingWS : (state, action : PayloadAction<boolean>) => {
       state.loadingWS = action.payload;
-    }
+    },
+    setShowGuildDMSettings : (state, action : PayloadAction<boolean>) => {
+      state.showGuildDMSettings = action.payload;
+    },
+    setShowUserSettings : (state, action : PayloadAction<boolean>) => {
+      state.showUserSettings = action.payload;
+    },
   },
 });
 
@@ -49,4 +59,6 @@ export const {
   setCurrentChatMode,
   setCurrentMode,
   setLoadingWS,
+  setShowGuildDMSettings,
+  setShowUserSettings,
 } = clientSlice.actions;

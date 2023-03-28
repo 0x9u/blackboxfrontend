@@ -14,6 +14,9 @@ module.exports = {
       'shade-5' : '#3AB5DB',
       'white' : '#FFFFFF',
       'black' : '#000000',
+      'green' : '#44953F',
+      'gray' : '#A9A9A9',
+      'red' : '#ff3333',
     },
     fontFamily : {
       sans : ['IBM Plex Sans', 'sans-serif'],

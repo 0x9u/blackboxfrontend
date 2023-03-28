@@ -1,11 +1,14 @@
 import React, { FC } from "react";
 import { MdSettings } from "react-icons/md"
+import { useDispatch } from "react-redux";
+import { setShowUserSettings } from "../app/slices/clientSlice";
 
 interface navbarChildProps {
   children: React.ReactNode; //buttons
 }
 
 const navbarChild: FC<navbarChildProps> = ({ children }) => {
+  const dispatch = useDispatch();
   return (
     <div className="flex min-h-screen w-64 flex-col bg-shade-3">
       {/* got it working after 1 hour of debugging css*/}
@@ -16,7 +19,7 @@ const navbarChild: FC<navbarChildProps> = ({ children }) => {
         <p className="text-lg text-white truncate font-bold m-auto ml-4 leading-relaxed">
           Username
           </p>
-        <MdSettings className="m-auto shrink-0 text-white/90 hover:text-white cursor-pointer h-8 w-8 ml-10 leading-relaxed" />
+        <MdSettings className="m-auto shrink-0 text-white/90 hover:text-white cursor-pointer h-8 w-8 ml-10 leading-relaxed" onClick={() => dispatch(setShowUserSettings(true))}/>
       </div>
     </div>
   );

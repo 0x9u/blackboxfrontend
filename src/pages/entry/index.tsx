@@ -4,7 +4,6 @@ import Login from "./login";
 import Register from "./register";
 
 const Entry: FC = () => {
-  const [test, setTest] = React.useState<string>("");
   const [mode, setMode] = React.useState<string>("login");
   return (
     <div className="relative flex min-h-screen flex-col sm:justify-center overflow-hidden bg-shade-2">

@@ -7,16 +7,26 @@ import UserList from "../../../components/chat/userListComponent";
 import ChatBar from "../../../components/chat/chatBarComponent";
 import ChatMode from "../../../components/chat/chatModeComponent";
 import ChatList from "../../../components/chat/chatListComponent";
-import Modal from "../../../components/modal/modalComponent";
+
+import ChatModal from "../../../components/chat/chatModalComponent";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/store";
+import GuildSettings from "../../../components/settings/guild/guildSettings";
 
 const Chat: FC = () => {
   const [showUserList, setShowUserList] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const showGuildDMSettings = useSelector((state: RootState) => state.client.showGuildDMSettings);
   return (
     <div className="flex min-h-full grow flex-row">
       <NavbarChild>
         <ChatMode />
-        <ChatList stateFunc={() => { setShowModal(true); console.log("hi") }} />
+        <ChatList
+          stateFunc={() => {
+            setShowModal(true);
+            console.log("hi");
+          }}
+        />
       </NavbarChild>
       <Page>
         <ChatBar stateFunc={() => setShowUserList(!showUserList)} />
@@ -25,11 +35,8 @@ const Chat: FC = () => {
           {showUserList && <UserList />}
         </div>
       </Page>
-      {showModal && <Modal>
-        <p>
-          hi
-        </p>
-      </Modal>}
+      {showModal && <ChatModal exitFunc={() => setShowModal(false)}/>}
+      {showGuildDMSettings && <GuildSettings/>}
     </div>
   );
 };

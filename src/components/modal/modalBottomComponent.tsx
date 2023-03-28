@@ -1,15 +1,15 @@
 import React, { FC } from "react";
 
-interface modalProps {
+interface modalBottomProps {
   children: React.ReactNode; //buttons
 }
 
-const Page: FC<modalProps> = ({ children }) => {
+const ModalBottom: FC<modalBottomProps> = ({ children }) => {
   return (
-    <div className="absolute flex grow min-h-screen flex-col bg-shade-4">
+    <div className="-mx-4 -mb-4 mt-4 flex flex-row justify-end space-x-2 border-t-2 border-gray py-2 px-2">
       {children}
     </div>
   );
 };
 
-export default Page;
+export default ModalBottom;

@@ -16,6 +16,7 @@ interface InputProps {
   label?: string;
   error?:  FieldError | undefined;
   className? : string;
+  dark? : boolean;
 };
 
 const Input: FC<InputProps> = ({
@@ -28,12 +29,13 @@ const Input: FC<InputProps> = ({
   error,
   register,
   className,
+  dark
 }) => {
   return (
     <div className="flex flex-col w-64">
-      <p className=" my-2 text-xs font-semibold break-words uppercase text-white">
+      <p className={`my-2 text-sm font-semibold break-words uppercase ${!dark ? "text-white" : "text-black"}`}>
         {label}{" "}
-        <span className="italic text-xs font-medium text-[#ff3333]">
+        <span className="italic text-sm font-medium text-red">
           {error?.message && "-"} {error?.message}
         </span>
       </p>

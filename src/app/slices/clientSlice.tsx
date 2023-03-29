@@ -5,10 +5,14 @@ type ClientState = {
   currentGuild: number | null;
   currentDM: number | null;
   currentChatMode: "guild" | "dm";
+  currentFriendsMode : "friends" | "requests" | "add" | "blocked";
   currentMode: "chat" | "friends" | "games";
   loadingWS: boolean;
+  showChatUserList: boolean;
+  showAddChatModal: boolean;
   showGuildDMSettings: boolean;
   showUserSettings: boolean;
+  
 };
 
 //ClientState stores local information not stored/sent by the backend
@@ -17,8 +21,11 @@ const initialState: ClientState = {
   currentGuild: null,
   currentDM: null,
   currentChatMode: "guild",
+  currentFriendsMode : "friends",
   currentMode: "chat",
   loadingWS : false,
+  showChatUserList: false,
+  showAddChatModal: false,
   showGuildDMSettings : false,
   showUserSettings : false,
 };
@@ -36,11 +43,20 @@ const clientSlice = createSlice({
     setCurrentChatMode: (state, action: PayloadAction<"guild" | "dm">) => {
       state.currentChatMode = action.payload;
     },
+    setCurrentFriendsMode : (state, action:PayloadAction<"friends" | "requests" | "add" | "blocked">) => {
+      state.currentFriendsMode = action.payload;
+    },
     setCurrentMode : (state, action : PayloadAction<"chat" | "friends" | "games">) => {
       state.currentMode = action.payload;
     },
     setLoadingWS : (state, action : PayloadAction<boolean>) => {
       state.loadingWS = action.payload;
+    },
+    setShowChatUserList : (state, action : PayloadAction<boolean>) => {
+      state.showChatUserList = action.payload;
+    },
+    setShowAddChatModal : (state, action : PayloadAction<boolean>) => {
+      state.showAddChatModal = action.payload;
     },
     setShowGuildDMSettings : (state, action : PayloadAction<boolean>) => {
       state.showGuildDMSettings = action.payload;
@@ -57,8 +73,11 @@ export const {
   setCurrentGuild,
   setCurrentDM,
   setCurrentChatMode,
+  setCurrentFriendsMode,
   setCurrentMode,
   setLoadingWS,
+  setShowChatUserList,
+  setShowAddChatModal,
   setShowGuildDMSettings,
   setShowUserSettings,
 } = clientSlice.actions;

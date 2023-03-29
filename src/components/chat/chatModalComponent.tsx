@@ -9,15 +9,15 @@ import UploadPic from "../uploadPicComponent";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useDispatch } from "react-redux";
+import { setShowAddChatModal } from "../../app/slices/clientSlice";
 
-interface chatModalProps {
-  exitFunc: () => void;
-}
-
-const ChatModal: FC<chatModalProps> = ({ exitFunc }) => {
+const ChatModal: FC = () => {
   const [chatModalMode, setChatModalMode] = useState<"Create" | "Join" | null>(
     null
   );
+
+  const dispatch = useDispatch();
 
   interface createChatForm {
     name: string;
@@ -85,7 +85,7 @@ const ChatModal: FC<chatModalProps> = ({ exitFunc }) => {
           : "Join Chat"
       }
       exitFunc={() => {
-        exitFunc();
+        dispatch(setShowAddChatModal(false));
         setChatModalMode(null);
       }}
     >

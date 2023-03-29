@@ -1,4 +1,3 @@
-//create empty component
 import React, { FC } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentChatMode } from "../../app/slices/clientSlice";

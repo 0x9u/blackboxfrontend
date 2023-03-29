@@ -17,10 +17,10 @@ const ChatBar: FC = () => {
         </p>
         <div className="flex grow flex-row-reverse space-x-4 space-x-reverse">
           <MdPeople
-            className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white cursor-pointer "
+            className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white/75 cursor-pointer active:text-white/50"
             onClick={() => dispatch(setShowChatUserList(!showChatUserList))}
           />
-          <MdSettings className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white cursor-pointer " onClick={() => dispatch(setShowGuildDMSettings(true))}/>
+          <MdSettings className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white/75 active:text-white/50 cursor-pointer " onClick={() => dispatch(setShowGuildDMSettings(true))}/>
         </div>
       </div>
     )

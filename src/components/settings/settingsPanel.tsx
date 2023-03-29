@@ -13,7 +13,7 @@ const SettingsPanel: FC<settingsPanelProps> = ({ children, closeFunc }) => {
         <div className="shrink-0 grow flex-col w-[600px]">{children}</div>
         <div className="my-2 h-12 w-10 space-y-0.5">
           <MdClose
-            className="h-10 w-10 cursor-pointer p-1 rounded-full border-2 border-white/75 text-white/75 hover:bg-white/25 hover:text-white focus:opacity-100"
+            className="h-10 w-10 cursor-pointer p-1 rounded-full border-2 border-white/75 text-white/75 hover:bg-white/50 active:bg-white/25 hover:text-white/75 focus:opacity-100"
             onClick={closeFunc}
           />
           <p className="text-center text-sm font-semibold uppercase text-white/75">

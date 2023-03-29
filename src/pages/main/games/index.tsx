@@ -1,18 +1,16 @@
 import React, { FC } from "react";
+import GamesList from "../../../components/games/gamesListComponent";
 import NavbarChild from "../../../components/navbarChildComponent";
-import NavbarItem from "../../../components/navItemComponent";
 import Page from "../../../components/pageComponent";
 
 const Games: FC = () => {
   return (
-    <div className="flex grow flex-row min-h-full">
+    <div className="flex min-h-full grow flex-row">
       <NavbarChild>
-        <NavbarItem onClick={() => console.log("clicked")}>
-          <div className="w-12 h-12 flex-shrink-0 rounded-full border-black border"></div>
-          <p className="truncate m-auto">Friend Namaaaaaaaaaaaaaaaaaa</p>
-        </NavbarItem>
+        <GamesList />
       </NavbarChild>
       <Page>
+        T
       </Page>
     </div>
   );

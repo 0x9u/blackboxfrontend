@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { MdChat, MdGames, MdPeople } from "react-icons/md";
+import { MdChat, MdVideogameAsset, MdPeople } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentMode } from "../app/slices/clientSlice";
 import { RootState } from "../app/store";
@@ -33,7 +33,7 @@ const NavBar : FC = () => {
         }`}
         onClick={() => dispatch(setCurrentMode("games"))}
       >
-        <MdGames className="text-5xl text-white" />
+        <MdVideogameAsset className="text-5xl text-white" />
       </div>
     </div>
   );

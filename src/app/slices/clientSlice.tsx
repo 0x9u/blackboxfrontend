@@ -10,6 +10,7 @@ type ClientState = {
   loadingWS: boolean;
   showChatUserList: boolean;
   showAddChatModal: boolean;
+  showCreateInviteModal: boolean;
   showGuildDMSettings: boolean;
   showUserSettings: boolean;
   
@@ -26,6 +27,7 @@ const initialState: ClientState = {
   loadingWS : false,
   showChatUserList: false,
   showAddChatModal: false,
+  showCreateInviteModal: false,
   showGuildDMSettings : false,
   showUserSettings : false,
 };
@@ -58,6 +60,9 @@ const clientSlice = createSlice({
     setShowAddChatModal : (state, action : PayloadAction<boolean>) => {
       state.showAddChatModal = action.payload;
     },
+    setShowCreateInviteModal: (state, action: PayloadAction<boolean>) => {
+      state.showCreateInviteModal = action.payload;
+    },
     setShowGuildDMSettings : (state, action : PayloadAction<boolean>) => {
       state.showGuildDMSettings = action.payload;
     },
@@ -78,6 +83,7 @@ export const {
   setLoadingWS,
   setShowChatUserList,
   setShowAddChatModal,
+  setShowCreateInviteModal,
   setShowGuildDMSettings,
   setShowUserSettings,
 } = clientSlice.actions;

@@ -1,8 +1,8 @@
 //create empty component using FC
 import React, { FC } from "react";
-import {MdPeople, MdSettings} from "react-icons/md"
+import {MdPeople, MdMail, MdSettings} from "react-icons/md"
 import { useDispatch, useSelector } from "react-redux";
-import { setShowChatUserList, setShowGuildDMSettings } from "../../app/slices/clientSlice";
+import { setShowChatUserList, setShowCreateInviteModal, setShowGuildDMSettings } from "../../app/slices/clientSlice";
 import { RootState } from "../../app/store";
 
 const ChatBar: FC = () => {
@@ -20,6 +20,7 @@ const ChatBar: FC = () => {
             className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white/75 cursor-pointer active:text-white/50"
             onClick={() => dispatch(setShowChatUserList(!showChatUserList))}
           />
+          <MdMail className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white/75 active:text-white/50 cursor-pointer" onClick={() => dispatch(setShowCreateInviteModal(true))} />
           <MdSettings className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white/75 active:text-white/50 cursor-pointer " onClick={() => dispatch(setShowGuildDMSettings(true))}/>
         </div>
       </div>

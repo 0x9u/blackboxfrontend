@@ -39,12 +39,12 @@ const chatInputArea: FC = () => {
             input: {
               overflow: "auto",
               outline: 0,
-            }
+            },
           }}
         >
           <Mention /* TODO: somehow make suggestions menu rounded*/
             trigger="@"
-            markup="<@__display__:__id__>"
+            markup="<@__id__>"
             data={[
               { id: 1232, display: "Johnson" },
               { id: 1, display: "asdokjsa" },

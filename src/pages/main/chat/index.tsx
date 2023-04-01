@@ -9,12 +9,14 @@ import ChatMode from "../../../components/chat/chatModeComponent";
 import ChatList from "../../../components/chat/chatListComponent";
 
 import ChatModal from "../../../components/chat/chatModalComponent";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import GuildSettings from "../../../components/settings/guild/guildSettings";
+import InviteModal from "../../../components/chat/inviteModalComponent";
 
 const Chat: FC = () => {
   const showAddChatModal = useSelector((state : RootState) => state.client.showAddChatModal);
+  const showCreateInviteModal = useSelector((state: RootState) => state.client.showCreateInviteModal);
   const showGuildDMSettings = useSelector((state: RootState) => state.client.showGuildDMSettings);
   const showChatUserList = useSelector((state : RootState) => state.client.showChatUserList);
   return (
@@ -31,6 +33,7 @@ const Chat: FC = () => {
         </div>
       </Page>
       {showAddChatModal && <ChatModal/>}
+      {showCreateInviteModal && <InviteModal/>}
       {showGuildDMSettings && <GuildSettings/>}
     </div>
   );

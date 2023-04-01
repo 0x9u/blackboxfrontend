@@ -17,6 +17,8 @@ const Msg: FC<msgProps> = ({
   created,
   modified,
 }) => {
+  const formatedContent = content.split(/(\<\@\w+\:\d+\>)/g);
+  console.log(formatedContent)
   return (
     <div className="group relative flex flex-row space-x-4 px-4 py-1 hover:bg-black/25">
       <div className="h-12 w-12 shrink-0 rounded-full border border-black">
@@ -37,7 +39,20 @@ const Msg: FC<msgProps> = ({
           </div>
         </div>
         <div className="mx-1">
-          <p className="font-normal text-white">{content}</p>
+          <p className="font-normal text-white leading-relaxed">
+            {formatedContent.map((e: string) => {
+              const mention = e.match(/\<\@(?<username>\w+)\:(?<userid>\d+)\>/);
+              if (mention?.groups) {
+                return (
+                  <span className="rounded-sm bg-shade-5/50 py-1">
+                    @{mention.groups["username"]}
+                  </span>
+                );
+              } else {
+                return e;
+              }
+            })}
+          </p>
         </div>
       </div>
     </div>

@@ -33,8 +33,14 @@ const AccountUserSettings: FC = () => {
           </div>
         </div>
       </div>
-      <h1 className="mb-5 text-2xl text-white">Password and Authentication</h1>
-      <Button type="button" value="Change Password"/>
+      <div>
+        <h1 className="mb-5 text-2xl text-white">Password and Authentication</h1>
+        <Button type="button" value="Change Password" />
+      </div>
+      <div>
+        <h1 className="text-white text-xl mb-5">Account Removal</h1>
+        <Button type="button" value="Delete Account" red/>
+      </div>
     </div>
   );
 };

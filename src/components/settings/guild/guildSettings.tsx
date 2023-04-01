@@ -10,6 +10,7 @@ import OverviewGuildSettings from "./overviewGuildSettings";
 import InvitesGuildSettings from "./invitesGuildSettings";
 import BansGuildSettings from "./banGuildSettings";
 import MembersGuildSettings from "./membersGuildSettings";
+import { MdDelete } from "react-icons/md";
 
 const GuildSettings: FC = () => {
   const dispatch = useDispatch();
@@ -39,6 +40,13 @@ const GuildSettings: FC = () => {
             label="Bans"
             activated={settingsMode === "bans"}
             onClick={() => setSettingsMode("bans")}
+          />
+        </SettingsSideBarGroup>
+        <SettingsSideBarGroup bottom>
+          <SettingsSideBarButton
+            label="Delete Server"
+            onClick={() => console.log("delete guild clicked")}
+            icon={<MdDelete className="ml-auto w-8 h-8 text-white" />}
           />
         </SettingsSideBarGroup>
       </SettingsSideBar>

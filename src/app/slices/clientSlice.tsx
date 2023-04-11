@@ -6,7 +6,8 @@ type ClientState = {
   currentDM: number | null;
   currentChatMode: "guild" | "dm";
   currentFriendsMode : "friends" | "requests" | "add" | "blocked";
-  currentMode: "chat" | "friends" | "games";
+  currentAdminMode : "guilds" | "users" | "server";
+  currentMode: "chat" | "friends" | "games" | "admin";
   loadingWS: boolean;
   showChatUserList: boolean;
   showAddChatModal: boolean;
@@ -23,6 +24,7 @@ const initialState: ClientState = {
   currentDM: null,
   currentChatMode: "guild",
   currentFriendsMode : "friends",
+  currentAdminMode : "guilds",
   currentMode: "chat",
   loadingWS : false,
   showChatUserList: false,
@@ -47,6 +49,9 @@ const clientSlice = createSlice({
     },
     setCurrentFriendsMode : (state, action:PayloadAction<"friends" | "requests" | "add" | "blocked">) => {
       state.currentFriendsMode = action.payload;
+    },
+    setCurrentAdminMode : (state, action:PayloadAction<"guilds" | "users" | "server">) => {
+      state.currentAdminMode = action.payload;
     },
     setCurrentMode : (state, action : PayloadAction<"chat" | "friends" | "games">) => {
       state.currentMode = action.payload;
@@ -79,6 +84,7 @@ export const {
   setCurrentDM,
   setCurrentChatMode,
   setCurrentFriendsMode,
+  setCurrentAdminMode,
   setCurrentMode,
   setLoadingWS,
   setShowChatUserList,

@@ -5,6 +5,7 @@ import { RootState } from "../../app/store";
 import Chat from "./chat";
 import Games from "./games";
 import Friends from "./friends";
+import Admin from "./admin";
 import UserSettings from "../../components/settings/user/userSettings";
 
 const Main: FC = () => {
@@ -23,10 +24,12 @@ const Main: FC = () => {
         <Games />
       ) : currentMode == "friends" ? (
         <Friends />
+      ) : currentMode == "admin" ? (
+        <Admin />
       ) : (
         <div>unknown mode selected</div>
       )}
-      { showUserSettings &&
+      {showUserSettings &&
         <UserSettings />}
     </div>
   );

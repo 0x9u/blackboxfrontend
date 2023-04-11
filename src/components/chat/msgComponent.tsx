@@ -1,5 +1,4 @@
 import React, { FC } from "react";
-
 import { MdDelete, MdEdit, MdRepeat } from "react-icons/md";
 
 interface msgProps {
@@ -21,9 +20,9 @@ const Msg: FC<msgProps> = ({
   console.log(formatedContent)
   return (
     <div className="group relative flex flex-row space-x-4 px-4 py-1 hover:bg-black/25">
-      <div className="h-12 w-12 shrink-0 rounded-full border border-black">
+      <img className="h-12 w-12 shrink-0 rounded-full border border-black" src="./blackboxuser.jpg">
         {/* for pfp */}
-      </div>
+      </img>
       <div className="flex flex-col">
         <div className="flex flex-row items-center space-x-2">
           <p className="text-lg font-semibold leading-relaxed text-white">

@@ -26,6 +26,7 @@
     "react-mentions": "^4.4.7",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.7.0",
+    "redux-persist": "^6.0.0",
     "sort-by": "^0.0.2",
     "styled-components": "^5.3.6",
     "yup": "^0.32.11"

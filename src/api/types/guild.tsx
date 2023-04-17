@@ -2,20 +2,20 @@ import { UnreadMsg } from "./msg";
 import {User} from "./user";
 
 export interface UserGuild {
-    GuildId : number;
-    UserId : number;
-    UserData : User;
+    guildId : number;
+    userId : number;
+    userData : User;
 };
 
 export interface Guild {
-    GuildId : number;
-    Name : string;
-    Icon : number;
-    Unread : UnreadMsg;
-    SaveChat : boolean;
+    id : number;
+    name : string;
+    imageId : number;
+    unread : UnreadMsg;
+    saveChat : boolean;
 };
 
 export interface Invite {
-    GuildId : number;
-    Invite: string;
+    guildId : number;
+    invite: string;
 }

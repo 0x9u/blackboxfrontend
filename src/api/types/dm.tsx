@@ -1,14 +1,14 @@
 import { UnreadMsg } from "./msg";
 import { User } from "./user";
 
-export interface DmUser {
-    DmId: number;
-    Unread : UnreadMsg;
-    UserInfo : User;
+export interface Dm {
+    id: number;
+    unread : UnreadMsg;
+    userInfo : User;
 }
 
-export interface Dm {
-    DmId: number;
-    Unread : UnreadMsg;
-    UserId : number;
+export interface DmUser {
+    id : number;
+    unread : UnreadMsg;
+    userId : number;
 }

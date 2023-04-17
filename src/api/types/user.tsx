@@ -1,17 +1,18 @@
 export interface User {
-    UserId : number;
-    Name : string;
-    Email : string;
-    Icon : number;
-    Flags : number;
+    id : number;
+    name : string;
+    email : string;
+    imageId : number;
+    flags : number;
+    options : number;
 }
 
 export interface Member {
-    GuildId : number;
-    UserInfo : User;
+    guildId : number;
+    userInfo : User;
 }
 
 export interface FriendRequest {
-    Requested : User[];
-    Pending : User[];
+    requested : User[];
+    pending : User[];
 }

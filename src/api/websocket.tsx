@@ -6,11 +6,9 @@ import { Guild } from "./types/guild";
 import { User, Member } from "./types/user";
 import Events from "./types/events";
 import {
-  addDmMsg,
   addGuildMsg,
   editMsg,
   removeAuthorMsg,
-  removeDmMsg,
   removeGuildMsg,
 } from "../app/slices/msgSlice";
 import {
@@ -21,8 +19,23 @@ import {
   updateGuild,
 } from "../app/slices/guildSlice";
 import { Invite } from "./types/guild";
-import { addBlockedID, addDMID, addFriendID, addGuildBannedID, addGuildMembersID, addPendingFriendID, addRequestedFriendID, removeBlockedID, removeDMID, removeFriendID, removeGuildBannedID, removeGuildMembersID, removePendingFriendID, removeRequestedFriendID } from "../app/slices/userSlice";
-import { Dm, DmUser } from "./types/dm";
+import {
+  addBlockedID,
+  addDMID,
+  addFriendID,
+  addGuildBannedID,
+  addGuildMembersID,
+  addPendingFriendID,
+  addRequestedFriendID,
+  removeBlockedID,
+  removeDMID,
+  removeFriendID,
+  removeGuildBannedID,
+  removeGuildMembersID,
+  removePendingFriendID,
+  removeRequestedFriendID,
+} from "../app/slices/userSlice";
+import { Dm } from "./types/dm";
 import { clearToken } from "../app/slices/authSlice";
 
 enum OpCodes {
@@ -36,17 +49,17 @@ enum OpCodes {
 }
 
 type DataFrame = {
-  Op: OpCodes;
-  Data: any;
-  Event: string;
+  op: OpCodes;
+  data: any;
+  event: string;
 };
 
 type HelloFrame = {
-  Token: string;
+  token: string;
 };
 
 type HelloResFrame = {
-  HeartbeatInterval: number;
+  heartbeatInterval: number;
 };
 
 const gatewayApi = chatApi.injectEndpoints({
@@ -57,37 +70,40 @@ const gatewayApi = chatApi.injectEndpoints({
         arg,
         { dispatch, getState, cacheEntryRemoved, updateCachedData }
       ) => {
-        const ws = new WebSocket("ws://localhost:8080/api/ws");
+        const ws = new WebSocket("ws://localhost:8080/api/ws/");
         //put a recursive function if it disconnects or something later
         dispatch(setLoadingWS(true));
         ws.onopen = () => {
           console.log("ws connected");
+          console.log("ws a", OpCodes.HELLO);
         };
+        var pingInterval: ReturnType<typeof setInterval>;
+        var timeToPing: number;
         ws.onmessage = (e) => {
-          console.log(e);
           const data: DataFrame = JSON.parse(e.data);
-          switch (data.Op) {
-            case OpCodes.HELLO:
-              const hello: HelloResFrame = e.data.Data;
-              setInterval(() => {
+          switch (data.op) {
+            case OpCodes.READY:
+              console.log(timeToPing);
+              pingInterval = setInterval(() => {
                 ws.send(
                   JSON.stringify({
-                    Op: OpCodes.HEARTBEAT,
-                    Data: null,
-                    Event: "",
+                    op: OpCodes.HEARTBEAT,
+                    data: null,
+                    event: "",
                   } as DataFrame)
                 );
-              }, hello.HeartbeatInterval);
+              }, timeToPing - 5000);
               break;
-            case OpCodes.IDENTIFY:
-              console.log("identify");
+            case OpCodes.HELLO:
+              const hello: HelloResFrame = data.data;
+              timeToPing = hello.heartbeatInterval;
               ws.send(
                 JSON.stringify({
-                  Op: OpCodes.IDENTIFY,
-                  Data: {
-                    Token: (getState() as RootState).auth.token,
+                  op: OpCodes.IDENTIFY,
+                  data: {
+                    token: (getState() as RootState).auth.token,
                   } as HelloFrame,
-                  Event: "",
+                  event: "",
                 } as DataFrame)
               );
               break;
@@ -97,136 +113,138 @@ const gatewayApi = chatApi.injectEndpoints({
             case OpCodes.DISPATCH:
               console.log("dispatch");
 
-              switch (data.Event) {
+              switch (data.event) {
                 case Events.CREATE_GUILD_MESSAGE: {
-                  const eventData: Msg = data.Data;
+                  const eventData: Msg = data.data;
                   dispatch(
                     addGuildMsg({
-                      guildId: eventData.GuildId,
+                      guildId: eventData.guildId,
                       msg: eventData,
                     })
                   );
                   break;
                 }
                 case Events.DELETE_GUILD_MESSAGE: {
-                  const eventData: Msg = data.Data;
+                  const eventData: Msg = data.data;
                   dispatch(removeGuildMsg(eventData));
                   break;
                 }
                 case Events.UPDATE_GUILD_MESSAGE:
                 case Events.UPDATE_DM_MESSAGE: {
-                  const eventData: Msg = data.Data;
+                  const eventData: Msg = data.data;
                   dispatch(editMsg(eventData));
                   break;
                 }
                 case Events.CLEAR_USER_DM_MESSAGES:
                 case Events.CLEAR_USER_MESSAGES: {
-                  const eventData: Msg = data.Data;
+                  const eventData: Msg = data.data;
                   dispatch(removeAuthorMsg(eventData));
                   break;
                 }
                 case Events.DELETE_DM_MESSAGE: {
-                  const eventData: Msg = data.Data;
-                  dispatch(removeDmMsg(eventData));
+                  const eventData: Msg = data.data;
+                  dispatch(removeGuildMsg(eventData));
                   break;
                 }
                 case Events.CREATE_DM_MESSAGE: {
-                  const eventData: Msg = data.Data;
-                  dispatch(addDmMsg(eventData));
+                  const eventData: Msg = data.data;
+                  dispatch(
+                    addGuildMsg({ guildId: eventData.guildId, msg: eventData })
+                  );
                   break;
                 }
                 case Events.CREATE_INVITE: {
-                  const eventData: Invite = data.Data;
+                  const eventData: Invite = data.data;
                   dispatch(addInvite(eventData));
                   break;
                 }
                 case Events.DELETE_INVITE: {
-                  const eventData: Invite = data.Data;
+                  const eventData: Invite = data.data;
                   dispatch(removeInvite(eventData));
                   break;
                 }
                 case Events.CREATE_GUILD: {
-                  const eventData: Guild = data.Data;
+                  const eventData: Guild = data.data;
                   dispatch(addGuild(eventData));
                   break;
                 }
                 case Events.DELETE_GUILD: {
-                  const eventData: Guild = data.Data;
+                  const eventData: Guild = data.data;
                   dispatch(removeGuild(eventData));
                   break;
                 }
                 case Events.UPDATE_GUILD: {
-                  const eventData: Guild = data.Data;
+                  const eventData: Guild = data.data;
                   dispatch(updateGuild(eventData));
                   break;
                 }
                 case Events.ADD_USER_GUILDLIST: {
-                  const eventData: Member = data.Data;
+                  const eventData: Member = data.data;
                   dispatch(addGuildMembersID(eventData));
                   break;
                 }
                 case Events.REMOVE_USER_GUILDLIST: {
-                  const eventData: Member = data.Data;
+                  const eventData: Member = data.data;
                   dispatch(removeGuildMembersID(eventData));
                   break;
                 }
                 case Events.ADD_USER_BANLIST: {
-                  const eventData: Member = data.Data;
+                  const eventData: Member = data.data;
                   dispatch(addGuildBannedID(eventData));
                   break;
                 }
                 case Events.REMOVE_USER_BANLIST: {
-                  const eventData: Member = data.Data;
+                  const eventData: Member = data.data;
                   dispatch(removeGuildBannedID(eventData));
                   break;
                 }
                 case Events.CREATE_DM: {
-                  const eventData: DmUser = data.Data;
+                  const eventData: Dm = data.data;
                   dispatch(addDMID(eventData));
                   break;
                 }
                 case Events.DELETE_DM: {
-                  const eventData: DmUser = data.Data;
+                  const eventData: Dm = data.data;
                   dispatch(removeDMID(eventData));
                   break;
                 }
                 case Events.ADD_FRIEND_REQUEST: {
-                  const eventData: User = data.Data;
+                  const eventData: User = data.data;
                   dispatch(addRequestedFriendID(eventData));
                   break;
                 }
                 case Events.REMOVE_FRIEND_REQUEST: {
-                  const eventData: User = data.Data;
+                  const eventData: User = data.data;
                   dispatch(removeRequestedFriendID(eventData));
                   break;
                 }
                 case Events.ADD_USER_FRIENDLIST: {
-                  const eventData: User = data.Data;
+                  const eventData: User = data.data;
                   dispatch(addFriendID(eventData));
                   break;
                 }
                 case Events.REMOVE_USER_FRIENDLIST: {
-                  const eventData: User = data.Data;
+                  const eventData: User = data.data;
                   dispatch(removeFriendID(eventData));
                   break;
                 }
                 case Events.ADD_FRIEND_INCOMING_REQUEST: {
-                  const eventData: User = data.Data;
+                  const eventData: User = data.data;
                   dispatch(addPendingFriendID(eventData));
                   break;
                 }
                 case Events.REMOVE_FRIEND_INCOMING_REQUEST: {
-                  const eventData: User = data.Data;
+                  const eventData: User = data.data;
                   dispatch(removePendingFriendID(eventData));
                   break;
                 }
                 case Events.ADD_USER_BLOCKEDLIST: {
-                  const eventData: User = data.Data;
+                  const eventData: User = data.data;
                   dispatch(addBlockedID(eventData));
                   break;
                 }
                 case Events.REMOVE_USER_BLOCKEDLIST: {
-                  const eventData: User = data.Data;
+                  const eventData: User = data.data;
                   dispatch(removeBlockedID(eventData));
                   break;
                 }
@@ -245,6 +263,7 @@ const gatewayApi = chatApi.injectEndpoints({
         };
         ws.onclose = () => {
           console.log("ws closed");
+          clearInterval(pingInterval);
           dispatch(setLoadingWS(true));
         };
         await cacheEntryRemoved;

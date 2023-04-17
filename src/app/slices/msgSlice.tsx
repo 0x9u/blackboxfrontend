@@ -7,14 +7,12 @@ type MsgState = {
   msgs: Record<number, Msg>; //figure out how to dynamically update user pfp for msgs later - can't be bothered do it rn
   author: Record<number, number[]>;
   guildMsgIds: Record<number, number[]>; //order newest to oldest
-  dmMsgIds: Record<number, number[]>; //order newest to oldest
 };
 
-const initialState: MsgState = {
+const initialState: MsgState = { // guildMsgIds also include dms because they are basically the same
   msgs: {},
   author: {},
   guildMsgIds: {},
-  dmMsgIds: {},
 };
 
 const msgSlice = createSlice({
@@ -26,106 +24,68 @@ const msgSlice = createSlice({
       action: PayloadAction<{ guildId: number; msg: Msg }>
     ) => {
       const { guildId, msg } = action.payload;
-      state.msgs[msg.MsgId] = msg;
+      state.msgs[msg.id] = msg;
       if (state.guildMsgIds[guildId] === undefined) {
         console.log("not exists");
       }
-      state.guildMsgIds[guildId].push(msg.MsgId);
-    },
-    addDmMsg: (state, action: PayloadAction<Msg>) => {
-      const msg = action.payload;
-      state.msgs[msg.MsgId] = msg;
-      if (state.author[msg.Author.UserId] === undefined) {
-        //if not exist
-        state.author[msg.Author.UserId] = [];
-      }
-      state.author[msg.Author.UserId].push(msg.MsgId);
-      state.dmMsgIds[msg.Author.UserId].push(msg.MsgId);
+      state.guildMsgIds[guildId].push(msg.id);
     },
     editMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
-      state.msgs[msg.MsgId] = msg;
+      state.msgs[msg.id] = msg;
     },
     removeGuildMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
-      if (state.guildMsgIds[msg.GuildId] === undefined) {
+      if (state.guildMsgIds[msg.guildId] === undefined) {
         console.log("not exists");
       }
-      state.guildMsgIds[msg.GuildId] = state.guildMsgIds[msg.GuildId].filter(
-        (id) => id !== msg.MsgId
+      state.guildMsgIds[msg.guildId] = state.guildMsgIds[msg.guildId].filter(
+        (id) => id !== msg.id
       );
-      delete state.msgs[msg.MsgId];
-      if (state.author[msg.Author.UserId] === undefined) {
+      delete state.msgs[msg.id];
+      if (state.author[msg.author.id] === undefined) {
         console.log("not exists");
       }
-      state.author[msg.Author.UserId] = state.author[msg.Author.UserId].filter(
-        (id) => id !== msg.MsgId
+      state.author[msg.author.id] = state.author[msg.author.id].filter(
+        (id) => id !== msg.id
       );
-    },
-    removeDmMsg: (state, action: PayloadAction<Msg>) => {
-      const msg = action.payload;
-      state.dmMsgIds[msg.DmId] = state.dmMsgIds[msg.MsgId].filter(
-        (id) => id !== msg.MsgId
-      );
-      state.author[msg.Author.UserId] = state.author[msg.Author.UserId].filter(
-        (id) => id !== msg.MsgId
-      );
-      delete state.msgs[msg.MsgId];
     },
     removeAuthorMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
-      if (state.author[msg.Author.UserId] === undefined) {
+      if (state.author[msg.author.id] === undefined) {
         console.log("not exists");
         return;
       }
-      if (state.author[msg.Author.UserId] === undefined) {
+      if (state.author[msg.author.id] === undefined) {
         console.log("not exists");
         return;
       }
-      for (const msgId of state.author[msg.Author.UserId]) {
+      for (const msgId of state.author[msg.author.id]) {
         delete state.msgs[msgId];
       }
-      state.author[msg.Author.UserId] = [];
+      state.author[msg.author.id] = [];
     },
     resetMsgs: (state) => {
       state.msgs = {};
       state.author = {};
       state.guildMsgIds = {};
-      state.dmMsgIds = {};
     },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
-      getMsgsDM.matchFulfilled,
-      (state, action: PayloadAction<Msg[]>) => {
-        for (const msg of action.payload) {
-          state.msgs[msg.MsgId] = msg;
-          if (state.author[msg.Author.UserId] === undefined) {
-            //if not exist
-            state.author[msg.Author.UserId] = [];
-          }
-          if (state.dmMsgIds[msg.DmId] === undefined) {
-            state.dmMsgIds[msg.DmId] = [];
-          }
-          state.author[msg.Author.UserId].push(msg.MsgId);
-          state.dmMsgIds[msg.DmId].push(msg.MsgId);
-        }
-      }
-    );
-    builder.addMatcher(
       getGuildMsgs.matchFulfilled,
       (state, action: PayloadAction<Msg[]>) => {
         for (const msg of action.payload) {
-          state.msgs[msg.MsgId] = msg;
-          if (state.author[msg.Author.UserId] === undefined) {
+          state.msgs[msg.id] = msg;
+          if (state.author[msg.author.id] === undefined) {
             //if not exist
-            state.author[msg.Author.UserId] = [];
+            state.author[msg.author.id] = [];
           }
-          if (state.guildMsgIds[msg.MsgId] === undefined) {
-            state.guildMsgIds[msg.MsgId] = [];
+          if (state.guildMsgIds[msg.id] === undefined) {
+            state.guildMsgIds[msg.id] = [];
           }
-          state.author[msg.Author.UserId].push(msg.MsgId);
-          state.guildMsgIds[msg.Author.UserId].push(msg.MsgId);
+          state.author[msg.author.id].push(msg.id);
+          state.guildMsgIds[msg.author.id].push(msg.id);
         }
       }
     );
@@ -136,10 +96,8 @@ export default msgSlice.reducer;
 
 export const {
   addGuildMsg,
-  addDmMsg,
   editMsg,
   removeGuildMsg,
-  removeDmMsg,
   removeAuthorMsg,
   resetMsgs,
 } = msgSlice.actions;

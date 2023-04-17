@@ -1,9 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getGuildMembers } from "../../api/guildApi";
-import { Dm, DmUser } from "../../api/types/dm";
 import { User, Member, FriendRequest } from "../../api/types/user";
 import {
-  getDMs,
   getSelf,
   getUser,
   getFriends,
@@ -18,15 +16,13 @@ type UserState = {
   requestedFriendIds: number[];
   pendingFriendIds: number[];
   blockedIds: number[];
+  dmIds : number[];
 
   selfUser: number | null;
 
   guildMembersIds: Record<number, number[]>;
   guildBannedIds: Record<number, number[]>;
   userMemberCount: Record<number, number>;
-
-  dms: Record<number, Dm>;
-  dmIds: number[];
 };
 
 const initialState: UserState = {
@@ -36,15 +32,13 @@ const initialState: UserState = {
   requestedFriendIds: [],
   pendingFriendIds: [],
   blockedIds: [],
+  dmIds : [],
 
   selfUser: null,
 
   guildMembersIds: {},
   guildBannedIds: {},
   userMemberCount: {}, //also includes dms (counts how many times its been referenced (if reaches 0 user object is deleted))
-
-  dmIds: [],
-  dms: {},
 };
 
 const userSlice = createSlice({
@@ -52,215 +46,196 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     addFriendID: (state, action: PayloadAction<User>) => {
-      state.friendIds.push(action.payload.UserId);
-      state.users[action.payload.UserId] = action.payload;
+      state.friendIds.push(action.payload.id);
+      state.users[action.payload.id] = action.payload;
     },
     addRequestedFriendID: (state, action: PayloadAction<User>) => {
-      state.requestedFriendIds.push(action.payload.UserId);
-      state.users[action.payload.UserId] = action.payload;
+      state.requestedFriendIds.push(action.payload.id);
+      state.users[action.payload.id] = action.payload;
     },
     addPendingFriendID: (state, action: PayloadAction<User>) => {
-      state.pendingFriendIds.push(action.payload.UserId);
-      state.users[action.payload.UserId] = action.payload;
+      state.pendingFriendIds.push(action.payload.id);
+      state.users[action.payload.id] = action.payload;
     },
     addBlockedID: (state, action: PayloadAction<User>) => {
-      state.blockedIds.push(action.payload.UserId);
-      state.users[action.payload.UserId] = action.payload;
-    },
-    addDMID: (state, action: PayloadAction<DmUser>) => {
-      state.dmIds.push(action.payload.DmId);
-
-      const dm: Dm = {
-        DmId: action.payload.DmId,
-        UserId: action.payload.UserInfo.UserId,
-        Unread: action.payload.Unread,
-      };
-
-      if (state.userMemberCount[dm.UserId] === undefined) {
-        state.userMemberCount[dm.UserId] = 0;
-      }
-      state.userMemberCount[dm.UserId] += 1;
-
-      state.dms[action.payload.DmId] = dm;
+      state.blockedIds.push(action.payload.id);
+      state.users[action.payload.id] = action.payload;
     },
     addGuildMembersID: (state, action: PayloadAction<Member>) => {
-      const { GuildId, UserInfo } = action.payload;
-      if (state.guildMembersIds[GuildId] === undefined) {
+      const { guildId, userInfo } = action.payload;
+      if (state.guildMembersIds[guildId] === undefined) {
         console.log("not exists");
         return;
       }
-      state.guildMembersIds[GuildId].push(UserInfo.UserId);
-      state.users[UserInfo.UserId] = UserInfo;
-      if (state.userMemberCount[UserInfo.UserId] === undefined) {
-        state.userMemberCount[UserInfo.UserId] = 0;
+      state.guildMembersIds[guildId].push(userInfo.id);
+      state.users[userInfo.id] = userInfo;
+      if (state.userMemberCount[userInfo.id] === undefined) {
+        state.userMemberCount[userInfo.id] = 0;
       }
-      state.userMemberCount[UserInfo.UserId] += 1;
+      state.userMemberCount[userInfo.id] += 1;
     },
     addGuildBannedID: (state, action: PayloadAction<Member>) => {
-      const { GuildId, UserInfo } = action.payload;
-      if (state.guildBannedIds[GuildId] === undefined) {
+      const { guildId, userInfo } = action.payload;
+      if (state.guildBannedIds[guildId] === undefined) {
         console.log("not exists");
         return;
       }
-      state.guildBannedIds[GuildId].push(UserInfo.UserId);
-      state.users[UserInfo.UserId] = UserInfo;
-      if (state.userMemberCount[UserInfo.UserId] === undefined) {
-        state.userMemberCount[UserInfo.UserId] = 0;
+      state.guildBannedIds[guildId].push(userInfo.id);
+      state.users[userInfo.id] = userInfo;
+      if (state.userMemberCount[userInfo.id] === undefined) {
+        state.userMemberCount[userInfo.id] = 0;
       }
-      state.userMemberCount[UserInfo.UserId]++;
+      state.userMemberCount[userInfo.id]++;
+    },
+    addDMID: (state, action: PayloadAction<User>) => {
+      state.dmIds.push(action.payload.id);
+      state.users[action.payload.id] = action.payload;
+    },
+    removeDMID: (state, action: PayloadAction<User>) => {
+      state.friendIds = state.friendIds.filter(
+        (id) => id !== action.payload.id
+      );
+      if (state.userMemberCount[action.payload.id] === undefined) {
+        console.log("not exists");
+        return;
+      }
+      state.userMemberCount[action.payload.id]--;
+      if (
+        (state.userMemberCount[action.payload.id] === undefined ||
+          state.userMemberCount[action.payload.id] === 0) &&
+        state.friendIds.indexOf(action.payload.id) === -1 &&
+        state.requestedFriendIds.indexOf(action.payload.id) === -1 &&
+        state.pendingFriendIds.indexOf(action.payload.id) === -1 &&
+        state.blockedIds.indexOf(action.payload.id) === -1 &&
+        state.dmIds.indexOf(action.payload.id) === -1
+      ) {
+        delete state.users[action.payload.id];
+      }
     },
     removeGuildBannedID: (state, action: PayloadAction<Member>) => {
-      const { GuildId, UserInfo } = action.payload;
-      if (state.guildBannedIds[GuildId] === undefined) {
+      const { guildId, userInfo } = action.payload;
+      if (state.guildBannedIds[guildId] === undefined) {
         console.log("not exists");
         return;
       }
-      state.guildBannedIds[GuildId] = state.guildBannedIds[GuildId].filter(
-        (id) => id !== UserInfo.UserId
+      state.guildBannedIds[guildId] = state.guildBannedIds[guildId].filter(
+        (id) => id !== userInfo.id
       );
-      if (state.userMemberCount[UserInfo.UserId] === undefined) {
+      if (state.userMemberCount[userInfo.id] === undefined) {
         console.log("not exists");
         return;
       }
-      state.userMemberCount[UserInfo.UserId]--;
+      state.userMemberCount[userInfo.id]--;
       if (
-        (state.userMemberCount[UserInfo.UserId] === undefined ||
-          state.userMemberCount[UserInfo.UserId] === 0) &&
-        state.friendIds.indexOf(UserInfo.UserId) === -1 &&
-        state.requestedFriendIds.indexOf(UserInfo.UserId) === -1 &&
-        state.pendingFriendIds.indexOf(UserInfo.UserId) === -1 &&
-        state.blockedIds.indexOf(UserInfo.UserId) === -1 &&
-        state.dmIds.indexOf(UserInfo.UserId) === -1 &&
-        state.guildMembersIds[GuildId].indexOf(UserInfo.UserId) === -1
+        (state.userMemberCount[userInfo.id] === undefined ||
+          state.userMemberCount[userInfo.id] === 0) &&
+        state.friendIds.indexOf(userInfo.id) === -1 &&
+        state.requestedFriendIds.indexOf(userInfo.id) === -1 &&
+        state.pendingFriendIds.indexOf(userInfo.id) === -1 &&
+        state.blockedIds.indexOf(userInfo.id) === -1 &&
+        state.guildMembersIds[guildId].indexOf(userInfo.id) === -1 &&
+        state.dmIds.indexOf(userInfo.id) === -1
       ) {
-        delete state.users[UserInfo.UserId];
+        delete state.users[userInfo.id];
       }
     },
     removeFriendID: (state, action: PayloadAction<User>) => {
       state.friendIds = state.friendIds.filter(
-        (id) => id !== action.payload.UserId
+        (id) => id !== action.payload.id
       );
       if (
-        (state.userMemberCount[action.payload.UserId] === undefined ||
-          state.userMemberCount[action.payload.UserId] === 0) &&
-        state.friendIds.indexOf(action.payload.UserId) === -1 &&
-        state.requestedFriendIds.indexOf(action.payload.UserId) === -1 &&
-        state.pendingFriendIds.indexOf(action.payload.UserId) === -1 &&
-        state.blockedIds.indexOf(action.payload.UserId) === -1 &&
-        state.dmIds.indexOf(action.payload.UserId) === -1 &&
-        state.selfUser !== action.payload.UserId
+        (state.userMemberCount[action.payload.id] === undefined ||
+          state.userMemberCount[action.payload.id] === 0) &&
+        state.friendIds.indexOf(action.payload.id) === -1 &&
+        state.requestedFriendIds.indexOf(action.payload.id) === -1 &&
+        state.pendingFriendIds.indexOf(action.payload.id) === -1 &&
+        state.blockedIds.indexOf(action.payload.id) === -1 &&
+        state.selfUser !== action.payload.id &&
+        state.dmIds.indexOf(action.payload.id) === -1
       ) {
-        delete state.users[action.payload.UserId];
+        delete state.users[action.payload.id];
       }
     },
     removeRequestedFriendID: (state, action: PayloadAction<User>) => {
       const user = action.payload;
       state.requestedFriendIds = state.requestedFriendIds.filter(
-        (id) => id !== action.payload.UserId
+        (id) => id !== action.payload.id
       );
       if (
-        (state.userMemberCount[user.UserId] === undefined ||
-          state.userMemberCount[user.UserId] === 0) &&
-        state.friendIds.indexOf(user.UserId) === -1 &&
-        state.requestedFriendIds.indexOf(user.UserId) === -1 &&
-        state.pendingFriendIds.indexOf(user.UserId) === -1 &&
-        state.blockedIds.indexOf(user.UserId) === -1 &&
-        state.dmIds.indexOf(user.UserId) === -1 &&
-        state.selfUser !== user.UserId
+        (state.userMemberCount[user.id] === undefined ||
+          state.userMemberCount[user.id] === 0) &&
+        state.friendIds.indexOf(user.id) === -1 &&
+        state.requestedFriendIds.indexOf(user.id) === -1 &&
+        state.pendingFriendIds.indexOf(user.id) === -1 &&
+        state.blockedIds.indexOf(user.id) === -1 &&
+        state.selfUser !== user.id &&
+        state.dmIds.indexOf(user.id) === -1
       ) {
-        delete state.users[user.UserId];
-        delete state.userMemberCount[user.UserId];
+        delete state.users[user.id];
+        delete state.userMemberCount[user.id];
       }
     },
     removePendingFriendID: (state, action: PayloadAction<User>) => {
       const user = action.payload;
       state.pendingFriendIds = state.pendingFriendIds.filter(
-        (id) => id !== action.payload.UserId
+        (id) => id !== action.payload.id
       );
       if (
-        (state.userMemberCount[user.UserId] === undefined ||
-          state.userMemberCount[user.UserId] === 0) &&
-        state.friendIds.indexOf(user.UserId) === -1 &&
-        state.requestedFriendIds.indexOf(user.UserId) === -1 &&
-        state.pendingFriendIds.indexOf(user.UserId) === -1 &&
-        state.blockedIds.indexOf(user.UserId) === -1 &&
-        state.dmIds.indexOf(user.UserId) === -1 &&
-        state.selfUser !== user.UserId
+        (state.userMemberCount[user.id] === undefined ||
+          state.userMemberCount[user.id] === 0) &&
+        state.friendIds.indexOf(user.id) === -1 &&
+        state.requestedFriendIds.indexOf(user.id) === -1 &&
+        state.pendingFriendIds.indexOf(user.id) === -1 &&
+        state.blockedIds.indexOf(user.id) === -1 &&
+        state.selfUser !== user.id && 
+        state.dmIds.indexOf(user.id) === -1
       ) {
-        delete state.users[user.UserId];
-        delete state.userMemberCount[user.UserId];
+        delete state.users[user.id];
+        delete state.userMemberCount[user.id];
       }
     },
     removeBlockedID: (state, action: PayloadAction<User>) => {
       const user = action.payload;
       state.blockedIds = state.blockedIds.filter(
-        (id) => id !== action.payload.UserId
+        (id) => id !== action.payload.id
       );
       if (
-        (state.userMemberCount[user.UserId] === undefined ||
-          state.userMemberCount[user.UserId] === 0) &&
-        state.friendIds.indexOf(user.UserId) === -1 &&
-        state.requestedFriendIds.indexOf(user.UserId) === -1 &&
-        state.pendingFriendIds.indexOf(user.UserId) === -1 &&
-        state.blockedIds.indexOf(user.UserId) === -1 &&
-        state.dmIds.indexOf(user.UserId) === -1 &&
-        state.selfUser !== user.UserId
+        (state.userMemberCount[user.id] === undefined ||
+          state.userMemberCount[user.id] === 0) &&
+        state.friendIds.indexOf(user.id) === -1 &&
+        state.requestedFriendIds.indexOf(user.id) === -1 &&
+        state.pendingFriendIds.indexOf(user.id) === -1 &&
+        state.blockedIds.indexOf(user.id) === -1 &&
+        state.selfUser !== user.id && 
+        state.dmIds.indexOf(user.id) === -1
       ) {
-        delete state.users[user.UserId];
-        delete state.userMemberCount[user.UserId];
-      }
-    },
-    removeDMID: (state, action: PayloadAction<DmUser>) => {
-      const { DmId, UserInfo } = action.payload;
-      state.dmIds = state.dmIds.filter((id) => id !== DmId);
-      if (state.dms[DmId] === undefined) {
-        console.log("weird");
-        return;
-      }
-      delete state.dms[DmId];
-      if (state.userMemberCount[UserInfo.UserId] === undefined) {
-        console.log("weird");
-        return;
-      }
-      state.userMemberCount[UserInfo.UserId]--;
-      if (
-        (state.userMemberCount[UserInfo.UserId] === undefined ||
-          state.userMemberCount[UserInfo.UserId] === 0) &&
-        state.friendIds.indexOf(UserInfo.UserId) === -1 &&
-        state.requestedFriendIds.indexOf(UserInfo.UserId) === -1 &&
-        state.pendingFriendIds.indexOf(UserInfo.UserId) === -1 &&
-        state.blockedIds.indexOf(UserInfo.UserId) === -1 &&
-        state.dmIds.indexOf(UserInfo.UserId) === -1 &&
-        state.selfUser !== UserInfo.UserId
-      ) {
-        delete state.users[UserInfo.UserId];
-        delete state.userMemberCount[UserInfo.UserId];
+        delete state.users[user.id];
+        delete state.userMemberCount[user.id];
       }
     },
     removeGuildMembersID: (state, action: PayloadAction<Member>) => {
-      const { GuildId, UserInfo } = action.payload;
-      if (state.userMemberCount[UserInfo.UserId] === undefined) {
+      const { guildId, userInfo } = action.payload;
+      if (state.userMemberCount[userInfo.id] === undefined) {
         console.log("weird");
         return;
       }
-      state.userMemberCount[UserInfo.UserId]--;
+      state.userMemberCount[userInfo.id]--;
       if (
-        (state.userMemberCount[UserInfo.UserId] === undefined ||
-          state.userMemberCount[UserInfo.UserId] === 0) &&
-        state.friendIds.indexOf(UserInfo.UserId) === -1 &&
-        state.requestedFriendIds.indexOf(UserInfo.UserId) === -1 &&
-        state.pendingFriendIds.indexOf(UserInfo.UserId) === -1 &&
-        state.blockedIds.indexOf(UserInfo.UserId) === -1 &&
-        state.dmIds.indexOf(UserInfo.UserId) === -1 &&
-        state.selfUser !== UserInfo.UserId
+        (state.userMemberCount[userInfo.id] === undefined ||
+          state.userMemberCount[userInfo.id] === 0) &&
+        state.friendIds.indexOf(userInfo.id) === -1 &&
+        state.requestedFriendIds.indexOf(userInfo.id) === -1 &&
+        state.pendingFriendIds.indexOf(userInfo.id) === -1 &&
+        state.blockedIds.indexOf(userInfo.id) === -1 &&
+        state.selfUser !== userInfo.id && 
+        state.dmIds.indexOf(userInfo.id) === -1
       ) {
-        delete state.users[UserInfo.UserId];
-        delete state.userMemberCount[UserInfo.UserId];
+        delete state.users[userInfo.id];
+        delete state.userMemberCount[userInfo.id];
       }
     },
     resetUsers: (state) => {
       state.blockedIds = [];
-      state.dmIds = [];
       state.friendIds = [];
       state.requestedFriendIds = [];
       state.selfUser = null;
@@ -272,43 +247,21 @@ const userSlice = createSlice({
     builder.addMatcher(
       getSelf.matchFulfilled,
       (state, action: PayloadAction<User>) => {
-        state.selfUser = action.payload.UserId;
-        state.users[action.payload.UserId] = action.payload;
+        state.users[action.payload.id] = action.payload;
       }
     );
     builder.addMatcher(
       getUser.matchFulfilled,
       (state, action: PayloadAction<User>) => {
-        state.users[action.payload.UserId] = action.payload;
-      }
-    );
-    builder.addMatcher(
-      getDMs.matchFulfilled,
-      (state, action: PayloadAction<DmUser[]>) => {
-        for (const dmUser of action.payload) {
-          state.dmIds.push(dmUser.DmId);
-
-          const dm: Dm = {
-            DmId: dmUser.DmId,
-            UserId: dmUser.UserInfo.UserId,
-            Unread: dmUser.Unread,
-          };
-
-          if (state.userMemberCount[dm.UserId] === undefined) {
-            state.userMemberCount[dm.UserId] = 0;
-          }
-          state.userMemberCount[dm.UserId] += 1;
-
-          state.dms[dmUser.DmId] = dm;
-        }
+        state.users[action.payload.id] = action.payload;
       }
     );
     builder.addMatcher(
       getFriends.matchFulfilled,
       (state, action: PayloadAction<User[]>) => {
         for (const user of action.payload) {
-          state.friendIds.push(user.UserId);
-          state.users[user.UserId] = user;
+          state.friendIds.push(user.id);
+          state.users[user.id] = user;
         }
       }
     );
@@ -316,13 +269,13 @@ const userSlice = createSlice({
       getGuildMembers.matchFulfilled,
       (state, action: PayloadAction<Member[]>) => {
         for (const member of action.payload) {
-          if (state.guildMembersIds[member.GuildId] === undefined) {
-            state.guildMembersIds[member.GuildId] = [];
+          if (state.guildMembersIds[member.guildId] === undefined) {
+            state.guildMembersIds[member.guildId] = [];
           }
-          state.guildMembersIds[member.GuildId].push(member.UserInfo.UserId);
-          state.users[member.UserInfo.UserId] = member.UserInfo;
-          state.userMemberCount[member.UserInfo.UserId] =
-            (state.userMemberCount[member.UserInfo.UserId] || 0) + 1;
+          state.guildMembersIds[member.guildId].push(member.userInfo.id);
+          state.users[member.userInfo.id] = member.userInfo;
+          state.userMemberCount[member.userInfo.id] =
+            (state.userMemberCount[member.userInfo.id] || 0) + 1;
         }
       }
     );
@@ -330,21 +283,21 @@ const userSlice = createSlice({
       getBlocked.matchFulfilled,
       (state, action: PayloadAction<User[]>) => {
         for (const user of action.payload) {
-          state.blockedIds.push(user.UserId);
-          state.users[user.UserId] = user;
+          state.blockedIds.push(user.id);
+          state.users[user.id] = user;
         }
       }
     );
     builder.addMatcher(
       getRequestedFriends.matchFulfilled,
       (state, action: PayloadAction<FriendRequest>) => {
-        for (const user of action.payload.Requested) {
-          state.requestedFriendIds.push(user.UserId);
-          state.users[user.UserId] = user;
+        for (const user of action.payload.requested) {
+          state.requestedFriendIds.push(user.id);
+          state.users[user.id] = user;
         }
-        for (const user of action.payload.Pending) {
-          state.pendingFriendIds.push(user.UserId);
-          state.users[user.UserId] = user;
+        for (const user of action.payload.pending) {
+          state.pendingFriendIds.push(user.id);
+          state.users[user.id] = user;
         }
       }
     );
@@ -357,15 +310,15 @@ export const {
   addFriendID,
   addRequestedFriendID,
   addBlockedID,
-  addDMID,
   addGuildMembersID,
   addPendingFriendID,
   addGuildBannedID,
+  addDMID,
+  removeDMID,
   removeFriendID,
   removeRequestedFriendID,
-  removeBlockedID,
-  removeDMID,
   removeGuildMembersID,
   removePendingFriendID,
   removeGuildBannedID,
+  removeBlockedID,
 } = userSlice.actions;

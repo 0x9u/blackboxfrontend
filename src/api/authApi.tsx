@@ -7,13 +7,13 @@ export interface AuthRes {
 }
 
 export interface RegisterReq {
-    username : string;
+    name : string;
     password : string;
     email : string;
 }
 
 export interface LoginReq {
-    username : string;
+    name : string;
     password : string;
 }
 
@@ -38,5 +38,7 @@ const authApi = chatApi.injectEndpoints({
 });
 
 export const {postAuth, createAccount}  = authApi.endpoints;
+
+export const { usePostAuthMutation, useCreateAccountMutation } = authApi;
 
 export default authApi;

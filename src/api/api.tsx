@@ -46,7 +46,7 @@ planned schema
 export const chatApi = createApi({ //memory should be fine since its all referenced
   reducerPath: "chatApi",
   baseQuery: fetchBaseQuery({ 
-    baseUrl: "http://localhost:8080",
+    baseUrl: "http://localhost:8080/api",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       if (token) {

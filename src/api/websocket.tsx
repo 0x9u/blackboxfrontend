@@ -49,7 +49,7 @@ type HelloResFrame = {
   HeartbeatInterval: number;
 };
 
-export const gatewayApi = chatApi.injectEndpoints({
+const gatewayApi = chatApi.injectEndpoints({
   endpoints: (builder) => ({
     startWS: builder.query({
       queryFn: () => ({ data: null }),
@@ -57,7 +57,7 @@ export const gatewayApi = chatApi.injectEndpoints({
         arg,
         { dispatch, getState, cacheEntryRemoved, updateCachedData }
       ) => {
-        const ws = new WebSocket("ws://localhost:8080/ws");
+        const ws = new WebSocket("ws://localhost:8080/api/ws");
         //put a recursive function if it disconnects or something later
         dispatch(setLoadingWS(true));
         ws.onopen = () => {
@@ -253,3 +253,7 @@ export const gatewayApi = chatApi.injectEndpoints({
     }),
   }),
 });
+
+export const { useStartWSQuery } = gatewayApi;
+
+export default gatewayApi;

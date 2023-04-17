@@ -5,6 +5,8 @@ import * as yup from "yup";
 
 import Input from "../../components/inputComponent";
 import Button from "../../components/buttonComponent";
+import { useNavigate } from "react-router-dom";
+import { LoginReq, usePostAuthMutation } from "../../api/authApi";
 
 interface LoginProps {
   changeMode: () => void;
@@ -37,10 +39,19 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
+  const navigate = useNavigate();
+  const [postAuth, result] = usePostAuthMutation();
   return (
     <form
       className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-8 px-14 shadow-2xl"
-      onSubmit={handleSubmit((d) => console.log(d))}
+      onSubmit={handleSubmit((data) => {
+        const body : LoginReq = {
+          name : data.username,
+          password : data.password,
+        }
+        postAuth(body);
+        navigate("/main");
+      })}
     >
       <div className="flex flex-col py-2">
         <p className="text-4xl font-bold text-white">Welcome back!</p>

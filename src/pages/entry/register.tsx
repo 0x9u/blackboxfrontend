@@ -5,6 +5,8 @@ import * as yup from "yup";
 
 import Input from "../../components/inputComponent";
 import Button from "../../components/buttonComponent";
+import { postAuth, RegisterReq, useCreateAccountMutation } from "../../api/authApi";
+import { useNavigate } from "react-router-dom";
 
 interface RegisterProps {
   changeMode: () => void;
@@ -40,17 +42,26 @@ const schema = yup
       .oneOf([yup.ref("password"), null], "Passwords must match"),
   })
   .required();
-
 const Register: FC<RegisterProps> = ({ changeMode }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
+  const navigate = useNavigate();
+  const [createAccount, result] = useCreateAccountMutation(); //dont use result its should be stored in slice
   return (
     <form
       className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-4 px-8 shadow-2xl"
-      onSubmit={handleSubmit((d) => console.log(d))}
+      onSubmit={handleSubmit((data) => {
+        const body : RegisterReq = {
+          name : data.username,
+          password : data.password,
+          email : data.email,
+        };
+        createAccount(body);
+        navigate("/main");
+      })}
     >
       <div className="flex flex-col py-4">
         <p className="mx-auto text-4xl font-bold text-white">

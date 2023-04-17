@@ -7,6 +7,7 @@ import Games from "./games";
 import Friends from "./friends";
 import Admin from "./admin";
 import UserSettings from "../../components/settings/user/userSettings";
+import { useStartWSQuery } from "../../api/websocket";
 
 const Main: FC = () => {
   const currentMode = useSelector(
@@ -15,6 +16,9 @@ const Main: FC = () => {
   const showUserSettings = useSelector(
     (state: RootState) => state.client.showUserSettings
   );
+  
+  useStartWSQuery({});
+  
   return (
     <div className="relative flex min-h-screen flex-row overflow-hidden">
       <Navbar />

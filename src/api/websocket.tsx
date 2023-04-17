@@ -17,6 +17,8 @@ import {
   removeGuild,
   removeInvite,
   updateGuild,
+  removeDm,
+  addDm,
 } from "../app/slices/guildSlice";
 import { Invite } from "./types/guild";
 import {
@@ -200,12 +202,14 @@ const gatewayApi = chatApi.injectEndpoints({
                 }
                 case Events.CREATE_DM: {
                   const eventData: Dm = data.data;
-                  dispatch(addDMID(eventData));
+                  dispatch(addDm(eventData));
+                  dispatch(addDMID(eventData.userInfo));
                   break;
                 }
                 case Events.DELETE_DM: {
                   const eventData: Dm = data.data;
-                  dispatch(removeDMID(eventData));
+                  dispatch(removeDm(eventData));
+                  dispatch(removeDMID(eventData.userInfo));
                   break;
                 }
                 case Events.ADD_FRIEND_REQUEST: {

@@ -1,26 +1,25 @@
-import { User } from './user';
+import { User } from "./user";
 
 export interface UnreadMsg {
-    id : number;
-    count : number;
-    time : number;
-};
-
+  id: string;
+  count: number;
+  time: string;
+}
 
 export interface Attachment {
-    id : number;
-    filename : string;
+  id: string;
+  filename: string;
 }
 
 export interface Msg {
-    id : number;
-    author : User;
-    guildId : number;
-    dmId : number;
-    content : string;
-    created : number;
-    modified : number;
-    msgSaved : boolean;
-    requestId : string; //we randomize up to 5 char
-    attachments : Attachment[];
-};
+  id: string;
+  author: User;
+  guildId: string;
+  dmId: string;
+  content: string;
+  created: string;
+  modified: string;
+  msgSaved: boolean;
+  requestId: string; //we randomize up to 5 char
+  attachments: Attachment[];
+}

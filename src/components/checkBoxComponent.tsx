@@ -1,18 +1,14 @@
-import React, { FC, useState, Ref } from "react";
-import { ChangeHandler } from "react-hook-form";
+import React, { FC, useState } from "react";
+import { UseFormRegisterReturn } from "react-hook-form/dist/types";
 import { MdDone } from "react-icons/md";
 
 interface checkBoxProps {
-  register?: {
-    onChange: ChangeHandler;
-    onBlur: ChangeHandler;
-    ref: Ref<HTMLInputElement>;
-    name: string;
-  };
+  register?: UseFormRegisterReturn<any>;
+  checked? : boolean; //temp until i find a fix for style issue
 }
 
-const CheckBox: FC<checkBoxProps> = ({ register }) => {
-  const [checked, setChecked] = useState<boolean>(false);
+const CheckBox: FC<checkBoxProps> = ({ register, checked : initialChecked}) => {
+  const [checked, setChecked] = useState<boolean>(initialChecked ?? false);
   return (
     <div
       className={`relative h-7 w-14 rounded-full ${

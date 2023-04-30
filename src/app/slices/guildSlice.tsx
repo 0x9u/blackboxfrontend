@@ -1,20 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getGuildInvites } from "../../api/guildApi";
 import { DmUser, Dm } from "../../api/types/dm";
-import { Guild, Invite } from "../../api/types/guild";
+import { Guild, GuildList, Invite } from "../../api/types/guild";
 import { getGuilds } from "../../api/userApi";
 type GuildState = {
-  guildIds: number[];
-  dmIds: number[];
-  dms: Record<number, DmUser>;
-  guilds: Record<number, Guild>;
-  invites: Record<number, Invite[]>;
+  guildIds: string[];
+  dmIds: string[];
+  dms: Record<string, DmUser>;
+  guilds: Record<string, Guild>;
+  invites: Record<string, Invite[]>;
 };
 
 const initialState: GuildState = {
   guildIds: [],
   dmIds: [],
-  dms : {},
+  dms : {}, //dms still access same guild messages
   guilds: {},
   invites: {},
 };
@@ -89,10 +89,19 @@ const guildSlice = createSlice({
   extraReducers: (builder) => {
     builder.addMatcher(
       getGuilds.matchFulfilled,
-      (state, action: PayloadAction<Guild[]>) => {
-        for (const guild of action.payload) {
+      (state, action: PayloadAction<GuildList>) => {
+        for (const guild of action.payload.guilds) {
           state.guildIds.push(guild.id);
           state.guilds[guild.id] = guild;
+        }
+        for (const dm of action.payload.dms) {
+          state.dmIds.push(dm.id);
+          const newDm : DmUser = {
+            id: dm.id,
+            unread : dm.unread,
+            userId : dm.userInfo.id,
+          }
+          state.dms[dm.id] = newDm;
         }
       }
     );

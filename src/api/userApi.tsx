@@ -1,7 +1,7 @@
 import { createEntityAdapter } from "@reduxjs/toolkit";
 import { chatApi } from "./api";
 import { DmUser } from "./types/dm";
-import { Guild, UserGuild } from "./types/guild";
+import { Guild, GuildList, UserGuild } from "./types/guild";
 import { Msg } from "./types/msg";
 import { FriendRequest, User } from "./types/user";
 
@@ -21,11 +21,17 @@ const userApi = chatApi.injectEndpoints({
         method: "GET",
       }),
     }),
-    getGuilds: builder.query<Guild[], void>({
+    getGuilds: builder.query<GuildList, void>({
       query: () => ({
         url: "/users/@me/guilds",
         method: "GET",
       }),
+    }),
+    leaveGuild: builder.mutation<void, string>({
+      query: (id: string) => ({
+        url: `/users/@me/guilds/${id}`,
+        method: "DELETE",
+      })
     }),
     getBlocked: builder.query<User[], void>({
       query: () => ({
@@ -33,45 +39,13 @@ const userApi = chatApi.injectEndpoints({
         method: "GET",
       })
     }),
-    getDMs: builder.query<DmUser[], void>({
-      query: () => ({
-        url: "/users/@me/dms",
-        method: "GET",
-      }),
-    }),
-    postMsgDM: builder.query<void, { id: number; msg: Msg }>({
-      query: ({ id, msg }) => ({
-        url: `/users/${id}/msgs`,
-        method: "POST",
-        body: msg,
-      }),
-    }),
-    getMsgsDM: builder.query<Msg[], number>({
-      query: (id: number) => ({
-        url: `/users/${id}/msgs`,
-        method: "GET",
-      }),
-    }),
-    deleteMsgDM : builder.query<void, { id: number; msgId: number }>({
-      query: ({ id, msgId }) => ({
-        url: `/users/${id}/msgs/${msgId}`,
-        method: "DELETE",
-      }),
-    }),
-    patchMsgDM : builder.query<void, { id: number; msgId: number; msg: Msg }>({
-      query: ({ id, msgId, msg }) => ({
-        url: `/users/${id}/msgs/${msgId}`,
-        method: "PATCH",
-        body: msg,
-      }),
-    }),
-    openDM: builder.query<void, number>({
+    openDM: builder.mutation<void, number>({
       query: (id: number) => ({
         url: `/users/@me/dms/${id}`,
         method: "PUT",
       }),
     }),
-    deleteDM: builder.query<void, number>({
+    deleteDM: builder.mutation<void, number>({
       query: (id: number) => ({
         url: `/users/@me/dms/${id}`,
         method: "DELETE",
@@ -96,10 +70,6 @@ export const {
   getUser,
   getSelf,
   getGuilds,
-  getDMs,
-  postMsgDM,
-  getMsgsDM,
-  deleteMsgDM,
   openDM,
   deleteDM,
   getFriends,
@@ -107,5 +77,17 @@ export const {
   getRequestedFriends,
 
 } = userApi.endpoints;
+
+export const {
+  useGetUserQuery,
+  useGetSelfQuery,
+  useGetGuildsQuery,
+  useOpenDMMutation,
+  useDeleteDMMutation,
+  useGetFriendsQuery,
+  useGetBlockedQuery,
+  useGetRequestedFriendsQuery,
+  useLeaveGuildMutation,
+} = userApi;
 
 export default userApi;

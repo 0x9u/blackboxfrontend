@@ -1,27 +1,30 @@
 import React, { FC, useState, Ref } from "react";
-import { ChangeHandler } from "react-hook-form";
+import { UseFormRegisterReturn } from "react-hook-form/dist/types";
 
 import { MdUpload, MdCameraAlt } from "react-icons/md";
 
 interface uploadPicProps {
   width: string;
   height: string;
-  register?: {
-    onChange: ChangeHandler;
-    onBlur: ChangeHandler;
-    ref: Ref<HTMLInputElement>;
-    name: string;
-  };
-  dark? : boolean;
+  register?: UseFormRegisterReturn<any>;
+  dark?: boolean;
+  url?: string;
 }
 
-const UploadPic: FC<uploadPicProps> = ({ width, height, register, dark }) => {
+const UploadPic: FC<uploadPicProps> = ({
+  width,
+  height,
+  register,
+  dark,
+  url,
+}) => {
   //  const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | undefined>(undefined);
   const photoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const reader = new FileReader();
     const file = e.target.files![0];
+    console.log(file.name);
     if (
       file.type === "image/jpeg" ||
       file.type === "image/png" ||
@@ -47,11 +50,17 @@ const UploadPic: FC<uploadPicProps> = ({ width, height, register, dark }) => {
         onChange={photoUpload}
       />
       <img
-        src={preview}
-        className={`absolute inset-0 h-full w-full object-fill object-center mix-blend-multiply`}
+        src={preview ?? url}
+        className={`absolute inset-0 h-full w-full object-fill object-center ${
+          !(preview || url) ? "mix-blend-multiply" : ""
+        }`}
       />
-      {!preview && (
-        <div className={`absolute inset-0 flex flex-row items-center justify-center space-x-2 text-lg ${dark ? "text-white/95" : "text-black"}`}>
+      {!(preview || url) && (
+        <div
+          className={`absolute inset-0 flex flex-row items-center justify-center space-x-2 text-lg ${
+            dark ? "text-white/95" : "text-black"
+          }`}
+        >
           <p>Upload</p>
           <MdCameraAlt />
         </div>

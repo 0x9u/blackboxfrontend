@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, Fragment } from "react";
 
 import NavbarChild from "../../../components/navbarChildComponent";
 import Page from "../../../components/pageComponent";
@@ -15,26 +15,54 @@ import GuildSettings from "../../../components/settings/guild/guildSettings";
 import InviteModal from "../../../components/chat/inviteModalComponent";
 
 const Chat: FC = () => {
-  const showAddChatModal = useSelector((state : RootState) => state.client.showAddChatModal);
-  const showCreateInviteModal = useSelector((state: RootState) => state.client.showCreateInviteModal);
-  const showGuildDMSettings = useSelector((state: RootState) => state.client.showGuildDMSettings);
-  const showChatUserList = useSelector((state : RootState) => state.client.showChatUserList);
+  const showAddChatModal = useSelector(
+    (state: RootState) => state.client.showAddChatModal
+  );
+  const showCreateInviteModal = useSelector(
+    (state: RootState) => state.client.showCreateInviteModal
+  );
+  const showGuildDMSettings = useSelector(
+    (state: RootState) => state.client.showGuildDMSettings
+  );
+  const showChatUserList = useSelector(
+    (state: RootState) => state.client.showChatUserList
+  );
+  const currentChatMode = useSelector(
+    (state: RootState) => state.client.currentChatMode
+  );
+  const currentGuild = useSelector(
+    (state: RootState) => state.client.currentGuild
+  );
+  const currentDM = useSelector((state: RootState) => state.client.currentDM);
+
   return (
     <div className="flex min-h-full grow flex-row">
       <NavbarChild>
         <ChatMode />
-        <ChatList/>
+        <ChatList />
       </NavbarChild>
       <Page>
-        <ChatBar/>
-        <div className="flex h-0 grow flex-row">
-          <ChatHistory />
-          {showChatUserList && <UserList />}
-        </div>
+        {(currentGuild === null && currentChatMode === "guild") || (currentDM === null && currentChatMode === "dm") ? (
+          <div className="flex h-0 grow flex-row">
+            <div className="flex flex-grow flex-col items-center justify-center">
+              <div className="text-3xl font-bold text-white">
+                Not Selected!
+              </div>
+            </div>
+          </div>
+        ) : (
+          <Fragment>
+            <ChatBar />
+            <div className="flex h-0 grow flex-row">
+              <ChatHistory />
+              {showChatUserList && <UserList />}
+            </div>
+          </Fragment>
+        )}
       </Page>
-      {showAddChatModal && <ChatModal/>}
-      {showCreateInviteModal && <InviteModal/>}
-      {showGuildDMSettings && <GuildSettings/>}
+      {showAddChatModal && <ChatModal />}
+      {showCreateInviteModal && <InviteModal />}
+      {showGuildDMSettings && <GuildSettings />}
     </div>
   );
 };

@@ -2,13 +2,13 @@ import { UnreadMsg } from "./msg";
 import { User } from "./user";
 
 export interface Dm {
-    id: number;
+    id: string;
     unread : UnreadMsg;
     userInfo : User;
 }
 
 export interface DmUser {
-    id : number;
+    id : string;
     unread : UnreadMsg;
-    userId : number;
+    userId : string;
 }

@@ -5,22 +5,25 @@ interface msgProps {
   content: string;
   failed?: boolean;
   username: string;
-  created: number;
-  modified?: number;
+  userImageId: string;
+  created: string;
+  modified?: string;
 }
 
 const Msg: FC<msgProps> = ({
   content,
   failed,
   username,
+  userImageId,
   created,
   modified,
 }) => {
   const formatedContent = content.split(/(\<\@\w+\:\d+\>)/g);
-  console.log(formatedContent)
+  const createdTime = new Date(created).toLocaleString();
+  const imageURL = userImageId !== "-1" ? `http://localhost:8080/api/files/user/${userImageId}` : "./blackboxuser.jpg";
   return (
     <div className="group relative flex flex-row space-x-4 px-4 py-1 hover:bg-black/25">
-      <img className="h-12 w-12 shrink-0 rounded-full border border-black" src="./blackboxuser.jpg">
+      <img className="h-12 w-12 shrink-0 rounded-full border border-black" src={imageURL}>
         {/* for pfp */}
       </img>
       <div className="flex flex-col">
@@ -29,7 +32,7 @@ const Msg: FC<msgProps> = ({
             {username}
           </p>
           <p className="text-xs font-medium leading-relaxed text-white brightness-75">
-            Created on {created} {modified && `and Edited at ${modified}`}
+            Created on {createdTime} {modified && `and Edited at ${modified}`}
           </p>
           <div className="hidden flex-row space-x-2 group-hover:flex">
             <MdRepeat className="h-6 w-6 cursor-pointer text-white" />

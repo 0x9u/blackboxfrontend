@@ -1,4 +1,9 @@
-import { setLoadingWS } from "../app/slices/clientSlice";
+import {
+  deleteGuildLoaded,
+  removeCurrentDM,
+  removeCurrentGuild,
+  setLoadingWS,
+} from "../app/slices/clientSlice";
 import { RootState } from "../app/store";
 import { chatApi } from "./api";
 import { Msg } from "./types/msg";
@@ -25,6 +30,7 @@ import {
   addBlockedID,
   addDMID,
   addFriendID,
+  addGuildAdminID,
   addGuildBannedID,
   addGuildMembersID,
   addPendingFriendID,
@@ -32,10 +38,12 @@ import {
   removeBlockedID,
   removeDMID,
   removeFriendID,
+  removeGuildAdminID,
   removeGuildBannedID,
   removeGuildMembersID,
   removePendingFriendID,
   removeRequestedFriendID,
+  updateUser,
 } from "../app/slices/userSlice";
 import { Dm } from "./types/dm";
 import { clearToken } from "../app/slices/authSlice";
@@ -94,7 +102,7 @@ const gatewayApi = chatApi.injectEndpoints({
                     event: "",
                   } as DataFrame)
                 );
-              }, timeToPing - 5000);
+              }, (timeToPing / 4));
               break;
             case OpCodes.HELLO:
               const hello: HelloResFrame = data.data;
@@ -118,6 +126,7 @@ const gatewayApi = chatApi.injectEndpoints({
               switch (data.event) {
                 case Events.CREATE_GUILD_MESSAGE: {
                   const eventData: Msg = data.data;
+                  console.log(eventData);
                   dispatch(
                     addGuildMsg({
                       guildId: eventData.guildId,
@@ -172,7 +181,9 @@ const gatewayApi = chatApi.injectEndpoints({
                 }
                 case Events.DELETE_GUILD: {
                   const eventData: Guild = data.data;
+                  dispatch(removeCurrentGuild(eventData.id));
                   dispatch(removeGuild(eventData));
+                  dispatch(deleteGuildLoaded(eventData.id));
                   break;
                 }
                 case Events.UPDATE_GUILD: {
@@ -208,6 +219,7 @@ const gatewayApi = chatApi.injectEndpoints({
                 }
                 case Events.DELETE_DM: {
                   const eventData: Dm = data.data;
+                  dispatch(removeCurrentDM(eventData.id));
                   dispatch(removeDm(eventData));
                   dispatch(removeDMID(eventData.userInfo));
                   break;
@@ -250,6 +262,22 @@ const gatewayApi = chatApi.injectEndpoints({
                 case Events.REMOVE_USER_BLOCKEDLIST: {
                   const eventData: User = data.data;
                   dispatch(removeBlockedID(eventData));
+                  break;
+                }
+                case Events.ADD_USER_GUILDADMIN: {
+                  const eventData: Member = data.data;
+                  dispatch(addGuildAdminID(eventData));
+                  break;
+                }
+                case Events.REMOVE_USER_GUILDADMIN: {
+                  const eventData: Member = data.data;
+                  dispatch(removeGuildAdminID(eventData));
+                  break
+                }
+                case Events.UPDATE_SELF_USER_INFO:
+                case Events.UPDATE_USER_INFO: {
+                  const eventData: User = data.data;
+                  dispatch(updateUser(eventData));
                   break;
                 }
                 case Events.LOG_OUT: {

@@ -1,23 +1,22 @@
 import React, { FC, Ref } from "react";
 import { ChangeHandler, FieldError } from "react-hook-form";
+import { MdContentCopy } from "react-icons/md";
+
+import { UseFormRegisterReturn } from "react-hook-form/dist/types";
 
 interface InputProps {
   value?: string;
   type?: "text" | "password";
-  register?: {
-    onChange: ChangeHandler;
-    onBlur: ChangeHandler;
-    ref: Ref<HTMLInputElement>;
-    name: string;
-  };
+  register?: UseFormRegisterReturn<any>;
   onChange?: ChangeHandler;
   onBlur?: ChangeHandler;
   name?: string;
   label?: string;
-  error?:  FieldError | undefined;
-  className? : string;
-  dark? : boolean;
-};
+  error?: FieldError | undefined;
+  className?: string;
+  dark?: boolean;
+  copyButton?: boolean;
+}
 
 const Input: FC<InputProps> = ({
   value,
@@ -29,25 +28,43 @@ const Input: FC<InputProps> = ({
   error,
   register,
   className,
-  dark
+  dark,
+  copyButton,
 }) => {
   return (
-    <div className="flex flex-col w-64">
-      <p className={`my-2 text-sm font-semibold break-words uppercase ${!dark ? "text-white" : "text-black"}`}>
+    <div className="flex w-64 flex-col">
+      <p
+        className={`my-2 break-words text-sm font-semibold uppercase ${
+          !dark ? "text-white" : "text-black"
+        }`}
+      >
         {label}{" "}
-        <span className="italic text-sm font-medium text-red">
+        <span className="text-sm font-medium italic text-red">
           {error?.message && "-"} {error?.message}
         </span>
       </p>
-      <input
-        className={"h-10 rounded w-64 bg-shade-2 px-2 font-medium text-white outline-none focus:outline-shade-5 "+className}
-        type={type}
-        value={value}
-        onBlur={onBlur}
-        name={name}
-        onChange={onChange}
-        {...register}
-      />
+      <div className="flex flex-row rounded bg-shade-2 outline-2 outline-offset-2 focus-within:outline focus-within:outline-shade-5">
+        <input
+          className={
+            "h-10 w-64 rounded bg-shade-2 px-2 font-medium text-white outline-none" +
+            (className || "")
+          }
+          type={type}
+          value={value}
+          onBlur={onBlur}
+          name={name}
+          onChange={onChange}
+          {...register}
+        />
+        {copyButton && (
+          <MdContentCopy
+            className="my-auto mx-2 h-8 w-8 cursor-pointer text-white outline-none hover:text-white/75 active:text-white/50"
+            onClick={() => {
+              navigator.clipboard.writeText(value || "");
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };

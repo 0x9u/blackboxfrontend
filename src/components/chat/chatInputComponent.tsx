@@ -1,17 +1,31 @@
 import React, { FC, createRef, useState } from "react";
 import { MdOutlineAddCircle } from "react-icons/md";
 import { Mention, MentionsInput } from "react-mentions";
+import { useSelector } from "react-redux";
+import { usePostGuildMsgMutation } from "../../api/guildApi";
+import { Msg } from "../../api/types/msg";
+import { RootState } from "../../app/store";
 import Button from "../buttonComponent";
 
 const chatInputArea: FC = () => {
-  const expendHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  /*const expendHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.target.style.height = "inherit";
     e.target.style.height = `${Math.min(
       e.target.scrollHeight,
       (screen.height - 16) / 4
     )}px`;
-  };
+  };*/ //not needed any more
   const [value, setValue] = useState<string>("");
+  const currentId = useSelector(
+    (state: RootState) => state.client.currentChatMode === "dm" ? state.client.currentDM : state.client.currentGuild
+  );
+  const [sendMsg] = usePostGuildMsgMutation();
+  function send() {
+    if (currentId) {
+      sendMsg({ id: currentId, msg: { content: value } as Msg });
+      setValue("");
+    }
+  }
   return (
     <div className="min-h-16 shrink-0 px-4">
       <div className="min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ">
@@ -29,6 +43,12 @@ const chatInputArea: FC = () => {
           onChange={(v) => {
             console.log(v.target.value);
             setValue(v.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              send();
+            }
           }}
           forceSuggestionsAboveCursor={true}
           a11ySuggestionsListLabel={"People"}
@@ -62,7 +82,7 @@ const chatInputArea: FC = () => {
             appendSpaceOnAdd={true}
           />
         </MentionsInput>
-        <Button type="button" value="Send" className="my-auto" />
+        <Button type="button" value="Send" className="my-auto" onClick={send}/>
       </div>
       <p className="min-h-2 shrink-0 pl-1 font-semibold leading-relaxed text-white">
         person is typing...

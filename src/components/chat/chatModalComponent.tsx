@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
 import Button from "../buttonComponent";
 import CheckBox from "../checkBoxComponent";
 import Input from "../inputComponent";
@@ -11,6 +11,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch } from "react-redux";
 import { setShowAddChatModal } from "../../app/slices/clientSlice";
+import { Guild, GuildList, GuildUpload } from "../../api/types/guild";
+import {
+  useJoinGuildInviteMutation,
+  usePostGuildMutation,
+} from "../../api/guildApi";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
 
 const ChatModal: FC = () => {
   const [chatModalMode, setChatModalMode] = useState<"Create" | "Join" | null>(
@@ -19,10 +25,14 @@ const ChatModal: FC = () => {
 
   const dispatch = useDispatch();
 
+  const [createGuild] = usePostGuildMutation();
+  const [joinGuild, { status: joinGuildStatus, error: joinGuildError }] =
+    useJoinGuildInviteMutation();
+
   interface createChatForm {
     name: string;
     save: boolean;
-    picture: File;
+    picture: FileList;
   }
 
   const {
@@ -35,7 +45,7 @@ const ChatModal: FC = () => {
         name: yup
           .string()
           .required("Name is required")
-          .min(6, "Name must be 3 characters long")
+          .min(6, "Name must be 6 characters long")
           .max(64, "Name cannot exceed 64 characters"),
         save: yup.boolean(),
         picture: yup
@@ -44,16 +54,19 @@ const ChatModal: FC = () => {
             "filesize",
             "The file is too large (must be under 5MB)",
             (value) => {
-              return value && value[0].size <= 5000000; //5 MB max
+              return (
+                value.length === 0 || (value[0] && value[0].size <= 5000000)
+              ); //5 MB max
             }
           )
           .test("filetype", "The file is not an image", (value) => {
             return (
-              value &&
-              (value[0].type === "image/jpeg" ||
-                value[0].type === "image/png" ||
-                value[0].type === "image/jpg" ||
-                value[0].type === "image/gif")
+              (value[0] &&
+                (value[0].type === "image/jpeg" ||
+                  value[0].type === "image/png" ||
+                  value[0].type === "image/jpg" ||
+                  value[0].type === "image/gif")) ||
+              value.length === 0
             );
           }),
       })
@@ -63,6 +76,7 @@ const ChatModal: FC = () => {
   const {
     register: registerInvite,
     handleSubmit: handleInviteSubmit,
+    setError: setInviteError,
     formState: { errors: errorsInvite },
   } = useForm<{ invite: string }>({
     resolver: yupResolver(
@@ -70,10 +84,25 @@ const ChatModal: FC = () => {
         invite: yup
           .string()
           .required("Invite is required")
-          .length(6, "Invite code must be 6 characters"),
+          .length(10, "Invite code must be 10 characters"),
       })
     ),
   });
+
+  useEffect(() => {
+    console.log(joinGuildStatus.valueOf());
+    if (
+      joinGuildError &&
+      (joinGuildError as FetchBaseQueryError).status === 400
+    ) {
+      setInviteError("invite", {
+        message: "Invite code is invalid",
+      });
+    } else if (joinGuildStatus.valueOf() === "fulfilled") {
+      dispatch(setShowAddChatModal(false));
+      setChatModalMode(null);
+    }
+  }, [joinGuildStatus, joinGuildError]);
 
   return (
     <Modal
@@ -112,8 +141,18 @@ const ChatModal: FC = () => {
           </div>
         ) : chatModalMode === "Create" ? (
           <form
-            onSubmit={handleCreateSubmit((d) => {
-              console.log(d);
+            onSubmit={handleCreateSubmit((data) => {
+              const picture = data.picture[0];
+              const body: GuildUpload = {
+                body: {
+                  name: data.name,
+                  saveChat: data.save,
+                } as Guild,
+                image: picture || null,
+              };
+              createGuild(body);
+              dispatch(setShowAddChatModal(false));
+              setChatModalMode(null);
             })}
           >
             <div className="space-y-2">
@@ -154,7 +193,7 @@ const ChatModal: FC = () => {
           <form
             className="-mt-4"
             onSubmit={handleInviteSubmit((d) => {
-              console.log(d);
+              joinGuild(d.invite);
             })}
           >
             <Input

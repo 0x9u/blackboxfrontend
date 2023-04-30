@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getGuildMembers } from "../../api/guildApi";
+import { getGuildBans, getGuildMembers } from "../../api/guildApi";
+import { GuildList } from "../../api/types/guild";
 import { User, Member, FriendRequest } from "../../api/types/user";
 import {
   getSelf,
@@ -7,22 +8,24 @@ import {
   getFriends,
   getBlocked,
   getRequestedFriends,
+  getGuilds,
 } from "../../api/userApi";
 
 type UserState = {
-  users: Record<number, User>;
+  users: Record<string, User>;
 
-  friendIds: number[];
-  requestedFriendIds: number[];
-  pendingFriendIds: number[];
-  blockedIds: number[];
-  dmIds : number[];
+  friendIds: string[];
+  requestedFriendIds: string[];
+  pendingFriendIds: string[];
+  blockedIds: string[];
+  dmIds: string[];
 
-  selfUser: number | null;
+  selfUser: string | null;
 
-  guildMembersIds: Record<number, number[]>;
-  guildBannedIds: Record<number, number[]>;
-  userMemberCount: Record<number, number>;
+  guildMembersIds: Record<string, string[]>;
+  guildAdminIds: Record<string, string[]>; //includes owner
+  guildBannedIds: Record<string, string[]>;
+  userMemberCount: Record<string, number>;
 };
 
 const initialState: UserState = {
@@ -32,19 +35,42 @@ const initialState: UserState = {
   requestedFriendIds: [],
   pendingFriendIds: [],
   blockedIds: [],
-  dmIds : [],
+  dmIds: [],
 
   selfUser: null,
 
   guildMembersIds: {},
+  guildAdminIds: {},
   guildBannedIds: {},
   userMemberCount: {}, //also includes dms (counts how many times its been referenced (if reaches 0 user object is deleted))
 };
+
+function checkUserIsReferenced(state: UserState, id: string) {
+  if (
+    (state.userMemberCount[id] === undefined ||
+      state.userMemberCount[id] === 0) &&
+    state.friendIds.indexOf(id) === -1 &&
+    state.requestedFriendIds.indexOf(id) === -1 &&
+    state.pendingFriendIds.indexOf(id) === -1 &&
+    state.blockedIds.indexOf(id) === -1 &&
+    state.selfUser !== id &&
+    state.dmIds.indexOf(id) === -1
+  ) {
+    delete state.users[id];
+  }
+}
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    updateUser(state, action: PayloadAction<User>) {
+      if (state.users[action.payload.id] === undefined) {
+        console.log("not exists");
+        return;
+      }
+      state.users[action.payload.id] = action.payload;
+    },
     addFriendID: (state, action: PayloadAction<User>) => {
       state.friendIds.push(action.payload.id);
       state.users[action.payload.id] = action.payload;
@@ -72,7 +98,7 @@ const userSlice = createSlice({
       if (state.userMemberCount[userInfo.id] === undefined) {
         state.userMemberCount[userInfo.id] = 0;
       }
-      state.userMemberCount[userInfo.id] += 1;
+      state.userMemberCount[userInfo.id]++;
     },
     addGuildBannedID: (state, action: PayloadAction<Member>) => {
       const { guildId, userInfo } = action.payload;
@@ -87,6 +113,30 @@ const userSlice = createSlice({
       }
       state.userMemberCount[userInfo.id]++;
     },
+    addGuildAdminID: (state, action: PayloadAction<Member>) => {
+      const { guildId, userInfo } = action.payload;
+      if (
+        state.guildAdminIds[guildId] === undefined ||
+        state.users[userInfo.id] === undefined
+      ) {
+        console.log("not exists");
+        return;
+      }
+      state.guildAdminIds[guildId].push(userInfo.id);
+    },
+    removeGuildAdminID: (state, action: PayloadAction<Member>) => {
+      const { guildId, userInfo } = action.payload;
+      if (
+        state.guildAdminIds[guildId] === undefined ||
+        state.users[userInfo.id] === undefined
+      ) {
+        console.log("not exists");
+        return;
+      }
+      state.guildAdminIds[guildId] = state.guildAdminIds[guildId].filter(
+        (id) => id !== userInfo.id
+      );
+    },
     addDMID: (state, action: PayloadAction<User>) => {
       state.dmIds.push(action.payload.id);
       state.users[action.payload.id] = action.payload;
@@ -100,17 +150,7 @@ const userSlice = createSlice({
         return;
       }
       state.userMemberCount[action.payload.id]--;
-      if (
-        (state.userMemberCount[action.payload.id] === undefined ||
-          state.userMemberCount[action.payload.id] === 0) &&
-        state.friendIds.indexOf(action.payload.id) === -1 &&
-        state.requestedFriendIds.indexOf(action.payload.id) === -1 &&
-        state.pendingFriendIds.indexOf(action.payload.id) === -1 &&
-        state.blockedIds.indexOf(action.payload.id) === -1 &&
-        state.dmIds.indexOf(action.payload.id) === -1
-      ) {
-        delete state.users[action.payload.id];
-      }
+      checkUserIsReferenced(state, action.payload.id);
     },
     removeGuildBannedID: (state, action: PayloadAction<Member>) => {
       const { guildId, userInfo } = action.payload;
@@ -126,113 +166,57 @@ const userSlice = createSlice({
         return;
       }
       state.userMemberCount[userInfo.id]--;
-      if (
-        (state.userMemberCount[userInfo.id] === undefined ||
-          state.userMemberCount[userInfo.id] === 0) &&
-        state.friendIds.indexOf(userInfo.id) === -1 &&
-        state.requestedFriendIds.indexOf(userInfo.id) === -1 &&
-        state.pendingFriendIds.indexOf(userInfo.id) === -1 &&
-        state.blockedIds.indexOf(userInfo.id) === -1 &&
-        state.guildMembersIds[guildId].indexOf(userInfo.id) === -1 &&
-        state.dmIds.indexOf(userInfo.id) === -1
-      ) {
-        delete state.users[userInfo.id];
-      }
+      checkUserIsReferenced(state, userInfo.id);
     },
     removeFriendID: (state, action: PayloadAction<User>) => {
       state.friendIds = state.friendIds.filter(
         (id) => id !== action.payload.id
       );
-      if (
-        (state.userMemberCount[action.payload.id] === undefined ||
-          state.userMemberCount[action.payload.id] === 0) &&
-        state.friendIds.indexOf(action.payload.id) === -1 &&
-        state.requestedFriendIds.indexOf(action.payload.id) === -1 &&
-        state.pendingFriendIds.indexOf(action.payload.id) === -1 &&
-        state.blockedIds.indexOf(action.payload.id) === -1 &&
-        state.selfUser !== action.payload.id &&
-        state.dmIds.indexOf(action.payload.id) === -1
-      ) {
-        delete state.users[action.payload.id];
-      }
+      checkUserIsReferenced(state, action.payload.id);
     },
     removeRequestedFriendID: (state, action: PayloadAction<User>) => {
       const user = action.payload;
       state.requestedFriendIds = state.requestedFriendIds.filter(
         (id) => id !== action.payload.id
       );
-      if (
-        (state.userMemberCount[user.id] === undefined ||
-          state.userMemberCount[user.id] === 0) &&
-        state.friendIds.indexOf(user.id) === -1 &&
-        state.requestedFriendIds.indexOf(user.id) === -1 &&
-        state.pendingFriendIds.indexOf(user.id) === -1 &&
-        state.blockedIds.indexOf(user.id) === -1 &&
-        state.selfUser !== user.id &&
-        state.dmIds.indexOf(user.id) === -1
-      ) {
-        delete state.users[user.id];
-        delete state.userMemberCount[user.id];
-      }
+      checkUserIsReferenced(state, user.id);
     },
     removePendingFriendID: (state, action: PayloadAction<User>) => {
       const user = action.payload;
       state.pendingFriendIds = state.pendingFriendIds.filter(
         (id) => id !== action.payload.id
       );
-      if (
-        (state.userMemberCount[user.id] === undefined ||
-          state.userMemberCount[user.id] === 0) &&
-        state.friendIds.indexOf(user.id) === -1 &&
-        state.requestedFriendIds.indexOf(user.id) === -1 &&
-        state.pendingFriendIds.indexOf(user.id) === -1 &&
-        state.blockedIds.indexOf(user.id) === -1 &&
-        state.selfUser !== user.id && 
-        state.dmIds.indexOf(user.id) === -1
-      ) {
-        delete state.users[user.id];
-        delete state.userMemberCount[user.id];
-      }
+      checkUserIsReferenced(state, user.id);
     },
     removeBlockedID: (state, action: PayloadAction<User>) => {
       const user = action.payload;
       state.blockedIds = state.blockedIds.filter(
         (id) => id !== action.payload.id
       );
-      if (
-        (state.userMemberCount[user.id] === undefined ||
-          state.userMemberCount[user.id] === 0) &&
-        state.friendIds.indexOf(user.id) === -1 &&
-        state.requestedFriendIds.indexOf(user.id) === -1 &&
-        state.pendingFriendIds.indexOf(user.id) === -1 &&
-        state.blockedIds.indexOf(user.id) === -1 &&
-        state.selfUser !== user.id && 
-        state.dmIds.indexOf(user.id) === -1
-      ) {
-        delete state.users[user.id];
-        delete state.userMemberCount[user.id];
-      }
+      checkUserIsReferenced(state, user.id);
     },
     removeGuildMembersID: (state, action: PayloadAction<Member>) => {
       const { guildId, userInfo } = action.payload;
+      if (state.guildMembersIds[guildId] === undefined) {
+        console.log("not exists");
+        return;
+      }
+      state.guildMembersIds[guildId] = state.guildMembersIds[guildId].filter(
+        (id) => id !== userInfo.id
+      );
+      if (state.guildAdminIds[guildId] === undefined) {
+        console.log("not exists");
+        return;
+      }
+      state.guildAdminIds[guildId] = state.guildAdminIds[guildId].filter(
+        (id) => id !== userInfo.id
+      );
       if (state.userMemberCount[userInfo.id] === undefined) {
         console.log("weird");
         return;
       }
       state.userMemberCount[userInfo.id]--;
-      if (
-        (state.userMemberCount[userInfo.id] === undefined ||
-          state.userMemberCount[userInfo.id] === 0) &&
-        state.friendIds.indexOf(userInfo.id) === -1 &&
-        state.requestedFriendIds.indexOf(userInfo.id) === -1 &&
-        state.pendingFriendIds.indexOf(userInfo.id) === -1 &&
-        state.blockedIds.indexOf(userInfo.id) === -1 &&
-        state.selfUser !== userInfo.id && 
-        state.dmIds.indexOf(userInfo.id) === -1
-      ) {
-        delete state.users[userInfo.id];
-        delete state.userMemberCount[userInfo.id];
-      }
+      checkUserIsReferenced(state, userInfo.id);
     },
     resetUsers: (state) => {
       state.blockedIds = [];
@@ -245,9 +229,19 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addMatcher(
+      getGuilds.matchFulfilled,
+      (state, action: PayloadAction<GuildList>) => {
+        for (const dm of action.payload.dms) {
+          state.users[dm.userInfo.id] = dm.userInfo;
+          state.dmIds.push(dm.userInfo.id);
+        }
+      }
+    );
+    builder.addMatcher(
       getSelf.matchFulfilled,
       (state, action: PayloadAction<User>) => {
         state.users[action.payload.id] = action.payload;
+        state.selfUser = action.payload.id;
       }
     );
     builder.addMatcher(
@@ -273,9 +267,33 @@ const userSlice = createSlice({
             state.guildMembersIds[member.guildId] = [];
           }
           state.guildMembersIds[member.guildId].push(member.userInfo.id);
+          if (state.guildAdminIds[member.guildId] === undefined) {
+            state.guildAdminIds[member.guildId] = [];
+          }
+          if (member.admin || member.owner) {
+            state.guildAdminIds[member.guildId].push(member.userInfo.id);
+          }
           state.users[member.userInfo.id] = member.userInfo;
-          state.userMemberCount[member.userInfo.id] =
-            (state.userMemberCount[member.userInfo.id] || 0) + 1;
+          if (state.userMemberCount[member.userInfo.id] === undefined) {
+            state.userMemberCount[member.userInfo.id] = 0;
+          }
+          state.userMemberCount[member.userInfo.id]++;
+        }
+      }
+    );
+    builder.addMatcher(
+      getGuildBans.matchFulfilled,
+      (state, action: PayloadAction<Member[]>) => {
+        for (const ban of action.payload) {
+          if (state.guildBannedIds[ban.guildId] === undefined) {
+            state.guildBannedIds[ban.guildId] = [];
+          }
+          state.guildBannedIds[ban.guildId].push(ban.userInfo.id);
+          state.users[ban.userInfo.id] = ban.userInfo;
+          if (state.userMemberCount[ban.userInfo.id] === undefined) {
+            state.userMemberCount[ban.userInfo.id] = 0;
+          }
+          state.userMemberCount[ban.userInfo.id]++;
         }
       }
     );
@@ -307,6 +325,7 @@ const userSlice = createSlice({
 export default userSlice.reducer;
 
 export const {
+  updateUser,
   addFriendID,
   addRequestedFriendID,
   addBlockedID,
@@ -321,4 +340,6 @@ export const {
   removePendingFriendID,
   removeGuildBannedID,
   removeBlockedID,
+  addGuildAdminID,
+  removeGuildAdminID,
 } = userSlice.actions;

@@ -1,22 +1,42 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import Button from "../buttonComponent";
-import CheckBox from "../checkBoxComponent";
 import Input from "../inputComponent";
 import Modal from "../modal/modalComponent";
-import ModalBottom from "../modal/modalBottomComponent";
-import UploadPic from "../uploadPicComponent";
 
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setShowCreateInviteModal } from "../../app/slices/clientSlice";
 import {
-  setShowAddChatModal,
-  setShowCreateInviteModal,
-} from "../../app/slices/clientSlice";
+  useGetGuildInvitesQuery,
+  usePostGuildInviteMutation,
+} from "../../api/guildApi";
+import { RootState } from "../../app/store";
 
 const InviteModal: FC = () => {
   const dispatch = useDispatch();
+
+  const currentGuild = useSelector(
+    (state: RootState) => state.client.currentGuild
+  );
+
+  const isInvitesLoaded = useSelector((state: RootState) => {
+    const guild = state.client.guildLoaded[currentGuild ?? ""];
+    if (guild == undefined) {
+      return false;
+    }
+    return guild.invites;
+  });
+
+  const { isLoading } = useGetGuildInvitesQuery(currentGuild ?? "", {
+    skip: isInvitesLoaded,
+  });
+
+
+  const invites = useSelector(
+    (state: RootState) => state.guild.invites[currentGuild ?? ""] ?? []
+  );
+
+
+  const [createInvite] = usePostGuildInviteMutation();
 
   return (
     <Modal
@@ -26,8 +46,13 @@ const InviteModal: FC = () => {
       }}
     >
       <div className="flex flex-row space-x-4">
-        <Input label="Invite Code" value="123" dark />
-        <Button value="Generate" type="button" className="self-end"/>
+        <Input
+          label="Invite Code"
+          value={invites[invites.length - 1]?.invite ?? "No Invite"}
+          dark
+          copyButton
+        />
+        <Button value="Generate" type="button" className="self-end" onClick={() => createInvite(currentGuild ?? "")} />
       </div>
     </Modal>
   );

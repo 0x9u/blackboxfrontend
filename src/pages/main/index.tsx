@@ -8,6 +8,7 @@ import Friends from "./friends";
 import Admin from "./admin";
 import UserSettings from "../../components/settings/user/userSettings";
 import { useStartWSQuery } from "../../api/websocket";
+import { redirect, useNavigate } from "react-router-dom";
 
 const Main: FC = () => {
   const currentMode = useSelector(
@@ -16,7 +17,14 @@ const Main: FC = () => {
   const showUserSettings = useSelector(
     (state: RootState) => state.client.showUserSettings
   );
+  const token = useSelector((state: RootState) => state.auth.token);
+  const navigate = useNavigate();
+
+  if (token === null) {
+    navigate("/");
+  }
   
+
   useStartWSQuery({});
   
   return (

@@ -1,8 +1,21 @@
 //create empty component using FC
 import React, { FC, Fragment, useState } from "react";
-import { MdPeople, MdMail, MdSettings, MdMoreHoriz, MdOutlineExitToApp, MdClose } from "react-icons/md"
+import {
+  MdPeople,
+  MdMail,
+  MdSettings,
+  MdMoreHoriz,
+  MdOutlineExitToApp,
+  MdClose,
+} from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { setShowChatUserList, setShowCreateInviteModal, setShowGuildDMSettings } from "../../app/slices/clientSlice";
+import { useGetGuildMembersQuery } from "../../api/guildApi";
+import { useLeaveGuildMutation } from "../../api/userApi";
+import {
+  setShowChatUserList,
+  setShowCreateInviteModal,
+  setShowGuildDMSettings,
+} from "../../app/slices/clientSlice";
 import { RootState } from "../../app/store";
 
 const ChatBar: FC = () => {
@@ -14,41 +27,120 @@ const ChatBar: FC = () => {
     (state: RootState) => state.client.currentChatMode
   );
 
-  const showChatUserList = useSelector((state: RootState) => state.client.showChatUserList);
+  const showChatUserList = useSelector(
+    (state: RootState) => state.client.showChatUserList
+  );
+
+  const currentGuild = useSelector(
+    (state: RootState) => state.client.currentGuild
+  );
+
+  const isOwner = useSelector(
+    (state: RootState) =>
+      state.guild.guilds[state.client.currentGuild || ""]?.ownerId ===
+      state.user.selfUser
+  );
+
+  const isAdmin = useSelector(
+    (state: RootState) =>
+      state.user.guildAdminIds?.[state.client.currentGuild || ""]?.includes(
+        state.user.selfUser || ""
+      ) ?? false
+  );
+
+  const isMembersLoaded = useSelector((state: RootState) => {
+    const guild = state.client.guildLoaded[currentGuild ?? ""];
+    if (guild == undefined) {
+      return false;
+    }
+    return guild.members;
+  }); //worst code of all time right here
+
+  useGetGuildMembersQuery(currentGuild ?? "", {
+    skip: isMembersLoaded,
+  });
+
+  const currentDM = useSelector((state: RootState) => state.client.currentDM);
+
+  const currentGuildTitle = useSelector((state: RootState) =>
+    currentChatMode === "dm"
+      ? currentDM
+        ? state.user.users[state.guild.dms[currentDM].userId]?.name
+        : "Not Selected"
+      : currentGuild
+      ? state.guild.guilds[currentGuild]?.name
+      : "Not Selected"
+  );
+
+  const [leaveGuild] = useLeaveGuildMutation();
 
   return (
     <div className="relative flex h-16 flex-row border-b border-black bg-shade-4 px-4 shadow-xl">
       <p className="m-auto w-0 grow truncate text-2xl font-bold text-white/90">
-        First server!
+        {currentGuildTitle}
       </p>
       <div className="flex grow flex-row-reverse space-x-4 space-x-reverse">
-        {currentChatMode === "guild" ?
-          <Fragment><MdPeople
-            className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white/75 cursor-pointer active:text-white/50"
-            onClick={() => dispatch(setShowChatUserList(!showChatUserList))}
-          />
-            <MdMoreHoriz className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white/75 cursor-pointer active:text-white/50" onClick={() => setShowMiniMenu(!showMiniMenu)} />
-            {showMiniMenu &&
-              < div className="flex flex-col z-20 absolute bg-shade-2 top-16 w-44 space-y-2 p-2  rounded-b-sm">
-                <div className="flex flex-row justify-between select-none text-white/90 hover:text-white/75 hover:bg-white/50 rounded p-2 active:text-white/50 cursor-pointer" onClick={() => { dispatch(setShowCreateInviteModal(true)); setShowMiniMenu(false); }} >
+        {currentChatMode === "guild" ? (
+          <Fragment>
+            <MdPeople
+              className="my-auto h-10 w-10 shrink-0 cursor-pointer text-white/90 hover:text-white/75 active:text-white/50"
+              onClick={() => dispatch(setShowChatUserList(!showChatUserList))}
+            />
+            <MdMoreHoriz
+              className="my-auto h-10 w-10 shrink-0 cursor-pointer text-white/90 hover:text-white/75 active:text-white/50"
+              onClick={() => setShowMiniMenu(!showMiniMenu)}
+            />
+            {showMiniMenu && (
+              <div className="absolute top-16 z-20 flex w-44 flex-col space-y-2 rounded-b-sm bg-shade-2  p-2">
+                <div
+                  className="flex cursor-pointer select-none flex-row justify-between rounded p-2 text-white/90 hover:bg-white/50 hover:text-white/75 active:text-white/50"
+                  onClick={() => {
+                    dispatch(setShowCreateInviteModal(true));
+                    setShowMiniMenu(false);
+                  }}
+                >
                   <label className="cursor-pointer">Invite</label>
-                  <MdMail className="my-auto m-0 h-5 w-5 shrink-0" />
+                  <MdMail className="m-0 my-auto h-5 w-5 shrink-0" />
                 </div>
-                <div className="flex flex-row justify-between select-none text-white/90 hover:text-white/75 hover:bg-white/50 rounded p-2 active:text-white/50 cursor-pointer" onClick={() => { dispatch(setShowGuildDMSettings(true)); setShowMiniMenu(false); }} >
-                  <label className="cursor-pointer">Room Settings</label>
-                  <MdSettings className="my-auto h-5 w-5 shrink-0 " /></div>
-                <div className="flex flex-row justify-between select-none text-white/90 hover:text-white/75 hover:bg-white/50 rounded p-2 active:text-white/50 cursor-pointer">
-                  <label className="cursor-pointer">Leave Room</label>
-                  <MdOutlineExitToApp className="my-auto h-5 w-5 shrink-0" />
-                </div>
+                {(isOwner || isAdmin) && (
+                  <div
+                    className="flex cursor-pointer select-none flex-row justify-between rounded p-2 text-white/90 hover:bg-white/50 hover:text-white/75 active:text-white/50"
+                    onClick={() => {
+                      dispatch(setShowGuildDMSettings(true));
+                      setShowMiniMenu(false);
+                    }}
+                  >
+                    <label className="cursor-pointer">Room Settings</label>
+                    <MdSettings className="my-auto h-5 w-5 shrink-0 " />
+                  </div>
+                )}
+                {!isOwner && (
+                  <div
+                    className="flex cursor-pointer select-none flex-row justify-between rounded p-2 text-white/90 hover:bg-white/50 hover:text-white/75 active:text-white/50"
+                    onClick={() => leaveGuild(currentGuild || "")}
+                  >
+                    <label className="cursor-pointer">Leave Room</label>
+                    <MdOutlineExitToApp className="my-auto h-5 w-5 shrink-0" />
+                  </div>
+                )}
               </div>
-            }
-            {showMiniMenu && <div className="fixed inset-0 z-10 opacity-0" onClick={() => setShowMiniMenu(false)} />}
+            )}
+            {showMiniMenu && (
+              <div
+                className="fixed inset-0 z-10 opacity-0"
+                onClick={() => setShowMiniMenu(false)}
+              />
+            )}
           </Fragment>
-          : <Fragment><MdClose className="my-auto h-10 w-10 shrink-0 text-white/90 hover:text-white/75 cursor-pointer active:text-white/50" /><label className="my-auto text-white">Close Direct Message</label></Fragment>}
+        ) : (
+          <Fragment>
+            <MdClose className="my-auto h-10 w-10 shrink-0 cursor-pointer text-white/90 hover:text-white/75 active:text-white/50" />
+            <label className="my-auto text-white">Close Direct Message</label>
+          </Fragment>
+        )}
       </div>
-    </div >
-  )
-}
+    </div>
+  );
+};
 
 export default ChatBar;

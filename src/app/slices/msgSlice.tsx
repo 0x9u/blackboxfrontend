@@ -1,12 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Msg } from "../../api/types/msg";
-import { getMsgsDM } from "../../api/userApi";
 import { getGuildMsgs } from "../../api/guildApi";
 
 type MsgState = {
-  msgs: Record<number, Msg>; //figure out how to dynamically update user pfp for msgs later - can't be bothered do it rn
-  author: Record<number, number[]>;
-  guildMsgIds: Record<number, number[]>; //order newest to oldest
+  msgs: Record<string, Msg>; //figure out how to dynamically update user pfp for msgs later - can't be bothered do it rn
+  author: Record<string, string[]>;
+  guildMsgIds: Record<string, string[]>; //order newest to oldest
 };
 
 const initialState: MsgState = { // guildMsgIds also include dms because they are basically the same
@@ -21,14 +20,18 @@ const msgSlice = createSlice({
   reducers: {
     addGuildMsg: (
       state,
-      action: PayloadAction<{ guildId: number; msg: Msg }>
+      action: PayloadAction<{ guildId: string; msg: Msg }>
     ) => {
       const { guildId, msg } = action.payload;
       state.msgs[msg.id] = msg;
       if (state.guildMsgIds[guildId] === undefined) {
-        console.log("not exists");
+        state.guildMsgIds[guildId] = [];
       }
-      state.guildMsgIds[guildId].push(msg.id);
+      if (state.author[msg.author.id] === undefined) {
+        state.author[msg.author.id] = [];
+      }
+      state.author[msg.author.id].unshift(msg.id);
+      state.guildMsgIds[guildId].unshift(msg.id);
     },
     editMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
@@ -38,6 +41,7 @@ const msgSlice = createSlice({
       const msg = action.payload;
       if (state.guildMsgIds[msg.guildId] === undefined) {
         console.log("not exists");
+        return
       }
       state.guildMsgIds[msg.guildId] = state.guildMsgIds[msg.guildId].filter(
         (id) => id !== msg.id
@@ -45,6 +49,7 @@ const msgSlice = createSlice({
       delete state.msgs[msg.id];
       if (state.author[msg.author.id] === undefined) {
         console.log("not exists");
+        return
       }
       state.author[msg.author.id] = state.author[msg.author.id].filter(
         (id) => id !== msg.id
@@ -56,14 +61,10 @@ const msgSlice = createSlice({
         console.log("not exists");
         return;
       }
-      if (state.author[msg.author.id] === undefined) {
-        console.log("not exists");
-        return;
-      }
       for (const msgId of state.author[msg.author.id]) {
         delete state.msgs[msgId];
       }
-      state.author[msg.author.id] = [];
+      delete state.author[msg.author.id];
     },
     resetMsgs: (state) => {
       state.msgs = {};
@@ -81,11 +82,11 @@ const msgSlice = createSlice({
             //if not exist
             state.author[msg.author.id] = [];
           }
-          if (state.guildMsgIds[msg.id] === undefined) {
-            state.guildMsgIds[msg.id] = [];
+          if (state.guildMsgIds[msg.guildId] === undefined) {
+            state.guildMsgIds[msg.guildId] = [];
           }
           state.author[msg.author.id].push(msg.id);
-          state.guildMsgIds[msg.author.id].push(msg.id);
+          state.guildMsgIds[msg.guildId].push(msg.id);
         }
       }
     );

@@ -1,18 +1,36 @@
 export interface User {
-    id : number;
-    name : string;
-    email : string;
-    imageId : number;
-    flags : number;
-    options : number;
+  id: string;
+  name: string;
+  email: string;
+  imageId: string;
+  flags: number;
+  options: number;
+  permissions: Permissions;
 }
 
 export interface Member {
-    guildId : number;
-    userInfo : User;
+  guildId: string;
+  userInfo: User;
+  admin : boolean;
+  owner : boolean;
 }
 
 export interface FriendRequest {
-    requested : User[];
-    pending : User[];
+  requested: User[];
+  pending: User[];
+}
+
+export interface Permissions {
+  guild : {
+    delete : boolean;
+    edit : boolean;
+    get : boolean;
+  },
+  user : {
+    delete : boolean;
+    edit : boolean;
+    get : boolean;
+  },
+  banIP : boolean;
+  admin : boolean;
 }

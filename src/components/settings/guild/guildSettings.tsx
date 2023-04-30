@@ -3,7 +3,7 @@ import { setShowGuildDMSettings } from "../../../app/slices/clientSlice";
 import SettingsPage from "../settingsPage";
 import SettingsPanel from "../settingsPanel";
 import SettingsSideBar from "../settingsSideBar";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import SettingsSideBarButton from "../settingsSideBarButton";
 import SettingsSideBarGroup from "../settingsSideBarGroup";
 import OverviewGuildSettings from "./overviewGuildSettings";
@@ -11,16 +11,31 @@ import InvitesGuildSettings from "./invitesGuildSettings";
 import BansGuildSettings from "./banGuildSettings";
 import MembersGuildSettings from "./membersGuildSettings";
 import { MdDelete } from "react-icons/md";
+import { RootState } from "../../../app/store";
+import { useDeleteGuildMutation } from "../../../api/guildApi";
 
 const GuildSettings: FC = () => {
   const dispatch = useDispatch();
   const [settingsMode, setSettingsMode] = React.useState<
     "overview" | "invites" | "members" | "bans"
   >("overview");
+  const currentGuild = useSelector(
+    (state: RootState) => state.client.currentGuild
+  );
+  const selfUserId = useSelector((state: RootState) => state.user.selfUser);
+  const currentOwner = useSelector(
+    (state: RootState) => state.guild.guilds[currentGuild || ""]?.ownerId ?? ""
+  );
+
+  const [deleteGuild] = useDeleteGuildMutation();
+  const guildName = useSelector(
+    (state: RootState) =>
+      state.guild.guilds[state.client.currentGuild || ""]?.name ?? ""
+  );
   return (
     <SettingsPage>
       <SettingsSideBar>
-        <SettingsSideBarGroup label="First Server">
+        <SettingsSideBarGroup label={guildName}>
           <SettingsSideBarButton
             label="Overview"
             activated={settingsMode === "overview"}
@@ -42,13 +57,18 @@ const GuildSettings: FC = () => {
             onClick={() => setSettingsMode("bans")}
           />
         </SettingsSideBarGroup>
-        <SettingsSideBarGroup bottom>
-          <SettingsSideBarButton
-            label="Delete Server"
-            onClick={() => console.log("delete guild clicked")}
-            icon={<MdDelete className="ml-auto w-8 h-8 text-white" />}
-          />
-        </SettingsSideBarGroup>
+        {currentOwner === selfUserId && (
+          <SettingsSideBarGroup bottom>
+            <SettingsSideBarButton
+              label="Delete Server"
+              onClick={() => {
+                deleteGuild(currentGuild || "");
+                dispatch(setShowGuildDMSettings(false));
+              }}
+              icon={<MdDelete className="ml-auto h-8 w-8 text-white" />}
+            />
+          </SettingsSideBarGroup>
+        )}
       </SettingsSideBar>
       <SettingsPanel closeFunc={() => dispatch(setShowGuildDMSettings(false))}>
         {settingsMode === "overview" ? (

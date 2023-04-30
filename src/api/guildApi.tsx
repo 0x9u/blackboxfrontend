@@ -1,80 +1,223 @@
 import { chatApi } from "./api";
 import { Msg } from "./types/msg";
-import { Guild, Invite } from "./types/guild";
+import { Guild, GuildUpload, Invite } from "./types/guild";
 import { Member } from "./types/user";
+import {
+  setGuildBannedLoaded,
+  setGuildInvitesLoaded,
+  setGuildMembersLoaded,
+  setGuildMsgsLoaded,
+} from "../app/slices/clientSlice";
 
 const guildApi = chatApi.injectEndpoints({
   endpoints: (builder) => ({
-    getGuilds: builder.query<Guild[], void>({
-      query: () => ({
-        url: "/guilds",
-        method: "GET",
+    postGuild: builder.mutation<void, GuildUpload>({
+      query: (guild) => {
+        const formData = new FormData();
+        formData.append("body", JSON.stringify(guild.body));
+        if (guild.image) {
+          const data = new Blob([guild.image], { type: guild.image.type });
+          console.log(guild.image.name);
+          formData.append("image", data, guild.image.name);
+        }
+
+        return {
+          url: "/guilds",
+          method: "POST",
+          body: formData,
+        };
+      },
+    }),
+    patchGuild: builder.mutation<void, { id: string; body: GuildUpload }>({
+      query: (args) => {
+        const { id, body: guild } = args;
+        const formData = new FormData();
+        formData.append("body", JSON.stringify(guild.body));
+        if (guild.image) {
+          const data = new Blob([guild.image], { type: guild.image.type });
+          console.log(guild.image.name);
+          formData.append("image", data, guild.image.name);
+        }
+
+        return {
+          url: `/guilds/${id}`,
+          method: "PATCH",
+          body: formData,
+        };
+      },
+    }),
+    deleteGuild: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/guilds/${id}`,
+        method: "DELETE",
       }),
     }),
-    getGuildMembers: builder.query<Member[], number>({
+    makeOwner: builder.mutation<void, { id: string; userId: string }>({
+      query: ({ id, userId }) => ({
+        url: `/guilds/${id}`,
+        method: "PATCH",
+        body: { ownerId: userId } as Guild,
+      }),
+    }),
+    getGuildMembers: builder.query<Member[], string>({
       query: (id) => ({
         url: `/guilds/${id}/members`,
         method: "GET",
       }),
+      onCacheEntryAdded: (arg, { dispatch }) => {
+        dispatch(setGuildMembersLoaded(arg));
+      },
     }),
-    getGuildSettings: builder.query<Guild, number>({
-      query: (id) => ({
-        url: `/guilds/${id}/settings`,
-        method: "GET",
+    deleteGuildMember: builder.mutation<void, { id: string; userId: string }>({
+      query: ({ id, userId }) => ({
+        url: `/guilds/${id}/members/${userId}`,
+        method: "DELETE",
       }),
     }),
-    getGuildMsgs: builder.query<Msg[], {id : number; time : number}>({
-      query: ({id, time}) => ({
-        url: `/guilds/${id}/msgs`,
-        method: "GET",
-        params: {time}
-      }),
+    getGuildMsgs: builder.query<Msg[], { id: string; time: number }>({
+      query: ({ id, time }) => {
+        if (time === 0) time = new Date().valueOf();
+        return {
+          url: `/guilds/${id}/msgs`,
+          method: "GET",
+          params: { time },
+        };
+      },
+      onCacheEntryAdded: (arg, { dispatch }) => {
+        dispatch(setGuildMsgsLoaded(arg.id));
+      },
     }),
-    postGuildMsg: builder.query<void, { id: number; msg: Msg }>({
+    postGuildMsg: builder.mutation<void, { id: string; msg: Msg }>({
       query: ({ id, msg }) => ({
-        url: `/guilds/${id}/messages`,
+        url: `/guilds/${id}/msgs`,
         method: "POST",
         body: msg,
       }),
     }),
-    deleteGuildMsg: builder.query<void, { id: number; msgId: number }>({
+    deleteGuildMsg: builder.mutation<void, { id: string; msgId: string }>({
       query: ({ id, msgId }) => ({
-        url: `/guilds/${id}/messages/${msgId}`,
+        url: `/guilds/${id}/msgs/${msgId}`,
         method: "DELETE",
       }),
     }),
-    patchGuildMsg: builder.query<void, { id: number; msgId: number; msg: Msg }>({
+    patchGuildMsg: builder.mutation<
+      void,
+      { id: number; msgId: number; msg: Msg }
+    >({
       query: ({ id, msgId, msg }) => ({
-        url: `/guilds/${id}/messages/${msgId}`,
+        url: `/guilds/${id}/msgs/${msgId}`,
         method: "PATCH",
         body: msg,
       }),
     }),
-    getGuildBans: builder.query<Member[], number>({
+    getGuildBans: builder.query<Member[], string>({
       query: (id) => ({
         url: `/guilds/${id}/bans`,
         method: "GET",
       }),
+      onCacheEntryAdded: (arg, { dispatch }) => {
+        dispatch(setGuildBannedLoaded(arg));
+      },
     }),
-    getGuildInvites: builder.query<Invite[], number>({
+    putGuildBan: builder.mutation<void, { id: string; userId: string }>({
+      query: ({ id, userId }) => ({
+        url: `/guilds/${id}/bans/${userId}`,
+        method: "PUT",
+      }),
+    }),
+    deleteGuildBan: builder.mutation<void, { id: string; userId: string }>({
+      query: ({ id, userId }) => ({
+        url: `/guilds/${id}/bans/${userId}`,
+        method: "DELETE",
+      }),
+    }),
+    getGuildInvites: builder.query<Invite[], string>({
       query: (id) => ({
         url: `/guilds/${id}/invites`,
         method: "GET",
+      }),
+      onCacheEntryAdded: (arg, { dispatch }) => {
+        dispatch(setGuildInvitesLoaded(arg));
+      },
+    }),
+    joinGuildInvite: builder.mutation<void, string>({
+      query: (code) => ({
+        url: "/guilds/join",
+        method: "POST",
+        body: {
+          invite: code,
+        },
+      }),
+    }),
+    postGuildInvite: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/guilds/${id}/invites`,
+        method: "POST",
+      }),
+    }),
+    deleteGuildInvite: builder.mutation<void, { id: string; invite: string }>({
+      query: (args) => ({
+        url: `/guilds/${args.id}/invites/${args.invite}`,
+        method: "DELETE",
+      }),
+    }),
+    putGuildAdmin: builder.mutation<void, { id: string; userId: string }>({
+      query: ({ id, userId }) => ({
+        url: `/guilds/${id}/admins/${userId}`,
+        method: "PUT",
+      }),
+    }),
+    deleteGuildAdmin: builder.mutation<void, { id: string; userId: string }>({
+      query: ({ id, userId }) => ({
+        url: `/guilds/${id}/admins/${userId}`,
+        method: "DELETE",
       }),
     }),
   }),
 });
 
 export const {
-  getGuilds,
+  postGuild,
+  patchGuild,
   getGuildMembers,
-  getGuildSettings,
+  deleteGuildMember,
   getGuildMsgs,
   postGuildMsg,
   deleteGuildMsg,
   patchGuildMsg,
   getGuildBans,
+  putGuildBan,
+  deleteGuildBan,
   getGuildInvites,
+  postGuildInvite,
+  deleteGuildInvite,
+  deleteGuild,
+  putGuildAdmin,
+  deleteGuildAdmin,
+  joinGuildInvite,
+  makeOwner,
 } = guildApi.endpoints;
+
+export const {
+  usePostGuildMutation,
+  usePatchGuildMutation,
+  useGetGuildMembersQuery,
+  useDeleteGuildMemberMutation,
+  useGetGuildMsgsQuery,
+  usePostGuildMsgMutation,
+  useDeleteGuildMsgMutation,
+  usePatchGuildMsgMutation,
+  useGetGuildBansQuery,
+  usePutGuildBanMutation,
+  useDeleteGuildBanMutation,
+  useGetGuildInvitesQuery,
+  usePostGuildInviteMutation,
+  useDeleteGuildInviteMutation,
+  useDeleteGuildMutation,
+  usePutGuildAdminMutation,
+  useDeleteGuildAdminMutation,
+  useMakeOwnerMutation,
+  useJoinGuildInviteMutation
+} = guildApi;
 
 export default guildApi;

@@ -2,6 +2,8 @@ import React, { FC } from "react";
 import { MdExitToApp } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { setShowUserSettings } from "../../../app/slices/clientSlice";
+import Input from "../../inputComponent";
+import Modal from "../../modal/modalComponent";
 
 import SettingsPage from "../settingsPage";
 import SettingsPanel from "../settingsPanel";
@@ -20,6 +22,10 @@ const UserSettings: FC = () => {
   const [settingsMode, setSettingsMode] = React.useState<
     "account" | "friends" | "privacy" | "panic" | "text" | "accessability"
   >("account");
+
+  const [showUsernameModal, setShowUsernameModal] =
+    React.useState<boolean>(false);
+  const [showEmailModal, setShowEmailModal] = React.useState<boolean>(false);
   return (
     <SettingsPage>
       <SettingsSideBar>
@@ -60,7 +66,7 @@ const UserSettings: FC = () => {
         <SettingsSideBarGroup bottom>
           <SettingsSideBarButton
             label="Log out"
-            icon={<MdExitToApp className="text-white h-8 w-8 ml-auto" />}
+            icon={<MdExitToApp className="ml-auto h-8 w-8 text-white" />}
           />
         </SettingsSideBarGroup>
       </SettingsSideBar>
@@ -79,6 +85,26 @@ const UserSettings: FC = () => {
           <AccessibilityUserSettings />
         ) : null}
       </SettingsPanel>
+      {showUsernameModal && (
+        <Modal
+          title="Change Username"
+          exitFunc={() => setShowUsernameModal(false)}
+        >
+          <div>
+            <Input />
+          </div>
+        </Modal>
+      )}
+      {showEmailModal && (
+        <Modal
+          title="Change Email"
+          exitFunc={() => setShowEmailModal(false)}
+        >
+          <div>
+            <Input />
+          </div>
+        </Modal>
+      )}
     </SettingsPage>
   );
 };

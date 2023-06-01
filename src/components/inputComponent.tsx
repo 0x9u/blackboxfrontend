@@ -32,7 +32,7 @@ const Input: FC<InputProps> = ({
   copyButton,
 }) => {
   return (
-    <div className="flex w-64 flex-col">
+    <div className={`flex w-64 flex-col ${className || ""}`}>
       <p
         className={`my-2 break-words text-sm font-semibold uppercase ${
           !dark ? "text-white" : "text-black"
@@ -45,10 +45,7 @@ const Input: FC<InputProps> = ({
       </p>
       <div className="flex flex-row rounded bg-shade-2 outline-2 outline-offset-2 focus-within:outline focus-within:outline-shade-5">
         <input
-          className={
-            "h-10 w-64 rounded bg-shade-2 px-2 font-medium text-white outline-none" +
-            (className || "")
-          }
+          className="h-10 w-64 rounded bg-shade-2 px-2 font-medium text-white outline-none"
           type={type}
           value={value}
           onBlur={onBlur}

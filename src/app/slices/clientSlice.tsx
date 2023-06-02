@@ -23,6 +23,7 @@ type ClientState = {
   showChatUserList: boolean;
   showAddChatModal: boolean;
   showCreateInviteModal: boolean;
+  showEditPassModal: boolean;
   showGuildDMSettings: boolean;
   showUserSettings: boolean;
   permissions: Permissions;
@@ -48,6 +49,7 @@ const initialState: ClientState = {
   showChatUserList: false,
   showAddChatModal: false,
   showCreateInviteModal: false,
+  showEditPassModal: false,
   showGuildDMSettings: false,
   showUserSettings: false,
   permissions: {} as Permissions,
@@ -112,6 +114,9 @@ const clientSlice = createSlice({
     },
     setShowCreateInviteModal: (state, action: PayloadAction<boolean>) => {
       state.showCreateInviteModal = action.payload;
+    },
+    setShowEditPassModal : (state, action: PayloadAction<boolean>) => {
+      state.showEditPassModal = action.payload;
     },
     setShowGuildDMSettings: (state, action: PayloadAction<boolean>) => {
       state.showGuildDMSettings = action.payload;
@@ -200,6 +205,7 @@ export const {
   setShowChatUserList,
   setShowAddChatModal,
   setShowCreateInviteModal,
+  setShowEditPassModal,
   setShowGuildDMSettings,
   setShowUserSettings,
   setGuildMsgsLoaded,

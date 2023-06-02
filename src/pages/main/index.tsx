@@ -20,9 +20,9 @@ const Main: FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
   const navigate = useNavigate();
 
-  if (token === null) {
+ /* if (token === null) {
     navigate("/");
-  }
+  }*/
   
 
   useStartWSQuery({});

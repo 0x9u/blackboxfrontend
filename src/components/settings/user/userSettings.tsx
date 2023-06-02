@@ -1,7 +1,8 @@
 import React, { FC } from "react";
 import { MdExitToApp } from "react-icons/md";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setShowUserSettings } from "../../../app/slices/clientSlice";
+import { RootState } from "../../../app/store";
 import Input from "../../inputComponent";
 import Modal from "../../modal/modalComponent";
 
@@ -12,6 +13,7 @@ import SettingsSideBarButton from "../settingsSideBarButton";
 import SettingsSideBarGroup from "../settingsSideBarGroup";
 import AccessibilityUserSettings from "./accessabilityUserSettings";
 import AccountUserSettings from "./accountUserSettings";
+import EditPassModal from "./editPassModal";
 import FriendUserSettings from "./friendUserSettings";
 import PanicUserSettings from "./panicUserSettings";
 import PrivacyUserSettings from "./privacyUserSettings";
@@ -22,6 +24,10 @@ const UserSettings: FC = () => {
   const [settingsMode, setSettingsMode] = React.useState<
     "account" | "friends" | "privacy" | "panic" | "text" | "accessability"
   >("account");
+
+  const showEditPassModal = useSelector((state: RootState) =>
+    state.client.showEditPassModal
+  );
 
   const [showUsernameModal, setShowUsernameModal] =
     React.useState<boolean>(false);
@@ -105,6 +111,10 @@ const UserSettings: FC = () => {
           </div>
         </Modal>
       )}
+      {
+        showEditPassModal &&
+        <EditPassModal />
+      }
     </SettingsPage>
   );
 };

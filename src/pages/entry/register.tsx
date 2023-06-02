@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm, Resolver } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
 import Input from "../../components/inputComponent";

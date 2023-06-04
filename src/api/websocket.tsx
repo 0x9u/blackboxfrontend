@@ -25,6 +25,7 @@ import {
   updateGuild,
   removeDm,
   addDm,
+  incUnreadMsg,
 } from "../app/slices/guildSlice";
 import { Invite } from "./types/guild";
 import {
@@ -129,6 +130,7 @@ const gatewayApi = chatApi.injectEndpoints({
                 case Events.CREATE_GUILD_MESSAGE: {
                   const eventData: Msg = data.data;
                   console.log(eventData);
+                  dispatch(incUnreadMsg(eventData.guildId));
                   dispatch(
                     addGuildMsg({
                       guildId: eventData.guildId,

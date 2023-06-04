@@ -14,7 +14,7 @@ type GuildState = {
 const initialState: GuildState = {
   guildIds: [],
   dmIds: [],
-  dms : {}, //dms still access same guild messages
+  dms: {}, //dms still access same guild messages
   guilds: {},
   invites: {},
 };
@@ -38,17 +38,37 @@ const guildSlice = createSlice({
       }
       state.guilds[action.payload.id] = action.payload;
     },
+    incUnreadMsg: (state, action: PayloadAction<string>) => {
+      if (state.guilds[action.payload] !== undefined) {
+        state.guilds[action.payload].unread.count++;
+      } else if (state.dms[action.payload] !== undefined) {
+        state.dms[action.payload].unread.count++;
+      } else {
+        console.log("not exists");
+      }
+    },
+    clearUnreadMsg: (state, action: PayloadAction<string>) => {
+      if (state.guilds[action.payload] !== undefined) {
+        state.guilds[action.payload].unread.count = 0;
+        state.guilds[action.payload].unread.time = new Date().toISOString();
+      } else if (state.dms[action.payload] !== undefined) {
+        state.dms[action.payload].unread.count = 0;
+        state.dms[action.payload].unread.time = new Date().toISOString();
+      } else {
+        console.log("not exists");
+      }
+    },
     addDm: (state, action: PayloadAction<Dm>) => {
       state.dmIds.push(action.payload.id);
-      const body : DmUser = {
+      const body: DmUser = {
         id: action.payload.id,
-        unread : action.payload.unread,
-        userId : action.payload.userInfo.id,
-      }
+        unread: action.payload.unread,
+        userId: action.payload.userInfo.id,
+      };
       state.dms[action.payload.userInfo.id] = body;
     },
     removeDm: (state, action: PayloadAction<Dm>) => {
-      state.dmIds = state.dmIds.filter( (id) => id !== action.payload.id);
+      state.dmIds = state.dmIds.filter((id) => id !== action.payload.id);
       delete state.dms[action.payload.id];
     },
     updateDm: (state, action: PayloadAction<Dm>) => {
@@ -56,11 +76,11 @@ const guildSlice = createSlice({
         console.log("not exists");
         return;
       }
-      const body : DmUser = {
+      const body: DmUser = {
         id: action.payload.id,
-        unread : action.payload.unread,
-        userId : action.payload.userInfo.id,
-      }
+        unread: action.payload.unread,
+        userId: action.payload.userInfo.id,
+      };
       state.dms[action.payload.id] = body;
     },
     addInvite: (state, action: PayloadAction<Invite>) => {
@@ -96,11 +116,11 @@ const guildSlice = createSlice({
         }
         for (const dm of action.payload.dms) {
           state.dmIds.push(dm.id);
-          const newDm : DmUser = {
+          const newDm: DmUser = {
             id: dm.id,
-            unread : dm.unread,
-            userId : dm.userInfo.id,
-          }
+            unread: dm.unread,
+            userId: dm.userInfo.id,
+          };
           state.dms[dm.id] = newDm;
         }
       }
@@ -125,6 +145,8 @@ export const {
   addGuild,
   removeGuild,
   updateGuild,
+  incUnreadMsg,
+  clearUnreadMsg,
   addDm,
   removeDm,
   updateDm,

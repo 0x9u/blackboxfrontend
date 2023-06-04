@@ -112,6 +112,12 @@ const guildApi = chatApi.injectEndpoints({
         body: msg,
       }),
     }),
+    readGuildMsg: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/guilds/${id}/msgs/read`,
+        method: "POST",
+      }),
+    }),
     getGuildBans: builder.query<Member[], string>({
       query: (id) => ({
         url: `/guilds/${id}/bans`,
@@ -189,6 +195,7 @@ export const {
   postGuildMsg,
   deleteGuildMsg,
   patchGuildMsg,
+  readGuildMsg,
   getGuildBans,
   putGuildBan,
   deleteGuildBan,
@@ -211,6 +218,7 @@ export const {
   usePostGuildMsgMutation,
   useDeleteGuildMsgMutation,
   usePatchGuildMsgMutation,
+  useReadGuildMsgMutation,
   useGetGuildBansQuery,
   usePutGuildBanMutation,
   useDeleteGuildBanMutation,

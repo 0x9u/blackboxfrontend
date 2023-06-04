@@ -2,13 +2,20 @@ import React, { FC } from "react";
 
 import MsgElement from "./msgComponent";
 import ChatInput from "./chatInputComponent";
-import { useGetGuildMsgsQuery } from "../../api/guildApi";
-import { useSelector } from "react-redux";
+import {
+  useGetGuildMsgsQuery,
+  useReadGuildMsgMutation,
+} from "../../api/guildApi";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { Msg } from "../../api/types/msg";
 import { SkeletonLoaderChatMsg } from "../skeletonLoaderComponent";
+import { Guild } from "../../api/types/guild";
+import { MdMessage } from "react-icons/md";
+import { clearUnreadMsg } from "../../app/slices/guildSlice";
 
 const ChatHistory: FC = () => {
+  const dispatch = useDispatch();
   const currentID = useSelector((state: RootState) => {
     return state.client.currentChatMode === "dm"
       ? state.client.currentDM
@@ -22,6 +29,13 @@ const ChatHistory: FC = () => {
     }
     return guild.msgs;
   });
+
+  const unreadMsgs = useSelector((state: RootState) => {
+    const guild = state.guild.guilds[currentID ?? ""] ?? ({} as Guild);
+    return guild.unread;
+  });
+
+  const [readMsg] = useReadGuildMsgMutation();
 
   const { isFetching } = useGetGuildMsgsQuery(
     { id: currentID ?? "", time: 0 },
@@ -44,8 +58,10 @@ const ChatHistory: FC = () => {
     return msgHistoryz;
   });
 
+  const lastReadTime = new Date(unreadMsgs.time).toLocaleString();
+
   return (
-    <div className="flex grow flex-col">
+    <div className="relative flex grow flex-col">
       <div className="flex h-0 shrink-0 grow flex-col-reverse space-y-5 space-y-reverse overflow-y-auto py-5">
         {msgHistory.map((msg) => (
           <MsgElement
@@ -59,6 +75,25 @@ const ChatHistory: FC = () => {
         ))}
         {isFetching && <SkeletonLoaderChatMsg />}
       </div>
+      {unreadMsgs.count > 0 && (
+        <div className="absolute w-full px-4">
+          <div className="rounded-b-md bg-shade-2 px-4 py-1 font-medium text-white">
+            <p>
+              <MdMessage className="inline-block h-6 w-6" /> Unread Msgs:{" "}
+              {unreadMsgs.count} Last Read: {lastReadTime}{" "}
+              <a
+                className="cursor-pointer select-none justify-self-end font-semibold text-gray hover:underline active:text-gray/75"
+                onClick={() => {
+                  dispatch(clearUnreadMsg(currentID ?? ""));
+                  readMsg(currentID ?? "");
+                }}
+              >
+                Mark as read
+              </a>
+            </p>
+          </div>
+        </div>
+      )}
       <ChatInput />
     </div>
   );

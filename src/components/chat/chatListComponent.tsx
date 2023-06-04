@@ -10,6 +10,7 @@ import {
 } from "../../app/slices/clientSlice";
 import { useGetGuildsQuery } from "../../api/userApi";
 import { RootState } from "../../app/store";
+import { SkeletonLoaderChatList } from "../skeletonLoaderComponent";
 
 const ChatList: FC = () => {
   const dispatch = useDispatch();
@@ -17,7 +18,7 @@ const ChatList: FC = () => {
   const guildListLoaded = useSelector(
     (state: RootState) => state.client.guildListLoaded
   );
-  
+
   const { isLoading } = useGetGuildsQuery(undefined, {
     refetchOnMountOrArgChange: false,
     skip: guildListLoaded,
@@ -72,7 +73,7 @@ const ChatList: FC = () => {
         <p className="m-auto truncate px-2 leading-relaxed">Add Chat</p>
       </NavbarItem>
       {isLoading ? (
-        <div className="text-white">loading</div>
+        <SkeletonLoaderChatList />
       ) : currentChatMode === "dm" ? (
         dmIds.map((id) => {
           const userImageId = users[dms[id].userId].imageId;

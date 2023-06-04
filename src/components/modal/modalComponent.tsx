@@ -10,7 +10,7 @@ interface modalProps {
 const Modal: FC<modalProps> = ({ children, title, exitFunc }) => {
   return (
     <div className="fixed inset-0 z-10 flex w-full items-center justify-center overflow-y-auto bg-black/25 p-16">
-      <div className="m-auto flex flex-col space-y-1 rounded-lg bg-white shadow-2xl min-[576px]:mx-auto min-[576px]:max-w-[500px] min-[992px]:max-w-[800px]">
+      <div className="m-auto flex flex-col space-y-2 rounded-md bg-white shadow-2xl min-[576px]:mx-auto min-[576px]:max-w-[500px] min-[992px]:max-w-[800px]">
         <div className=" border-gray flex grow flex-row border-b-2 border-opacity-100 p-4">
           <div className="text-xl font-bold">{title}</div>
           <div className="flex grow flex-row justify-end">

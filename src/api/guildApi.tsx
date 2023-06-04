@@ -64,7 +64,8 @@ const guildApi = chatApi.injectEndpoints({
         url: `/guilds/${id}/members`,
         method: "GET",
       }),
-      onCacheEntryAdded: (arg, { dispatch }) => {
+      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
+        await queryFulfilled;
         dispatch(setGuildMembersLoaded(arg));
       },
     }),
@@ -83,7 +84,8 @@ const guildApi = chatApi.injectEndpoints({
           params: { time },
         };
       },
-      onCacheEntryAdded: (arg, { dispatch }) => {
+      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
+        await queryFulfilled;
         dispatch(setGuildMsgsLoaded(arg.id));
       },
     }),
@@ -115,7 +117,8 @@ const guildApi = chatApi.injectEndpoints({
         url: `/guilds/${id}/bans`,
         method: "GET",
       }),
-      onCacheEntryAdded: (arg, { dispatch }) => {
+      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
+        await queryFulfilled;
         dispatch(setGuildBannedLoaded(arg));
       },
     }),
@@ -136,7 +139,8 @@ const guildApi = chatApi.injectEndpoints({
         url: `/guilds/${id}/invites`,
         method: "GET",
       }),
-      onCacheEntryAdded: (arg, { dispatch }) => {
+      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
+        await queryFulfilled;
         dispatch(setGuildInvitesLoaded(arg));
       },
     }),
@@ -217,7 +221,7 @@ export const {
   usePutGuildAdminMutation,
   useDeleteGuildAdminMutation,
   useMakeOwnerMutation,
-  useJoinGuildInviteMutation
+  useJoinGuildInviteMutation,
 } = guildApi;
 
 export default guildApi;

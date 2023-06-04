@@ -9,7 +9,7 @@ type guildLoaded = {
   msgs: boolean;
   members: boolean;
   invites: boolean;
-  banned : boolean;
+  banned: boolean;
 };
 
 type ClientState = {
@@ -24,6 +24,9 @@ type ClientState = {
   showAddChatModal: boolean;
   showCreateInviteModal: boolean;
   showEditPassModal: boolean;
+  showEditUsernameModal: boolean;
+  showEditEmailModal: boolean;
+  showEditProfilePictureModal: boolean;
   showGuildDMSettings: boolean;
   showUserSettings: boolean;
   permissions: Permissions;
@@ -47,9 +50,14 @@ const initialState: ClientState = {
   currentMode: "chat",
   loadingWS: false,
   showChatUserList: false,
+
   showAddChatModal: false,
   showCreateInviteModal: false,
   showEditPassModal: false,
+  showEditUsernameModal: false,
+  showEditEmailModal: false,
+  showEditProfilePictureModal: false,
+
   showGuildDMSettings: false,
   showUserSettings: false,
   permissions: {} as Permissions,
@@ -69,7 +77,7 @@ const clientSlice = createSlice({
     setCurrentGuild: (state, action: PayloadAction<string | null>) => {
       state.currentGuild = action.payload;
     },
-    removeCurrentGuild : (state, action: PayloadAction<string>) => {
+    removeCurrentGuild: (state, action: PayloadAction<string>) => {
       if (state.currentGuild === action.payload) {
         state.currentGuild = null;
       }
@@ -77,7 +85,7 @@ const clientSlice = createSlice({
     setCurrentDM: (state, action: PayloadAction<string | null>) => {
       state.currentDM = action.payload;
     },
-    removeCurrentDM : (state, action: PayloadAction<string>) => {
+    removeCurrentDM: (state, action: PayloadAction<string>) => {
       if (state.currentDM === action.payload) {
         state.currentDM = null;
       }
@@ -115,8 +123,18 @@ const clientSlice = createSlice({
     setShowCreateInviteModal: (state, action: PayloadAction<boolean>) => {
       state.showCreateInviteModal = action.payload;
     },
-    setShowEditPassModal : (state, action: PayloadAction<boolean>) => {
+    setShowEditPassModal: (state, action: PayloadAction<boolean>) => {
       state.showEditPassModal = action.payload;
+    },
+    setShowEditUsernameModal: (state, action: PayloadAction<boolean>) => {
+      state.showEditUsernameModal = action.payload;
+    },
+    setShowEditEmailModal: (state, action: PayloadAction<boolean>) => {
+      state.showEditEmailModal = action.payload;
+    },
+
+    setShowEditProfilePictureModal: (state, action: PayloadAction<boolean>) => {
+      state.showEditProfilePictureModal = action.payload;
     },
     setShowGuildDMSettings: (state, action: PayloadAction<boolean>) => {
       state.showGuildDMSettings = action.payload;
@@ -130,7 +148,7 @@ const clientSlice = createSlice({
           msgs: false,
           members: false,
           invites: false,
-          banned : false,
+          banned: false,
         };
       }
       state.guildLoaded[action.payload].msgs = true;
@@ -144,7 +162,7 @@ const clientSlice = createSlice({
           msgs: false,
           members: false,
           invites: false,
-          banned : false,
+          banned: false,
         };
       }
       state.guildLoaded[action.payload].members = true;
@@ -155,7 +173,7 @@ const clientSlice = createSlice({
           msgs: false,
           members: false,
           invites: false,
-          banned : false,
+          banned: false,
         };
       }
       state.guildLoaded[action.payload].invites = true;
@@ -166,7 +184,7 @@ const clientSlice = createSlice({
           msgs: false,
           members: false,
           invites: false,
-          banned : false,
+          banned: false,
         };
       }
       state.guildLoaded[action.payload].banned = true;
@@ -206,6 +224,9 @@ export const {
   setShowAddChatModal,
   setShowCreateInviteModal,
   setShowEditPassModal,
+  setShowEditEmailModal,
+  setShowEditUsernameModal,
+  setShowEditProfilePictureModal,
   setShowGuildDMSettings,
   setShowUserSettings,
   setGuildMsgsLoaded,

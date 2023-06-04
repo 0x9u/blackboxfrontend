@@ -1,11 +1,15 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
 import Input from "../../components/inputComponent";
 import Button from "../../components/buttonComponent";
-import { postAuth, RegisterReq, useCreateAccountMutation } from "../../api/authApi";
+import {
+  postAuth,
+  RegisterReq,
+  useCreateAccountMutation,
+} from "../../api/authApi";
 import { useNavigate } from "react-router-dom";
 
 interface RegisterProps {
@@ -49,18 +53,27 @@ const Register: FC<RegisterProps> = ({ changeMode }) => {
     formState: { errors },
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
   const navigate = useNavigate();
-  const [createAccount, result] = useCreateAccountMutation(); //dont use result its should be stored in slice
+  const [
+    createAccount,
+    { error: createAccountError, status: createAccountStatus },
+  ] = useCreateAccountMutation(); //dont use result its should be stored in slice
+
+  useEffect(() => {
+    if (createAccountStatus.valueOf() === "fulfilled") {
+      navigate("/main");
+    }
+  }, [createAccountStatus, createAccountError]);
+  
   return (
     <form
       className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-4 px-8 shadow-2xl"
       onSubmit={handleSubmit((data) => {
-        const body : RegisterReq = {
-          name : data.username,
-          password : data.password,
-          email : data.email,
+        const body: RegisterReq = {
+          name: data.username,
+          password: data.password,
+          email: data.email,
         };
         createAccount(body);
-        navigate("/main");
       })}
     >
       <div className="flex flex-col py-4">
@@ -95,9 +108,9 @@ const Register: FC<RegisterProps> = ({ changeMode }) => {
       <div className="flex flex-col py-2 px-6">
         <Button type="submit" value="Register" />
       </div>
-      <div className="py-4 flex flex-col text-sm">
+      <div className="flex flex-col py-4 text-sm">
         <a
-          className="cursor-pointer font-medium text-shade-5 hover:underline text-center"
+          className="cursor-pointer text-center font-medium text-shade-5 hover:underline"
           onClick={changeMode}
         >
           Already have an account?

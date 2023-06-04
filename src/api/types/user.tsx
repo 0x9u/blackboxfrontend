@@ -8,11 +8,31 @@ export interface User {
   permissions: Permissions;
 }
 
+export interface EditUserPasswordForm {
+  password: string;
+  newPassword: string;
+}
+
+export interface EditUserEmailForm {
+  email: string;
+  password: string;
+}
+
+export interface EditUserNameForm {
+  username: string;
+  password: string;
+}
+
+export interface EditUserPictureForm {
+  image: File;
+  password: string;
+}
+
 export interface Member {
   guildId: string;
   userInfo: User;
-  admin : boolean;
-  owner : boolean;
+  admin: boolean;
+  owner: boolean;
 }
 
 export interface FriendRequest {
@@ -21,16 +41,16 @@ export interface FriendRequest {
 }
 
 export interface Permissions {
-  guild : {
-    delete : boolean;
-    edit : boolean;
-    get : boolean;
-  },
-  user : {
-    delete : boolean;
-    edit : boolean;
-    get : boolean;
-  },
-  banIP : boolean;
-  admin : boolean;
+  guild: {
+    delete: boolean;
+    edit: boolean;
+    get: boolean;
+  };
+  user: {
+    delete: boolean;
+    edit: boolean;
+    get: boolean;
+  };
+  banIP: boolean;
+  admin: boolean;
 }

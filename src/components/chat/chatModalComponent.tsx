@@ -46,7 +46,7 @@ const ChatModal: FC = () => {
           .string()
           .required("Name is required")
           .min(6, "Name must be 6 characters long")
-          .max(64, "Name cannot exceed 64 characters"),
+          .max(16, "Name cannot exceed 16 characters"),
         save: yup.boolean(),
         picture: yup
           .mixed()
@@ -97,6 +97,13 @@ const ChatModal: FC = () => {
     ) {
       setInviteError("invite", {
         message: "Invite code is invalid",
+      });
+    } else if (
+      joinGuildError &&
+      (joinGuildError as FetchBaseQueryError).status === 500
+    ) {
+      setInviteError("invite", {
+        message: "A error occurred in the server",
       });
     } else if (joinGuildStatus.valueOf() === "fulfilled") {
       dispatch(setShowAddChatModal(false));

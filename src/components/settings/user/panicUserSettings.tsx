@@ -5,11 +5,11 @@ import Input from "../../inputComponent";
 const PanicUserSettings: FC = () => {
   return (
     <div className="space-y-8">
-      <h1 className="mb-5 text-2xl text-white">Panic Mode</h1>
+      <h1 className="mb-5 text-4xl text-white">Panic Mode</h1>
       <div className="flex flex-col space-y-2">
         <h2 className="text-lg text-white">About Panic Mode</h2>
         <p className="text-white">
-          Scared someone might peek over? No need to worry, Panic Mode is here!<br/>
+          Woried someone might peek over? No need to worry, Panic Mode is here!<br/>
           Pressing the keybind redirects you to the URL you put in the link
           input.
         </p>

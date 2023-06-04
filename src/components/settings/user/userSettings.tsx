@@ -1,6 +1,9 @@
 import React, { FC } from "react";
 import { MdExitToApp } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
+import { redirect, useNavigate } from "react-router-dom";
+import { chatApi } from "../../../api/api";
+import { clearToken } from "../../../app/slices/authSlice";
 import { setShowUserSettings } from "../../../app/slices/clientSlice";
 import { RootState } from "../../../app/store";
 import Input from "../../inputComponent";
@@ -13,7 +16,10 @@ import SettingsSideBarButton from "../settingsSideBarButton";
 import SettingsSideBarGroup from "../settingsSideBarGroup";
 import AccessibilityUserSettings from "./accessabilityUserSettings";
 import AccountUserSettings from "./accountUserSettings";
+import EditEmailModal from "./editEmailModal";
 import EditPassModal from "./editPassModal";
+import EditProfilePictureModal from "./editProfilePictureModal";
+import EditUsernameModal from "./editUsernameModal";
 import FriendUserSettings from "./friendUserSettings";
 import PanicUserSettings from "./panicUserSettings";
 import PrivacyUserSettings from "./privacyUserSettings";
@@ -21,12 +27,25 @@ import TextUserSettings from "./textUserSettings";
 
 const UserSettings: FC = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [settingsMode, setSettingsMode] = React.useState<
     "account" | "friends" | "privacy" | "panic" | "text" | "accessability"
   >("account");
 
-  const showEditPassModal = useSelector((state: RootState) =>
-    state.client.showEditPassModal
+  const showEditPassModal = useSelector(
+    (state: RootState) => state.client.showEditPassModal
+  );
+
+  const showEditEmailModal = useSelector(
+    (state: RootState) => state.client.showEditEmailModal
+  );
+
+  const showEditUsernameModal = useSelector(
+    (state: RootState) => state.client.showEditUsernameModal
+  );
+
+  const showEditProfilePictureModal = useSelector(
+    (state: RootState) => state.client.showEditProfilePictureModal
   );
 
   const [showUsernameModal, setShowUsernameModal] =
@@ -73,6 +92,11 @@ const UserSettings: FC = () => {
           <SettingsSideBarButton
             label="Log out"
             icon={<MdExitToApp className="ml-auto h-8 w-8 text-white" />}
+            onClick={() => {
+              dispatch(clearToken());
+              dispatch(chatApi.util.resetApiState());
+              navigate("/");
+            }}
           />
         </SettingsSideBarGroup>
       </SettingsSideBar>
@@ -102,19 +126,16 @@ const UserSettings: FC = () => {
         </Modal>
       )}
       {showEmailModal && (
-        <Modal
-          title="Change Email"
-          exitFunc={() => setShowEmailModal(false)}
-        >
+        <Modal title="Change Email" exitFunc={() => setShowEmailModal(false)}>
           <div>
             <Input />
           </div>
         </Modal>
       )}
-      {
-        showEditPassModal &&
-        <EditPassModal />
-      }
+      {showEditPassModal && <EditPassModal />}
+      {showEditEmailModal && <EditEmailModal />}
+      {showEditUsernameModal && <EditUsernameModal />}
+      {showEditProfilePictureModal && <EditProfilePictureModal />}
     </SettingsPage>
   );
 };

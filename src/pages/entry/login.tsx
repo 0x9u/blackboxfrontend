@@ -1,6 +1,6 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm, Resolver } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
 import Input from "../../components/inputComponent";
@@ -29,7 +29,7 @@ const schema = yup
       .string()
       .required("Password is required")
       .max(32, "Too long")
-      .min(8, "Too short")
+      .min(8, "Too short"),
   })
   .required();
 
@@ -40,15 +40,21 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
     formState: { errors },
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
   const navigate = useNavigate();
-  const [postAuth, result] = usePostAuthMutation();
+  const [postAuth, { error: postAuthError, status: postAuthStatus }] =
+    usePostAuthMutation();
+    useEffect(() => {
+      if (postAuthStatus.valueOf() === "fulfilled") {
+        navigate("/main");
+      }
+    }, [postAuthStatus, postAuthError]);
   return (
     <form
       className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-8 px-14 shadow-2xl"
       onSubmit={handleSubmit((data) => {
-        const body : LoginReq = {
-          name : data.username,
-          password : data.password,
-        }
+        const body: LoginReq = {
+          name: data.username,
+          password: data.password,
+        };
         postAuth(body);
         navigate("/main");
       })}
@@ -56,7 +62,7 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
       <div className="flex flex-col py-2">
         <p className="text-4xl font-bold text-white">Welcome back!</p>
       </div>
-      <div className="py-4 mx-auto">
+      <div className="mx-auto py-4">
         <Input
           label="username"
           error={errors.username}
@@ -72,15 +78,15 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
       <div className="flex flex-col py-2">
         <Button type="submit" value="Login" />
       </div>
-      <div className="py-4 flex flex-col space-y-2 text-sm">
+      <div className="flex flex-col space-y-2 py-4 text-sm">
         <a
-          className=" cursor-pointer font-medium text-shade-5 hover:underline text-center"
+          className=" cursor-pointer text-center font-medium text-shade-5 hover:underline"
           onClick={changeMode}
         >
           Create an account
         </a>
         <a
-          className=" cursor-pointer font-medium text-shade-5 hover:underline text-center"
+          className=" cursor-pointer text-center font-medium text-shade-5 hover:underline"
           onClick={changeMode}
         >
           Reset my password

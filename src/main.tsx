@@ -1,7 +1,7 @@
-import React from "react";
+import React, { FC, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 
 import Store from "./app/store";
 import Entry from "./pages/entry";
@@ -10,6 +10,22 @@ import Chat from "./pages/main/chat";
 import Friends from "./pages/main/friends";
 import Games from "./pages/main/games";
 import NotFound from "./pages/notfound";
+import { setCurrentMode } from "./app/slices/clientSlice";
+import InvitePage from "./pages/invite";
+
+type siteHandlerProps = {
+  type: "games" | "chat" | "friends";
+};
+
+//probs shit solution but whatever
+const SiteHandler: FC<siteHandlerProps> = (props) => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(setCurrentMode(props.type));
+  }, [dispatch]);
+
+  return <Main />;
+};
 
 const router = createBrowserRouter([
   {
@@ -18,20 +34,24 @@ const router = createBrowserRouter([
   },
   {
     path: "/chat",
-    element: <Chat />,
+
+    element: <SiteHandler type="chat" />,
   },
   {
     path: "/games",
-    element: <Games />,
+    element: <SiteHandler type="games" />,
   },
   {
     path: "/friends",
-    element: <Friends />,
+    element: <SiteHandler type="friends" />,
   },
-
   {
     path: "/main",
     element: <Main />,
+  },
+  {
+    path: "/invite",
+    element: <InvitePage />,
   },
   {
     path: "*",

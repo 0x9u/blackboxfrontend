@@ -20,13 +20,12 @@ const Main: FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
   const navigate = useNavigate();
 
- /* if (token === null) {
+  if (token === null) {
     navigate("/");
-  }*/
-  
+  }
 
   useStartWSQuery({});
-  
+
   return (
     <div className="relative flex min-h-screen flex-row overflow-hidden">
       <Navbar />
@@ -41,8 +40,7 @@ const Main: FC = () => {
       ) : (
         <div>unknown mode selected</div>
       )}
-      {showUserSettings &&
-        <UserSettings />}
+      {showUserSettings && <UserSettings />}
     </div>
   );
 };

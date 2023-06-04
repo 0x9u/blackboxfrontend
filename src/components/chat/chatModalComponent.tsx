@@ -93,7 +93,7 @@ const ChatModal: FC = () => {
     console.log(joinGuildStatus.valueOf());
     if (
       joinGuildError &&
-      (joinGuildError as FetchBaseQueryError).status === 400
+      (joinGuildError as FetchBaseQueryError).status === 403
     ) {
       setInviteError("invite", {
         message: "Invite code is invalid",

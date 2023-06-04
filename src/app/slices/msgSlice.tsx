@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Msg } from "../../api/types/msg";
 import { getGuildMsgs } from "../../api/guildApi";
+import { Guild } from "../../api/types/guild";
 
 type MsgState = {
   msgs: Record<string, Msg>; //figure out how to dynamically update user pfp for msgs later - can't be bothered do it rn
@@ -55,6 +56,17 @@ const msgSlice = createSlice({
         (id) => id !== msg.id
       );
     },
+    removeAllGuildMsg : (state, action: PayloadAction<Guild>) => {
+      const {id} = action.payload;
+      if (state.guildMsgIds[id] === undefined) {
+        console.log("not exists");
+        return
+      }
+      for (const msgId of state.guildMsgIds[id]) {
+        delete state.msgs[msgId];
+      }
+      delete state.guildMsgIds[id];
+    },
     removeAuthorMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
       if (state.author[msg.author.id] === undefined) {
@@ -99,6 +111,7 @@ export const {
   addGuildMsg,
   editMsg,
   removeGuildMsg,
+  removeAllGuildMsg,
   removeAuthorMsg,
   resetMsgs,
 } = msgSlice.actions;

@@ -13,6 +13,7 @@ import Events from "./types/events";
 import {
   addGuildMsg,
   editMsg,
+  removeAllGuildMsg,
   removeAuthorMsg,
   removeGuildMsg,
 } from "../app/slices/msgSlice";
@@ -40,6 +41,7 @@ import {
   removeFriendID,
   removeGuildAdminID,
   removeGuildBannedID,
+  removeGuildMembers,
   removeGuildMembersID,
   removePendingFriendID,
   removeRequestedFriendID,
@@ -102,7 +104,7 @@ const gatewayApi = chatApi.injectEndpoints({
                     event: "",
                   } as DataFrame)
                 );
-              }, (timeToPing / 4));
+              }, timeToPing / 4);
               break;
             case OpCodes.HELLO:
               const hello: HelloResFrame = data.data;
@@ -182,6 +184,8 @@ const gatewayApi = chatApi.injectEndpoints({
                 case Events.DELETE_GUILD: {
                   const eventData: Guild = data.data;
                   dispatch(removeCurrentGuild(eventData.id));
+                  dispatch(removeGuildMembers(eventData));
+                  dispatch(removeAllGuildMsg(eventData));
                   dispatch(removeGuild(eventData));
                   dispatch(deleteGuildLoaded(eventData.id));
                   break;
@@ -272,7 +276,7 @@ const gatewayApi = chatApi.injectEndpoints({
                 case Events.REMOVE_USER_GUILDADMIN: {
                   const eventData: Member = data.data;
                   dispatch(removeGuildAdminID(eventData));
-                  break
+                  break;
                 }
                 case Events.UPDATE_SELF_USER_INFO:
                 case Events.UPDATE_USER_INFO: {

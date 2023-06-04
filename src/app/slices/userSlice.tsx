@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getGuildBans, getGuildMembers } from "../../api/guildApi";
-import { GuildList } from "../../api/types/guild";
+import { Guild, GuildList } from "../../api/types/guild";
 import { User, Member, FriendRequest } from "../../api/types/user";
 import {
   getSelf,
@@ -218,6 +218,22 @@ const userSlice = createSlice({
       state.userMemberCount[userInfo.id]--;
       checkUserIsReferenced(state, userInfo.id);
     },
+    removeGuildMembers: (state, action: PayloadAction<Guild>) => {
+      const { id } = action.payload;
+      if (state.guildMembersIds[id] === undefined) {
+        console.log("not exists");
+        return;
+      }
+      for (const userId of state.guildMembersIds[id]) {
+        if (state.userMemberCount[userId] === undefined) {
+          console.log("weird");
+          return;
+        }
+        state.userMemberCount[id]--;
+        checkUserIsReferenced(state, id);
+      }
+      delete state.guildMembersIds[id];
+    },
     resetUsers: (state) => {
       state.blockedIds = [];
       state.friendIds = [];
@@ -340,6 +356,7 @@ export const {
   removePendingFriendID,
   removeGuildBannedID,
   removeBlockedID,
+  removeGuildMembers,
   addGuildAdminID,
   removeGuildAdminID,
 } = userSlice.actions;

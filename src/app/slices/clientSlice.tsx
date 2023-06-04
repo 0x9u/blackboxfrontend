@@ -20,15 +20,19 @@ type ClientState = {
   currentAdminMode: "guilds" | "users" | "server";
   currentMode: "chat" | "friends" | "games" | "admin";
   loadingWS: boolean;
+
   showChatUserList: boolean;
+
   showAddChatModal: boolean;
   showCreateInviteModal: boolean;
   showEditPassModal: boolean;
   showEditUsernameModal: boolean;
   showEditEmailModal: boolean;
   showEditProfilePictureModal: boolean;
+
   showGuildDMSettings: boolean;
   showUserSettings: boolean;
+
   permissions: Permissions;
 
   userSelfLoaded: boolean;
@@ -49,6 +53,7 @@ const initialState: ClientState = {
   currentAdminMode: "guilds",
   currentMode: "chat",
   loadingWS: false,
+  
   showChatUserList: false,
 
   showAddChatModal: false,
@@ -60,6 +65,7 @@ const initialState: ClientState = {
 
   showGuildDMSettings: false,
   showUserSettings: false,
+  
   permissions: {} as Permissions,
 
   userSelfLoaded: false,

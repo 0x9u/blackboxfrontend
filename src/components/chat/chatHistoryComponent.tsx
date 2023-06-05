@@ -62,17 +62,25 @@ const ChatHistory: FC = () => {
 
   return (
     <div className="relative flex grow flex-col">
-      <div className="flex h-0 shrink-0 grow flex-col-reverse space-y-5 space-y-reverse overflow-y-auto py-5">
-        {msgHistory.map((msg) => (
-          <MsgElement
-            key={msg.id}
-            content={msg.content}
-            username={msg.author.name}
-            created={msg.created}
-            modified={msg.modified}
-            userImageId={msg.author.imageId}
-          />
-        ))}
+      <div className="flex h-0 shrink-0 grow flex-col-reverse space-y-reverse overflow-y-auto py-5">
+        {msgHistory.map((msg, index, msgs) => {
+          const createdDate = new Date(msg.created);
+          const modifiedDate = new Date(msg.modified);
+          const beforeCreatedDate = new Date(msgs[index + 1]?.created ?? Infinity);
+          //const beforeModifiedDate = new Date(msgs[index - 1]?.modified ?? 0);
+          return (
+            <MsgElement
+              key={msg.id
+              }
+              content={msg.content}
+              username={msg.author.name}
+              created={createdDate.toLocaleString()}
+              modified={modifiedDate.toLocaleString()}
+              userImageId={msg.author.imageId}
+              combined={(Math.abs(createdDate.getTime() - beforeCreatedDate.getTime()) < 60000)}
+            />)
+        }
+        )}
         {isFetching && <SkeletonLoaderChatMsg />}
       </div>
       {unreadMsgs.count > 0 && (

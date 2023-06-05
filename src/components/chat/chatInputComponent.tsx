@@ -1,6 +1,6 @@
 import React, { FC, createRef, useState } from "react";
 import { MdOutlineAddCircle } from "react-icons/md";
-import { Mention, MentionsInput } from "react-mentions";
+import { Mention, MentionsInput, SuggestionDataItem } from "react-mentions";
 import { useSelector } from "react-redux";
 import { usePostGuildMsgMutation } from "../../api/guildApi";
 import { Msg } from "../../api/types/msg";
@@ -8,17 +8,26 @@ import { RootState } from "../../app/store";
 import Button from "../buttonComponent";
 
 const chatInputArea: FC = () => {
-  /*const expendHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    e.target.style.height = "inherit";
-    e.target.style.height = `${Math.min(
-      e.target.scrollHeight,
-      (screen.height - 16) / 4
-    )}px`;
-  };*/ //not needed any more
   const [value, setValue] = useState<string>("");
-  const currentId = useSelector(
-    (state: RootState) => state.client.currentChatMode === "dm" ? state.client.currentDM : state.client.currentGuild
+  const currentId = useSelector((state: RootState) =>
+    state.client.currentChatMode === "dm"
+      ? state.client.currentDM
+      : state.client.currentGuild
   );
+  const userListInfo = useSelector((state: RootState) => {
+    const userIds = state.user.guildMembersIds[currentId ?? ""] ?? [];
+    const userList: SuggestionDataItem[] = [];
+    for (const userId of userIds) {
+      if (state.user.users[userId] !== undefined) {
+        const user: SuggestionDataItem = {
+          id: userId,
+          display: state.user.users[userId].name,
+        };
+        userList.push(user);
+      }
+    }
+    return userList;
+  });
   const [sendMsg] = usePostGuildMsgMutation();
   function send() {
     if (currentId) {
@@ -65,11 +74,7 @@ const chatInputArea: FC = () => {
           <Mention /* TODO: somehow make suggestions menu rounded*/
             trigger="@"
             markup="<@__id__>"
-            data={[
-              { id: 1232, display: "Johnson" },
-              { id: 1, display: "asdokjsa" },
-              { id: 0, display: "everyone" },
-            ]}
+            data={userListInfo}
             className="rounded-sm bg-shade-5/50 py-1"
             renderSuggestion={(suggestion, search, highlightedDisplay) => (
               <div className="bg-shade-1 py-1 text-lg">
@@ -82,7 +87,7 @@ const chatInputArea: FC = () => {
             appendSpaceOnAdd={true}
           />
         </MentionsInput>
-        <Button type="button" value="Send" className="my-auto" onClick={send}/>
+        <Button type="button" value="Send" className="my-auto" onClick={send} />
       </div>
       <p className="min-h-2 shrink-0 pl-1 font-semibold leading-relaxed text-white">
         person is typing...

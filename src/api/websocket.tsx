@@ -26,6 +26,7 @@ import {
   removeDm,
   addDm,
   incUnreadMsg,
+  incMentionMsg,
 } from "../app/slices/guildSlice";
 import { Invite } from "./types/guild";
 import {
@@ -130,6 +131,19 @@ const gatewayApi = chatApi.injectEndpoints({
                 case Events.CREATE_GUILD_MESSAGE: {
                   const eventData: Msg = data.data;
                   console.log(eventData);
+                  //shitty change later - placeholder code
+                  const selfUserId = (getState() as RootState).user.selfUser;
+                  console.log(eventData);
+                  if (eventData.mentionsEveryone) {
+                    dispatch(incMentionMsg(eventData.guildId));
+                  } else {
+                    for (const mention of eventData.mentions) {
+                      if (mention.id === selfUserId) {
+                        dispatch(incMentionMsg(eventData.guildId));
+                        break;
+                      }
+                    }
+                  }
                   dispatch(incUnreadMsg(eventData.guildId));
                   dispatch(
                     addGuildMsg({

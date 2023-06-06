@@ -26,6 +26,7 @@ const chatInputArea: FC = () => {
         userList.push(user);
       }
     }
+    userList.push({ id: "everyone", display: "everyone" });
     return userList;
   });
   const [sendMsg] = usePostGuildMsgMutation();

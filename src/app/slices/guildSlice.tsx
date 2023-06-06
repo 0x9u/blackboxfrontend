@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getGuildInvites } from "../../api/guildApi";
 import { DmUser, Dm } from "../../api/types/dm";
 import { Guild, GuildList, Invite } from "../../api/types/guild";
+import { Msg } from "../../api/types/msg";
 import { getGuilds } from "../../api/userApi";
 type GuildState = {
   guildIds: string[];
@@ -47,12 +48,24 @@ const guildSlice = createSlice({
         console.log("not exists");
       }
     },
+    incMentionMsg: (state, action: PayloadAction<string>) => {
+      if (state.guilds[action.payload] !== undefined) {
+        state.guilds[action.payload].unread.mentions++;
+      } else if (state.dms[action.payload] !== undefined) {
+        state.dms[action.payload].unread.mentions++;
+      } else {
+        console.log("not exists");
+      }
+    },
     clearUnreadMsg: (state, action: PayloadAction<string>) => {
+      //TODO: simplify this shit cause wtf am i doing
       if (state.guilds[action.payload] !== undefined) {
         state.guilds[action.payload].unread.count = 0;
+        state.guilds[action.payload].unread.mentions = 0;
         state.guilds[action.payload].unread.time = new Date().toISOString();
       } else if (state.dms[action.payload] !== undefined) {
         state.dms[action.payload].unread.count = 0;
+        state.guilds[action.payload].unread.mentions = 0;
         state.dms[action.payload].unread.time = new Date().toISOString();
       } else {
         console.log("not exists");
@@ -146,6 +159,7 @@ export const {
   removeGuild,
   updateGuild,
   incUnreadMsg,
+  incMentionMsg,
   clearUnreadMsg,
   addDm,
   removeDm,

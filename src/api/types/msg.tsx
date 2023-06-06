@@ -4,6 +4,7 @@ export interface UnreadMsg {
   id: string;
   count: number;
   time: string;
+  mentions: number;
 }
 
 export interface Attachment {
@@ -22,4 +23,6 @@ export interface Msg {
   msgSaved: boolean;
   requestId: string; //we randomize up to 5 char
   attachments: Attachment[];
+  mentions : User[];
+  mentionsEveryone : boolean;
 }

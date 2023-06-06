@@ -85,7 +85,7 @@ const ChatHistory: FC = () => {
       </div>
       {unreadMsgs.count > 0 && (
         <div className="absolute w-full px-4">
-          <div className="rounded-b-md bg-shade-2 px-4 py-1 font-medium text-white">
+          <div className="rounded-b-md bg-shade-2 px-4 py-1 font-medium text-white whitespace-nowrap">
             <p>
               <MdMessage className="inline-block h-6 w-6" /> Unread Msgs:{" "}
               {unreadMsgs.count} Last Read: {lastReadTime}{" "}

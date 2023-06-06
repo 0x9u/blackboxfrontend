@@ -1,4 +1,4 @@
-import React, { FC, Fragment } from "react";
+import React, { FC, Fragment, useMemo, useState } from "react";
 import { MdDelete, MdEdit, MdRepeat } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -39,11 +39,17 @@ const Msg: FC<msgProps> = ({
     }
     return userInfo;
   });
+  const selfUserId = useSelector((state: RootState) => state.user.selfUser);
+  const mentionedSelfUser = useMemo(() => {
+    const search = new RegExp(`\<\@(${selfUserId}|everyone)\>`);
+    return search.test(content);
+  }, [selfUserId, content]);
+
   return (
     <div
       className={`group relative flex flex-row space-x-4 px-4 ${
         !combined ? "pt-8" : ""
-      } hover:bg-black/25`}
+      } hover:bg-black/25 ${mentionedSelfUser ? "bg-green/50" : ""}`}
     >
       {!combined && (
         <img
@@ -59,7 +65,7 @@ const Msg: FC<msgProps> = ({
         }`}
       >
         <div
-          className={`flex flex-row items-center space-x-2 ${
+          className={`flex flex-row items-center space-x-2 whitespace-nowrap ${
             !combined ? "" : "justify-self-end"
           }`}
         >
@@ -73,20 +79,20 @@ const Msg: FC<msgProps> = ({
               </p>
             </Fragment>
           )}
-          <div className="hidden flex-row space-x-2 group-hover:flex">
+          <div className="invisible flex flex-row space-x-2 group-hover:visible">
             <MdRepeat className="h-6 w-6 cursor-pointer text-white" />
             <MdEdit className="h-6 w-6 cursor-pointer text-white" />
             <MdDelete className="h-6 w-6 cursor-pointer text-red" />
           </div>
         </div>
-        <div className={`${!combined ? "" : "mx-16 flex-grow"}`}>
+        <div className={`${!combined ? "mr-28" : "ml-16 mr-4 flex-grow"}`}>
           <p className="font-normal leading-relaxed text-white">
             {formatedContent.map((e: string) => {
-              const mention = e.match(/\<\@(?<userid>\d+)\>/);
+              const mention = e.match(/\<\@((?<userid>\d+)|(?<everyone>everyone))\>/);
               if (mention?.groups) {
                 return (
                   <span className="rounded-sm bg-shade-5/50 py-1">
-                    @{userList[mention.groups.userid]}
+                    @{mention.groups?.everyone ?? userList[mention.groups.userid]}
                   </span>
                 );
               } else {

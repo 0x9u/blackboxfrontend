@@ -121,6 +121,9 @@ const ChatList: FC = () => {
             <p className="my-auto truncate px-2 leading-relaxed">
               {guilds[id] ? guilds[id].name : "Non existant"}
             </p>
+            <div className="animate-pulse duration-200 absolute bg-red rounded-full w-8 h-8 right-2 top-2 text-white text-lg text-center">
+              1
+            </div>
           </NavbarItem>
         ))
       )}

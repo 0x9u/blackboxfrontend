@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect } from "react";
-import { MdBlock, MdPersonAdd } from "react-icons/md";
+import { MdBlock, MdMessage, MdPersonAdd } from "react-icons/md";
 
 interface userProps {
   userid: string;
@@ -68,8 +68,9 @@ const User: FC<userProps> = ({
               </p>
             </div>
             <div className=" ml-auto flex flex-row justify-end space-x-2 rounded bg-shade-3 p-1">
-              <MdPersonAdd className="h-8 w-8 text-green hover:text-green/80 active:text-green/75" />
-              <MdBlock className="h-8 w-8 text-red hover:text-red/80 active:text-red/75" />
+              <MdMessage className="h-8 w-8 text-white hover:text-white/80 active:text-white/75 cursor-pointer" />
+              <MdPersonAdd className="h-8 w-8 text-green hover:text-green/80 active:text-green/75 cursor-pointer" />
+              <MdBlock className="h-8 w-8 text-red hover:text-red/80 active:text-red/75 cursor-pointer" />
             </div>
           </div>
         </div>

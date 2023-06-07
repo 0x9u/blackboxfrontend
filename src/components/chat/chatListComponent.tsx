@@ -89,7 +89,11 @@ const ChatList: FC = () => {
               innerRef={id === dmIds[dmIds.length - 1] ? lastDMRef : undefined}
             >
               <img
-                className="h-12 w-12 flex-shrink-0 rounded-full border border-black"
+                className={`h-12 w-12 flex-shrink-0 rounded-full ${
+                  guilds[id].unread.count > 0
+                    ? "animate-pulse border-2"
+                    : "border border-black"
+                }`}
                 src={imageURL}
               ></img>
               <p className="my-auto truncate px-2 leading-relaxed">
@@ -111,7 +115,11 @@ const ChatList: FC = () => {
             }
           >
             <img
-              className="h-12 w-12 flex-shrink-0 rounded-full border border-black"
+              className={`h-12 w-12 flex-shrink-0 rounded-full  ${
+                guilds[id].unread.count > 0
+                  ? "border-2 border-white"
+                  : "border border-black"
+              }`}
               src={
                 guilds[id].imageId !== "-1"
                   ? `http://localhost:8080/api/files/guild/${guilds[id].imageId}`
@@ -124,11 +132,6 @@ const ChatList: FC = () => {
             {guilds[id].unread.mentions > 0 && (
               <div className="absolute left-8 top-2 h-4 w-4 rounded-full bg-red text-center text-xs leading-relaxed text-white">
                 {guilds[id].unread.mentions ?? 0}
-              </div>
-            )}
-            {guilds[id].unread.count > 0 && (
-              <div className="absolute left-8 top-10 h-4 w-4 rounded-full bg-gray text-center text-xs leading-relaxed text-white">
-                {guilds[id].unread.count ?? 0}
               </div>
             )}
           </NavbarItem>

@@ -48,8 +48,12 @@ const Msg: FC<msgProps> = ({
   return (
     <div
       className={`group relative flex flex-row space-x-4 px-4 ${
-        !combined ? "pt-8" : ""
-      } hover:bg-black/25 ${mentionedSelfUser ? "bg-green/50" : ""}`}
+        !combined ? "mt-8 pt-2" : ""
+      } hover:bg-black/25 ${
+        mentionedSelfUser
+          ? " border-l-2 border-green bg-green/50 hover:bg-green/25"
+          : ""
+      }`}
     >
       {!combined && (
         <img
@@ -60,12 +64,12 @@ const Msg: FC<msgProps> = ({
         </img>
       )}
       <div
-        className={`flex ${
-          !combined ? "flex-col" : "flex-grow flex-row-reverse"
+        className={`flex flex-grow ${
+          !combined ? "flex-col" : "flex-row-reverse"
         }`}
       >
         <div
-          className={`flex flex-row items-center space-x-2 whitespace-nowrap ${
+          className={`flex w-full flex-grow flex-row items-center space-x-2 whitespace-nowrap ${
             !combined ? "" : "justify-self-end"
           }`}
         >
@@ -79,20 +83,24 @@ const Msg: FC<msgProps> = ({
               </p>
             </Fragment>
           )}
-          <div className="invisible flex flex-row space-x-2 group-hover:visible">
-            <MdRepeat className="h-6 w-6 cursor-pointer text-white" />
-            <MdEdit className="h-6 w-6 cursor-pointer text-white" />
-            <MdDelete className="h-6 w-6 cursor-pointer text-red" />
+          <div className="group invisible absolute right-1 -top-4 z-50 !ml-auto mb-auto flex select-none flex-row space-x-2 rounded-sm bg-shade-1 p-1 group-hover:visible">
+            <MdRepeat className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10" />
+            <MdEdit className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10" />
+            <MdDelete className="h-6 w-6 cursor-pointer text-red hover:bg-white/25 active:bg-white/10" />
           </div>
         </div>
-        <div className={`${!combined ? "mr-28" : "ml-16 mr-4 flex-grow"}`}>
+        <div className={`${!combined ? "mr-28" : "ml-16 mr-4"}`}>
           <p className="font-normal leading-relaxed text-white">
             {formatedContent.map((e: string) => {
-              const mention = e.match(/\<\@((?<userid>\d+)|(?<everyone>everyone))\>/);
+              const mention = e.match(
+                /\<\@((?<userid>\d+)|(?<everyone>everyone))\>/
+              );
               if (mention?.groups) {
                 return (
                   <span className="rounded-sm bg-shade-5/50 py-1">
-                    @{mention.groups?.everyone ?? userList[mention.groups.userid]}
+                    @
+                    {mention.groups?.everyone ??
+                      userList[mention.groups.userid]}
                   </span>
                 );
               } else {

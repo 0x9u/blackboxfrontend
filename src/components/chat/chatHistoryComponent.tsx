@@ -1,5 +1,5 @@
-import React, { FC } from "react";
-
+import React, { FC, useEffect, useState } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 import MsgElement from "./msgComponent";
 import ChatInput from "./chatInputComponent";
 import {
@@ -37,8 +37,27 @@ const ChatHistory: FC = () => {
 
   const [readMsg] = useReadGuildMsgMutation();
 
+  const [a, setA] = useState<number>(0);
+
+  const lastTime = useSelector((state: RootState) => {
+    const lastMsgId =
+      state.msg.guildMsgIds[currentID ?? ""]?.[
+        state.msg.guildMsgIds[currentID ?? ""]?.length - 1
+      ] ?? "";
+    console.log(lastMsgId);
+    const lastMsg = state.msg.msgs[lastMsgId];
+    const lastTime = lastMsg?.created
+      ? Math.round(new Date(lastMsg?.created).valueOf() / 1000)
+      : 0;
+    return lastTime;
+  });
+
+  const msgsLength = useSelector((state: RootState) => {
+    return state.msg.guildMsgIds[currentID ?? ""]?.length ?? 0;
+  });
+
   const { isFetching } = useGetGuildMsgsQuery(
-    { id: currentID ?? "", time: 0 },
+    { id: currentID ?? "", time: a },
     {
       skip: isMsgsLoaded,
     }
@@ -62,30 +81,52 @@ const ChatHistory: FC = () => {
 
   return (
     <div className="relative flex grow flex-col">
-      <div className="flex h-0 shrink-0 grow flex-col-reverse space-y-reverse overflow-y-auto py-5">
-        {msgHistory.map((msg, index, msgs) => {
-          const createdDate = new Date(msg.created);
-          const modifiedDate = new Date(msg.modified);
-          const beforeCreatedDate = new Date(msgs[index + 1]?.created ?? Infinity);
-          //const beforeModifiedDate = new Date(msgs[index - 1]?.modified ?? 0);
-          return (
-            <MsgElement
-              key={msg.id
-              }
-              content={msg.content}
-              username={msg.author.name}
-              created={createdDate.toLocaleString()}
-              modified={modifiedDate.toLocaleString()}
-              userImageId={msg.author.imageId}
-              combined={(Math.abs(createdDate.getTime() - beforeCreatedDate.getTime()) < 60000)}
-            />)
-        }
-        )}
-        {isFetching && <SkeletonLoaderChatMsg />}
+      <div
+        id="chatHistory"
+        className="flex h-0 shrink-0 grow flex-col-reverse space-y-reverse overflow-y-auto py-5"
+      >
+        <InfiniteScroll
+          style={{ display: "flex", flexDirection: "column-reverse" }}
+          scrollableTarget="chatHistory"
+          inverse
+          dataLength={msgsLength}
+          loader={<SkeletonLoaderChatMsg />}
+          endMessage={<p>done</p>}
+          hasMore={!isMsgsLoaded}
+          next={() => {
+            setA(lastTime);
+            console.log(lastTime);
+          }}
+        >
+          {msgHistory.map((msg, index, msgs) => {
+            const createdDate = new Date(msg.created);
+            const modifiedDate = new Date(msg.modified);
+            const beforeCreatedDate = new Date(
+              msgs[index + 1]?.created ?? Infinity
+            );
+            //const beforeModifiedDate = new Date(msgs[index - 1]?.modified ?? 0);
+
+            return (
+              <MsgElement
+                key={msg.id}
+                content={msg.content}
+                username={msg.author.name}
+                created={createdDate.toLocaleString()}
+                modified={modifiedDate.toLocaleString()}
+                userImageId={msg.author.imageId}
+                combined={
+                  Math.abs(
+                    createdDate.getTime() - beforeCreatedDate.getTime()
+                  ) < 60000
+                }
+              />
+            );
+          })}
+        </InfiniteScroll>
       </div>
       {unreadMsgs.count > 0 && (
         <div className="absolute w-full px-4">
-          <div className="rounded-b-md bg-shade-2 px-4 py-1 font-medium text-white whitespace-nowrap">
+          <div className="whitespace-nowrap rounded-b-md bg-shade-2 px-4 py-1 font-medium text-white">
             <p>
               <MdMessage className="inline-block h-6 w-6" /> Unread Msgs:{" "}
               {unreadMsgs.count} Last Read: {lastReadTime}{" "}

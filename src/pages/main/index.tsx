@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import Navbar from "../../components/navbarComponent";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -20,9 +20,11 @@ const Main: FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
   const navigate = useNavigate();
 
-  if (token === null) {
-    navigate("/");
-  }
+  useEffect(() => {
+    if (token === null) {
+      navigate("/");
+    }
+  }, [token, navigate]);
 
   useStartWSQuery({});
 

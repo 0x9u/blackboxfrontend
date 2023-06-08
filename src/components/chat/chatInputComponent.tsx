@@ -14,6 +14,17 @@ const chatInputArea: FC = () => {
       ? state.client.currentDM
       : state.client.currentGuild
   );
+
+  const userList = useSelector((state: RootState) => {
+    const userIds = state.user.guildMembersIds[currentId ?? ""] ?? [];
+    const userList: Record<string, string> = {};
+    for (const userId of userIds) {
+      if (state.user.users[userId] !== undefined) {
+        userList[userId] = state.user.users[userId].name;
+      }
+    }
+    return userList;
+  });
   const userListInfo = useSelector((state: RootState) => {
     const userIds = state.user.guildMembersIds[currentId ?? ""] ?? [];
     const userList: SuggestionDataItem[] = [];
@@ -83,7 +94,8 @@ const chatInputArea: FC = () => {
               </div>
             )}
             displayTransform={(id, display) => {
-              return `@${display}`;
+              //crap
+              return `@${userList[display] ?? "everyone"}`;
             }}
             appendSpaceOnAdd={true}
           />

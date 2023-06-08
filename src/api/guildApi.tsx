@@ -85,8 +85,9 @@ const guildApi = chatApi.injectEndpoints({
         };
       },
       onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
-        await queryFulfilled;
-        dispatch(setGuildMsgsLoaded(arg.id));
+        const { data } = await queryFulfilled;
+        console.log(data.length)
+        if (data.length < 50) dispatch(setGuildMsgsLoaded(arg.id));
       },
     }),
     postGuildMsg: builder.mutation<void, { id: string; msg: Msg }>({

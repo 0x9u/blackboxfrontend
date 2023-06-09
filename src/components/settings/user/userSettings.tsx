@@ -1,8 +1,7 @@
 import React, { FC } from "react";
 import { MdExitToApp } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { redirect, useNavigate } from "react-router-dom";
-import { chatApi } from "../../../api/api";
+import { useNavigate } from "react-router-dom";
 import { clearToken } from "../../../app/slices/authSlice";
 import { setShowUserSettings } from "../../../app/slices/clientSlice";
 import { RootState } from "../../../app/store";
@@ -94,7 +93,6 @@ const UserSettings: FC = () => {
             icon={<MdExitToApp className="ml-auto h-8 w-8 text-white" />}
             onClick={() => {
               dispatch(clearToken());
-              dispatch(chatApi.util.resetApiState());
               navigate("/");
             }}
           />

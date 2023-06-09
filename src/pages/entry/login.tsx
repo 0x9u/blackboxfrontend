@@ -6,7 +6,8 @@ import * as yup from "yup";
 import Input from "../../components/inputComponent";
 import Button from "../../components/buttonComponent";
 import { useNavigate } from "react-router-dom";
-import { LoginReq, usePostAuthMutation } from "../../api/authApi";
+import { LoginReq, postAuth } from "../../api/authApi";
+import { useAppDispatch } from "../../app/store";
 
 interface LoginProps {
   changeMode: () => void;
@@ -39,14 +40,9 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [postAuth, { error: postAuthError, status: postAuthStatus }] =
-    usePostAuthMutation();
-    useEffect(() => {
-      if (postAuthStatus.valueOf() === "fulfilled") {
-        navigate("/main");
-      }
-    }, [postAuthStatus, postAuthError]);
+
   return (
     <form
       className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-8 px-14 shadow-2xl"
@@ -55,8 +51,11 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
           name: data.username,
           password: data.password,
         };
-        postAuth(body);
-        navigate("/main");
+        dispatch(postAuth(body)).then((action) => {
+          if (action.type === postAuth.fulfilled.type) {
+            navigate("/main");
+          }
+        });
       })}
     >
       <div className="flex flex-col py-2">

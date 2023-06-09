@@ -1,44 +1,14 @@
 import React, { FC } from "react";
 import { useSelector } from "react-redux";
-import {
-  useDeleteGuildBanMutation,
-  useGetGuildBansQuery,
-} from "../../../api/guildApi";
-import { User } from "../../../api/types/user";
+import { unbanGuildMember } from "../../../api/guildApi";
+import { Member, User } from "../../../api/types/user";
 import { RootState } from "../../../app/store";
 import Button from "../../buttonComponent";
+import { useGetGuildBannedMembers } from "../../../api/hooks/guildHooks";
 
 const BansGuildSettings: FC = () => {
-  const currentGuild = useSelector(
-    (state: RootState) => state.client.currentGuild
-  );
-
-  const isBannedLoaded = useSelector((state: RootState) => {
-    const guild = state.client.guildLoaded[currentGuild ?? ""];
-    if (guild == undefined) {
-      return false;
-    }
-    return guild.banned;
-  });
-
-  const { isLoading } = useGetGuildBansQuery(currentGuild ?? "", {
-    skip: isBannedLoaded,
-  });
-
-  const bannedMembers = useSelector((state: RootState) => {
-    var bannedMembers: User[] = [];
-    const bannedMembersIds =
-      state.user.guildBannedIds[currentGuild || ""] ?? [];
-    for (const bannedMemberId of bannedMembersIds) {
-      const bannedMember = state.user.users[bannedMemberId];
-      if (bannedMember) {
-        bannedMembers.push(bannedMember);
-      }
-    }
-    return bannedMembers;
-  });
-
-  const [unbanUser] = useDeleteGuildBanMutation();
+  const { currentGuild, guildBannedMembers, loaded } =
+    useGetGuildBannedMembers();
 
   return (
     <div>
@@ -48,18 +18,18 @@ const BansGuildSettings: FC = () => {
           <p>Name</p>
         </div>
         <div className="h-full w-full space-y-2 overflow-auto">
-          {isLoading ? (
+          {!loaded ? (
             <div className="text-white">loading</div>
           ) : (
-            bannedMembers.map((bannedMember) => (
+            guildBannedMembers.map((bannedMember: Member) => (
               <div
                 className="text-md flex flex-row justify-between"
-                key={currentGuild + "-" + bannedMember.id}
+                key={currentGuild + "-" + bannedMember.userInfo.id}
               >
                 <div className="flex flex-row space-x-2">
                   <div className="h-10 w-10 rounded-full border-2 border-black"></div>
                   <p className="m-auto text-lg text-white/75">
-                    {bannedMember.name}
+                    {bannedMember.userInfo.name}
                   </p>
                 </div>
                 <div className="flex flex-row space-x-2">
@@ -68,9 +38,9 @@ const BansGuildSettings: FC = () => {
                     type="button"
                     className="m-auto h-8 w-16 px-0"
                     onClick={() =>
-                      unbanUser({
+                      unbanGuildMember({
                         id: currentGuild || "",
-                        userId: bannedMember.id,
+                        userId: bannedMember.userInfo.id,
                       })
                     }
                   />

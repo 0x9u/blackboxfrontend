@@ -2,13 +2,16 @@ import React, { FC, createRef, useState } from "react";
 import { MdOutlineAddCircle } from "react-icons/md";
 import { Mention, MentionsInput, SuggestionDataItem } from "react-mentions";
 import { useSelector } from "react-redux";
-import { usePostGuildMsgMutation } from "../../api/guildApi";
 import { Msg } from "../../api/types/msg";
-import { RootState } from "../../app/store";
+import { RootState, useAppDispatch } from "../../app/store";
 import Button from "../buttonComponent";
+import { createGuildMsg } from "../../api/guildApi";
 
 const chatInputArea: FC = () => {
   const [value, setValue] = useState<string>("");
+
+  const dispatch = useAppDispatch();
+
   const currentId = useSelector((state: RootState) =>
     state.client.currentChatMode === "dm"
       ? state.client.currentDM
@@ -40,10 +43,11 @@ const chatInputArea: FC = () => {
     userList.push({ id: "everyone", display: "everyone" });
     return userList;
   });
-  const [sendMsg] = usePostGuildMsgMutation();
   function send() {
     if (currentId) {
-      sendMsg({ id: currentId, msg: { content: value } as Msg });
+      dispatch(
+        createGuildMsg({ id: currentId, msg: { content: value } as Msg })
+      );
       setValue("");
     }
   }

@@ -15,21 +15,22 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    clearToken: (state) => { //used for logout (called by websocket or button)
+    clearToken: (state) => {
+      //used for logout (called by websocket or button)
       state.token = null;
       state.expires = null;
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(
-      createAccount.matchFulfilled,
+    builder.addCase(
+      createAccount.fulfilled,
       (state, action: PayloadAction<AuthRes>) => {
         state.token = action.payload.token;
         state.expires = action.payload.expires;
       }
     );
-    builder.addMatcher(
-      postAuth.matchFulfilled,
+    builder.addCase(
+      postAuth.fulfilled,
       (state, action: PayloadAction<AuthRes>) => {
         state.token = action.payload.token;
         state.expires = action.payload.expires;

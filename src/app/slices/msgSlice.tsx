@@ -9,7 +9,8 @@ type MsgState = {
   guildMsgIds: Record<string, string[]>; //order newest to oldest
 };
 
-const initialState: MsgState = { // guildMsgIds also include dms because they are basically the same
+const initialState: MsgState = {
+  // guildMsgIds also include dms because they are basically the same
   msgs: {},
   author: {},
   guildMsgIds: {},
@@ -42,7 +43,7 @@ const msgSlice = createSlice({
       const msg = action.payload;
       if (state.guildMsgIds[msg.guildId] === undefined) {
         console.log("not exists");
-        return
+        return;
       }
       state.guildMsgIds[msg.guildId] = state.guildMsgIds[msg.guildId].filter(
         (id) => id !== msg.id
@@ -50,17 +51,17 @@ const msgSlice = createSlice({
       delete state.msgs[msg.id];
       if (state.author[msg.author.id] === undefined) {
         console.log("not exists");
-        return
+        return;
       }
       state.author[msg.author.id] = state.author[msg.author.id].filter(
         (id) => id !== msg.id
       );
     },
-    removeAllGuildMsg : (state, action: PayloadAction<Guild>) => {
-      const {id} = action.payload;
+    removeAllGuildMsg: (state, action: PayloadAction<Guild>) => {
+      const { id } = action.payload;
       if (state.guildMsgIds[id] === undefined) {
         console.log("not exists");
-        return
+        return;
       }
       for (const msgId of state.guildMsgIds[id]) {
         delete state.msgs[msgId];
@@ -85,9 +86,10 @@ const msgSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(
-      getGuildMsgs.matchFulfilled,
+    builder.addCase(
+      getGuildMsgs.fulfilled,
       (state, action: PayloadAction<Msg[]>) => {
+        console.log(action.payload);
         for (const msg of action.payload) {
           state.msgs[msg.id] = msg;
           if (state.author[msg.author.id] === undefined) {

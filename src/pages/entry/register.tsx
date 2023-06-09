@@ -5,12 +5,9 @@ import * as yup from "yup";
 
 import Input from "../../components/inputComponent";
 import Button from "../../components/buttonComponent";
-import {
-  postAuth,
-  RegisterReq,
-  useCreateAccountMutation,
-} from "../../api/authApi";
+import { createAccount, postAuth, RegisterReq } from "../../api/authApi";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../app/store";
 
 interface RegisterProps {
   changeMode: () => void;
@@ -52,18 +49,10 @@ const Register: FC<RegisterProps> = ({ changeMode }) => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
-  const navigate = useNavigate();
-  const [
-    createAccount,
-    { error: createAccountError, status: createAccountStatus },
-  ] = useCreateAccountMutation(); //dont use result its should be stored in slice
 
-  useEffect(() => {
-    if (createAccountStatus.valueOf() === "fulfilled") {
-      navigate("/main");
-    }
-  }, [createAccountStatus, createAccountError]);
-  
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   return (
     <form
       className=" mx-auto flex flex-col rounded-xl bg-shade-3 py-4 px-8 shadow-2xl"
@@ -73,7 +62,11 @@ const Register: FC<RegisterProps> = ({ changeMode }) => {
           password: data.password,
           email: data.email,
         };
-        createAccount(body);
+        dispatch(createAccount(body)).then((action) => {
+          if (action.type === createAccount.fulfilled.type) {
+            navigate("/main");
+          }
+        });
       })}
     >
       <div className="flex flex-col py-4">

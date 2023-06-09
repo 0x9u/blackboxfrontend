@@ -244,8 +244,8 @@ const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(
-      getGuilds.matchFulfilled,
+    builder.addCase(
+      getGuilds.fulfilled,
       (state, action: PayloadAction<GuildList>) => {
         for (const dm of action.payload.dms) {
           state.users[dm.userInfo.id] = dm.userInfo;
@@ -253,21 +253,15 @@ const userSlice = createSlice({
         }
       }
     );
-    builder.addMatcher(
-      getSelf.matchFulfilled,
-      (state, action: PayloadAction<User>) => {
-        state.users[action.payload.id] = action.payload;
-        state.selfUser = action.payload.id;
-      }
-    );
-    builder.addMatcher(
-      getUser.matchFulfilled,
-      (state, action: PayloadAction<User>) => {
-        state.users[action.payload.id] = action.payload;
-      }
-    );
-    builder.addMatcher(
-      getFriends.matchFulfilled,
+    builder.addCase(getSelf.fulfilled, (state, action: PayloadAction<User>) => {
+      state.users[action.payload.id] = action.payload;
+      state.selfUser = action.payload.id;
+    });
+    builder.addCase(getUser.fulfilled, (state, action: PayloadAction<User>) => {
+      state.users[action.payload.id] = action.payload;
+    });
+    builder.addCase(
+      getFriends.fulfilled,
       (state, action: PayloadAction<User[]>) => {
         for (const user of action.payload) {
           state.friendIds.push(user.id);
@@ -275,8 +269,8 @@ const userSlice = createSlice({
         }
       }
     );
-    builder.addMatcher(
-      getGuildMembers.matchFulfilled,
+    builder.addCase(
+      getGuildMembers.fulfilled,
       (state, action: PayloadAction<Member[]>) => {
         for (const member of action.payload) {
           if (state.guildMembersIds[member.guildId] === undefined) {
@@ -297,8 +291,8 @@ const userSlice = createSlice({
         }
       }
     );
-    builder.addMatcher(
-      getGuildBans.matchFulfilled,
+    builder.addCase(
+      getGuildBans.fulfilled,
       (state, action: PayloadAction<Member[]>) => {
         for (const ban of action.payload) {
           if (state.guildBannedIds[ban.guildId] === undefined) {
@@ -313,8 +307,8 @@ const userSlice = createSlice({
         }
       }
     );
-    builder.addMatcher(
-      getBlocked.matchFulfilled,
+    builder.addCase(
+      getBlocked.fulfilled,
       (state, action: PayloadAction<User[]>) => {
         for (const user of action.payload) {
           state.blockedIds.push(user.id);
@@ -322,8 +316,8 @@ const userSlice = createSlice({
         }
       }
     );
-    builder.addMatcher(
-      getRequestedFriends.matchFulfilled,
+    builder.addCase(
+      getRequestedFriends.fulfilled,
       (state, action: PayloadAction<FriendRequest>) => {
         for (const user of action.payload.requested) {
           state.requestedFriendIds.push(user.id);

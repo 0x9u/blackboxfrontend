@@ -4,15 +4,18 @@ import Input from "../../inputComponent";
 import CheckBox from "../../checkBoxComponent";
 import Button from "../../buttonComponent";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../app/store";
+import { RootState, useAppDispatch } from "../../../app/store";
 import { Guild, GuildUpload } from "../../../api/types/guild";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { usePatchGuildMutation } from "../../../api/guildApi";
+import { editGuild } from "../../../api/guildApi";
 
 const OverviewGuildSettings: FC = () => {
   const [formEdited, setFormEdited] = useState<boolean>(false);
+
+  const dispatch = useAppDispatch();
+
   const currentGuild = useSelector(
     (state: RootState) => state.client.currentGuild
   );
@@ -24,9 +27,6 @@ const OverviewGuildSettings: FC = () => {
     guildInfo.imageId !== "-1"
       ? `http://localhost:8080/api/files/guild/${guildInfo.imageId}`
       : `./blackboxuser.jpg`;
-
-
-  const [editGuild] = usePatchGuildMutation();
 
   interface editChatForm {
     name: string;
@@ -90,7 +90,7 @@ const OverviewGuildSettings: FC = () => {
           } as Guild,
           image: picture || null,
         };
-        editGuild({id : currentGuild || "",body});
+        dispatch(editGuild({ id: currentGuild || "", guild: body }));
         setFormEdited(false);
       })}
       className="relative h-full"

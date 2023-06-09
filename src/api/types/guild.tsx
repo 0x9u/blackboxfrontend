@@ -1,12 +1,5 @@
 import { Dm } from "./dm";
 import { UnreadMsg } from "./msg";
-import {User} from "./user";
-
-export interface UserGuild {
-    guildId : string;
-    userId : string;
-    userData : User;
-};
 
 export interface Guild {
     id : string;

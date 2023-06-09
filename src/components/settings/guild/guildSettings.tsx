@@ -11,11 +11,11 @@ import InvitesGuildSettings from "./invitesGuildSettings";
 import BansGuildSettings from "./banGuildSettings";
 import MembersGuildSettings from "./membersGuildSettings";
 import { MdDelete } from "react-icons/md";
-import { RootState } from "../../../app/store";
-import { useDeleteGuildMutation } from "../../../api/guildApi";
+import { RootState, useAppDispatch } from "../../../app/store";
+import { deleteGuild } from "../../../api/guildApi";
 
 const GuildSettings: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [settingsMode, setSettingsMode] = React.useState<
     "overview" | "invites" | "members" | "bans"
   >("overview");
@@ -27,7 +27,6 @@ const GuildSettings: FC = () => {
     (state: RootState) => state.guild.guilds[currentGuild || ""]?.ownerId ?? ""
   );
 
-  const [deleteGuild] = useDeleteGuildMutation();
   const guildName = useSelector(
     (state: RootState) =>
       state.guild.guilds[state.client.currentGuild || ""]?.name ?? ""
@@ -62,7 +61,7 @@ const GuildSettings: FC = () => {
             <SettingsSideBarButton
               label="Delete Server"
               onClick={() => {
-                deleteGuild(currentGuild || "");
+                dispatch(deleteGuild(currentGuild || ""));
                 dispatch(setShowGuildDMSettings(false));
               }}
               icon={<MdDelete className="ml-auto h-8 w-8 text-white" />}

@@ -3,7 +3,9 @@ import { getGuildInvites } from "../../api/guildApi";
 import { DmUser, Dm } from "../../api/types/dm";
 import { Guild, GuildList, Invite } from "../../api/types/guild";
 import { Msg } from "../../api/types/msg";
+import { AxiosResponse, AxiosError } from "axios";
 import { getGuilds } from "../../api/userApi";
+import { ErrorBody } from "../../api/types/error";
 type GuildState = {
   guildIds: string[];
   dmIds: string[];
@@ -37,7 +39,9 @@ const guildSlice = createSlice({
         console.log("not exists");
         return;
       }
+      const unread = state.guilds[action.payload.id].unread;
       state.guilds[action.payload.id] = action.payload;
+      state.guilds[action.payload.id].unread = unread;
     },
     incUnreadMsg: (state, action: PayloadAction<string>) => {
       if (state.guilds[action.payload] !== undefined) {
@@ -120,8 +124,8 @@ const guildSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(
-      getGuilds.matchFulfilled,
+    builder.addCase(
+      getGuilds.fulfilled,
       (state, action: PayloadAction<GuildList>) => {
         for (const guild of action.payload.guilds) {
           state.guildIds.push(guild.id);
@@ -138,15 +142,30 @@ const guildSlice = createSlice({
         }
       }
     );
-    builder.addMatcher(
-      getGuildInvites.matchFulfilled,
+    builder.addCase(
+      getGuilds.rejected,
+      (state, action: PayloadAction<ErrorBody | undefined>) => {
+        console.log("shit happens");
+        console.log(action.payload);
+      }
+    );
+    builder.addCase(
+      getGuildInvites.fulfilled,
       (state, action: PayloadAction<Invite[]>) => {
-        for (const invite of action.payload) {
+        const invites = action.payload;
+        for (const invite of invites) {
           if (state.invites[invite.guildId] === undefined) {
             state.invites[invite.guildId] = [];
           }
           state.invites[invite.guildId].push(invite);
         }
+      }
+    );
+    builder.addCase(
+      getGuildInvites.rejected,
+      (state, action: PayloadAction<ErrorBody | undefined>) => {
+        console.log("shit happened");
+        console.log(action.payload);
       }
     );
   },

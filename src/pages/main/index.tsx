@@ -1,14 +1,14 @@
 import React, { FC, useEffect } from "react";
 import Navbar from "../../components/navbarComponent";
 import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
+import { RootState, useAppDispatch } from "../../app/store";
 import Chat from "./chat";
 import Games from "./games";
 import Friends from "./friends";
 import Admin from "./admin";
 import UserSettings from "../../components/settings/user/userSettings";
-import { useStartWSQuery } from "../../api/websocket";
 import { redirect, useNavigate } from "react-router-dom";
+import { wsConnect, wsDisconnect } from "../../api/websocket";
 
 const Main: FC = () => {
   const currentMode = useSelector(
@@ -19,6 +19,7 @@ const Main: FC = () => {
   );
   const token = useSelector((state: RootState) => state.auth.token);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (token === null) {
@@ -26,7 +27,14 @@ const Main: FC = () => {
     }
   }, [token, navigate]);
 
-  useStartWSQuery({});
+  useEffect(() => {
+    console.log("we runnin")
+    dispatch(wsConnect());
+    return () => {
+      console.log("we stoppin");
+      dispatch(wsDisconnect());
+    };
+  }, []);
 
   return (
     <div className="relative flex min-h-screen flex-row overflow-hidden">

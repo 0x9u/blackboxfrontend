@@ -11,23 +11,19 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch } from "react-redux";
 import { setShowAddChatModal } from "../../app/slices/clientSlice";
-import { Guild, GuildList, GuildUpload } from "../../api/types/guild";
-import {
-  useJoinGuildInviteMutation,
-  usePostGuildMutation,
-} from "../../api/guildApi";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
+import { Guild, GuildList, GuildUpload, Invite } from "../../api/types/guild";
+import { useJoinGuild } from "../../api/hooks/guildHooks";
+import { createGuild } from "../../api/guildApi";
+import { useAppDispatch } from "../../app/store";
 
 const ChatModal: FC = () => {
   const [chatModalMode, setChatModalMode] = useState<"Create" | "Join" | null>(
     null
   );
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const [createGuild] = usePostGuildMutation();
-  const [joinGuild, { status: joinGuildStatus, error: joinGuildError }] =
-    useJoinGuildInviteMutation();
+  const { callFunction: joinGuild, error, status } = useJoinGuild();
 
   interface createChatForm {
     name: string;
@@ -89,28 +85,6 @@ const ChatModal: FC = () => {
     ),
   });
 
-  useEffect(() => {
-    console.log(joinGuildStatus.valueOf());
-    if (
-      joinGuildError &&
-      (joinGuildError as FetchBaseQueryError).status === 403
-    ) {
-      setInviteError("invite", {
-        message: "Invite code is invalid",
-      });
-    } else if (
-      joinGuildError &&
-      (joinGuildError as FetchBaseQueryError).status === 500
-    ) {
-      setInviteError("invite", {
-        message: "A error occurred in the server",
-      });
-    } else if (joinGuildStatus.valueOf() === "fulfilled") {
-      dispatch(setShowAddChatModal(false));
-      setChatModalMode(null);
-    }
-  }, [joinGuildStatus, joinGuildError]);
-
   return (
     <Modal
       title={
@@ -157,7 +131,7 @@ const ChatModal: FC = () => {
                 } as Guild,
                 image: picture || null,
               };
-              createGuild(body);
+              dispatch(createGuild(body));
               dispatch(setShowAddChatModal(false));
               setChatModalMode(null);
             })}
@@ -200,7 +174,7 @@ const ChatModal: FC = () => {
           <form
             className="-mt-4"
             onSubmit={handleInviteSubmit((d) => {
-              joinGuild(d.invite);
+              joinGuild(d as Invite);
             })}
           >
             <Input

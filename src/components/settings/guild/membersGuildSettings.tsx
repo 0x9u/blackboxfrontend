@@ -1,49 +1,33 @@
 import React, { FC } from "react";
 import { useSelector } from "react-redux";
 import {
-  useDeleteGuildAdminMutation,
-  useDeleteGuildMemberMutation,
-  useGetGuildMembersQuery,
-  useMakeOwnerMutation,
-  usePutGuildAdminMutation,
-  usePutGuildBanMutation,
+  banGuildMember,
+  createGuildAdmin,
+  deleteGuildAdmin,
+  kickGuildMember,
+  makeOwner,
 } from "../../../api/guildApi";
-import { User } from "../../../api/types/user";
-import { RootState } from "../../../app/store";
+import { Member } from "../../../api/types/user";
+import { RootState, useAppDispatch } from "../../../app/store";
 import Button from "../../buttonComponent";
+import { useGetGuildMembers } from "../../../api/hooks/guildHooks";
 
 const MembersGuildSettings: FC = () => {
-  const currentGuild = useSelector(
-    (state: RootState) => state.client.currentGuild
-  );
-  const currentOwner = useSelector(
-    (state: RootState) => state.guild.guilds[currentGuild || ""]?.ownerId ?? ""
-  );
-  const selfUserId = useSelector(
-    (state: RootState) => state.user.selfUser ?? ""
-  );
-
-  const adminIds = useSelector(
+  const dispatch = useAppDispatch();
+  const userIsOwner = useSelector(
     (state: RootState) =>
-      state.user.guildAdminIds[currentGuild || ""] ?? new Set()
+      state.guild.guilds[state.client.currentGuild ?? ""]?.ownerId ===
+      state.user.selfUser
   );
-  const members = useSelector((state: RootState) => {
-    var members: User[] = [];
-    const memberIds = state.user.guildMembersIds[currentGuild || ""] ?? [];
-    for (const memberId of memberIds) {
-      if (!state.user.users[memberId]) {
-        continue;
-      }
-      members.push(state.user.users[memberId]);
-    }
-    return members;
-  });
 
-  const [makeAdmin] = usePutGuildAdminMutation();
-  const [removeAdmin] = useDeleteGuildAdminMutation();
-  const [makeOwner] = useMakeOwnerMutation();
-  const [banUser] = usePutGuildBanMutation();
-  const [kickUser] = useDeleteGuildMemberMutation();
+  const userIsAdmin = useSelector(
+    (state: RootState) =>
+      state.user.guildAdminIds[state.client.currentGuild ?? ""]?.includes(
+        state.user.selfUser ?? ""
+      ) ?? false
+  );
+
+  const { currentGuild, guildMembers, loaded } = useGetGuildMembers();
 
   return (
     <div>
@@ -54,89 +38,103 @@ const MembersGuildSettings: FC = () => {
           <p className="mr-6">Actions</p>
         </div>
         <div className="h-full w-full space-y-2 overflow-auto">
-          {members.map((user) => (
+          {guildMembers.map((member: Member) => (
             <div
               className="text-md flex flex-row justify-between"
-              key={`${currentGuild}-${user.id}`}
+              key={`${currentGuild}-${member.userInfo.id}`}
             >
               <div className="flex flex-row space-x-2">
                 <img
                   className="h-10 w-10 rounded-full border-2 border-black"
                   src={
-                    user.imageId !== "-1"
-                      ? `http://localhost:8080/api/files/user/${user.imageId}`
+                    member.userInfo.imageId !== "-1"
+                      ? `http://localhost:8080/api/files/user/${member.userInfo.imageId}`
                       : "./blackboxuser.jpg"
                   }
                 ></img>
                 <p className="m-auto text-lg text-white/75">
-                  {user.name}
-                  {user.id === currentOwner
-                    ? "👑"
-                    : adminIds.includes(user.id)
-                    ? "🛡️"
-                    : ""}
+                  {member.userInfo.name}
+                  {member.owner ? "👑" : member.admin ? "🛡️" : ""}
                 </p>
               </div>
               <div className="flex flex-row space-x-2">
-                {user.id !== currentOwner &&
-                  !adminIds.includes(user.id) &&
-                  currentOwner === selfUserId && (
-                    <Button
-                      value="Make Admin"
-                      type="button"
-                      className="m-auto h-8 w-28 px-0"
-                      onClick={() =>
-                        makeAdmin({ id: currentGuild || "", userId: user.id })
-                      }
-                    />
-                  )}
-                {user.id !== currentOwner &&
-                  adminIds.includes(user.id) &&
-                  currentOwner === selfUserId && (
-                    <Button
-                      value="Remove Admin"
-                      type="button"
-                      className="m-auto h-8 w-32 px-0"
-                      onClick={() =>
-                        removeAdmin({
+                {!member.owner && !member.admin && userIsOwner && (
+                  <Button
+                    value="Make Admin"
+                    type="button"
+                    className="m-auto h-8 w-28 px-0"
+                    onClick={() =>
+                      dispatch(
+                        createGuildAdmin({
                           id: currentGuild || "",
-                          userId: user.id,
+                          userId: member.userInfo.id,
                         })
-                      }
-                    />
-                  )}
-                {user.id !== currentOwner && currentOwner === selfUserId && (
+                      )
+                    }
+                  />
+                )}
+                {!member.owner && member.admin && userIsOwner && (
+                  <Button
+                    value="Remove Admin"
+                    type="button"
+                    className="m-auto h-8 w-32 px-0"
+                    onClick={() =>
+                      dispatch(
+                        deleteGuildAdmin({
+                          id: currentGuild || "",
+                          userId: member.userInfo.id,
+                        })
+                      )
+                    }
+                  />
+                )}
+                {!member.owner && userIsOwner && (
                   <Button
                     value="Make Owner"
                     type="button"
                     className="m-auto h-8 w-28 px-0"
                     onClick={() =>
-                      makeOwner({ id: currentGuild || "", userId: user.id })
+                      dispatch(
+                        makeOwner({
+                          id: currentGuild || "",
+                          userId: member.userInfo.id,
+                        })
+                      )
                     }
                   />
                 )}
-                {user.id !== currentOwner &&
-                  (!adminIds.includes(user.id) ||
-                    currentOwner === selfUserId) && (
+                {!member.owner &&
+                  !member.admin &&
+                  (userIsAdmin || userIsOwner) && (
                     <Button
                       value="Kick"
                       type="button"
                       gray
                       className="m-auto h-8 w-12 px-0"
                       onClick={() =>
-                        kickUser({ id: currentGuild || "", userId: user.id })
+                        dispatch(
+                          kickGuildMember({
+                            id: currentGuild || "",
+                            userId: member.userInfo.id,
+                          })
+                        )
                       }
                     />
                   )}
-                {user.id !== currentOwner &&
-                  (!adminIds.includes(user.id) ||
-                    currentOwner === selfUserId) && (
+                {!member.owner &&
+                  !member.admin &&
+                  (userIsAdmin || userIsOwner) && (
                     <Button
                       value="Ban"
                       type="button"
                       className="m-auto h-8 w-12 px-0"
                       onClick={() =>
-                        banUser({ id: currentGuild || "", userId: user.id })
+                        dispatch(
+                          banGuildMember({
+                            id: currentGuild || "",
+                            userId: member.userInfo.id,
+                          })
+                        )
                       }
                     />
                   )}

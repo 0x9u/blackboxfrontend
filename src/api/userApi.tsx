@@ -1,8 +1,5 @@
-import { createEntityAdapter } from "@reduxjs/toolkit";
-import { chatApi } from "./api";
-import { DmUser } from "./types/dm";
-import { Guild, GuildList, UserGuild } from "./types/guild";
-import { Msg } from "./types/msg";
+import { asyncThunkAPI, requestAPI } from "./api";
+import { GuildList } from "./types/guild";
 import {
   EditUserEmailForm,
   EditUserNameForm,
@@ -12,135 +9,208 @@ import {
   User,
 } from "./types/user";
 
-const userApi = chatApi.injectEndpoints({
-  endpoints: (builder) => ({
-    getUser: builder.query<User, number>({
-      //probs unused for now or maybe idc probs when for profile click
-      query: (id: number) => ({
-        url: `/users/${id}`,
-        method: "GET",
-        providesTags: ["User"],
-      }),
-    }),
-    getSelf: builder.query<User, void>({
-      query: () => ({
-        url: "/users/@me",
-        method: "GET",
-      }),
-    }),
-    getGuilds: builder.query<GuildList, void>({
-      query: () => ({
-        url: "/users/@me/guilds",
-        method: "GET",
-      }),
-    }),
-    leaveGuild: builder.mutation<void, string>({
-      query: (id: string) => ({
-        url: `/users/@me/guilds/${id}`,
-        method: "DELETE",
-      }),
-    }),
-    getBlocked: builder.query<User[], void>({
-      query: () => ({
-        url: "/users/@me/blocked",
-        method: "GET",
-      }),
-    }),
-    openDM: builder.mutation<void, number>({
-      query: (id: number) => ({
-        url: `/users/@me/dms/${id}`,
-        method: "PUT",
-      }),
-    }),
-    deleteDM: builder.mutation<void, number>({
-      query: (id: number) => ({
-        url: `/users/@me/dms/${id}`,
-        method: "DELETE",
-      }),
-    }),
-    getFriends: builder.query<User[], void>({
-      query: () => ({
-        url: `/users/@me/friends`,
-        method: "GET",
-      }),
-    }),
-    getRequestedFriends: builder.query<FriendRequest, void>({
-      query: () => ({
-        url: `/users/@me/requests`,
-        method: "GET",
-      }),
-    }),
-    patchUserName: builder.mutation<void, EditUserNameForm>({
-      query: (body: EditUserNameForm) => ({
-        url: `/users/@me`,
-        method: "PATCH",
-        body: body,
-      }),
-    }),
-    patchUserEmail: builder.mutation<void, EditUserEmailForm>({
-      query: (body: EditUserEmailForm) => ({
-        url: `/users/@me`,
-        method: "PATCH",
-        body: body,
-      }),
-    }),
-    patchUserPassword: builder.mutation<void, EditUserPasswordForm>({
-      query: (body: EditUserPasswordForm) => ({
-        url: `/users/@me`,
-        method: "PATCH",
-        body: body,
-      }),
-    }),
-    patchUserPicture: builder.mutation<void, EditUserPictureForm>({
-      query: (args: EditUserPictureForm) => {
-        const formData = new FormData();
-        const body = {
-          password: args.password,
-        };
-        formData.append("body", JSON.stringify(body));
-        const data = new Blob([args.image], { type: args.image.type });
-        formData.append("image", data, args.image.name);
+export const getUser = asyncThunkAPI<User, string>(
+  "user/getUser",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<User>("GET", `/users/${id}`, null, thunkAPI);
+  }
+);
 
-        return {
-          url: `/users/@me`,
-          method: "PATCH",
-          body: formData,
-        };
-      },
-    }),
-  }),
-});
+export const getSelf = asyncThunkAPI<User, void>(
+  "user/getSelf",
+  async (_: void, thunkAPI) => {
+    return await requestAPI<User>("GET", `/users/@me`, null, thunkAPI);
+  }
+);
 
-export const {
-  getUser,
-  getSelf,
-  getGuilds,
-  openDM,
-  deleteDM,
-  getFriends,
-  getBlocked,
-  getRequestedFriends,
-  leaveGuild,
-  patchUserName,
-  patchUserEmail,
-  patchUserPassword,
-  patchUserPicture,
-} = userApi.endpoints;
+export const getGuilds = asyncThunkAPI<GuildList, void>(
+  "user/getGuilds",
+  async (_: void, thunkAPI) => {
+    return await requestAPI<GuildList>(
+      "GET",
+      `/users/@me/guilds`,
+      null,
+      thunkAPI
+    );
+  }
+);
 
-export const {
-  useGetUserQuery,
-  useGetSelfQuery,
-  useGetGuildsQuery,
-  useOpenDMMutation,
-  useDeleteDMMutation,
-  useGetFriendsQuery,
-  useGetBlockedQuery,
-  useGetRequestedFriendsQuery,
-  useLeaveGuildMutation,
-  usePatchUserNameMutation,
-  usePatchUserEmailMutation,
-  usePatchUserPasswordMutation,
-  usePatchUserPictureMutation,
-} = userApi;
+export const leaveGuild = asyncThunkAPI<void, string>(
+  "user/leaveGuild",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "DELETE",
+      `/users/@me/guilds/${id}`,
+      null,
+      thunkAPI
+    );
+  }
+);
 
-export default userApi;
+export const getBlocked = asyncThunkAPI<User[], void>(
+  "user/getBlocked",
+  async (_: void, thunkAPI) => {
+    return await requestAPI<User[]>(
+      "GET",
+      `/users/@me/blocked`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const openDM = asyncThunkAPI<void, number>(
+  "user/openDM",
+  async (id: number, thunkAPI) => {
+    return await requestAPI<void>(
+      "PUT",
+      `/users/@me/dms/${id}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const deleteDM = asyncThunkAPI<void, number>(
+  "user/deleteDM",
+  async (id: number, thunkAPI) => {
+    return await requestAPI<void>(
+      "DELETE",
+      `/users/@me/dms/${id}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const getFriends = asyncThunkAPI<User[], void>(
+  "user/getFriends",
+  async (_: void, thunkAPI) => {
+    return await requestAPI<User[]>(
+      "GET",
+      `/users/@me/friends`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const getRequestedFriends = asyncThunkAPI<FriendRequest, void>(
+  "user/getRequestedFriends",
+  async (_: void, thunkAPI) => {
+    return await requestAPI<FriendRequest>(
+      "GET",
+      `/users/@me/requests`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const editUserName = asyncThunkAPI<void, EditUserNameForm>(
+  "user/editUserName",
+  async (body: EditUserNameForm, thunkAPI) => {
+    return await requestAPI<void>("PATCH", `/users/@me`, body, thunkAPI);
+  }
+);
+
+export const editUserEmail = asyncThunkAPI<void, EditUserEmailForm>(
+  "user/editUserEmail",
+  async (body: EditUserEmailForm, thunkAPI) => {
+    return await requestAPI<void>("PATCH", `/users/@me`, body, thunkAPI);
+  }
+);
+
+export const editUserPassword = asyncThunkAPI<void, EditUserPasswordForm>(
+  "user/editUserPassword",
+  async (body: EditUserPasswordForm, thunkAPI) => {
+    return await requestAPI<void>("PATCH", `/users/@me`, body, thunkAPI);
+  }
+);
+
+export const editUserPicture = asyncThunkAPI<void, EditUserPictureForm>(
+  "user/editUserPicture",
+  async (args: EditUserPictureForm, thunkAPI) => {
+    const formData = new FormData();
+    const body = {
+      password: args.password,
+    };
+    formData.append("body", JSON.stringify(body));
+    const data = new Blob([args.image], { type: args.image.type });
+    formData.append("image", data, args.image.name);
+
+    return await requestAPI<void>("PATCH", `/users/@me`, formData, thunkAPI);
+  }
+);
+
+export const blockUser = asyncThunkAPI<void, string>(
+  "user/blockUser",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "PUT",
+      `/users/@me/blocked/${id}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const unblockUser = asyncThunkAPI<void, string>(
+  "user/unblockUser",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "DELETE",
+      `/users/@me/blocked/${id}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const sendFriendRequest = asyncThunkAPI<void, string>(
+  "user/sendFriendRequest",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "PUT",
+      `/users/@me/requests/${id}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const acceptFriendRequest = asyncThunkAPI<void, string>(
+  "user/acceptFriendRequest",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "PUT",
+      `/users/@me/friends/${id}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const declineFriendRequest = asyncThunkAPI<void, string>(
+  "user/declineFriendRequest",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "DELETE",
+      `/users/@me/requests/${id}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const removeFriend = asyncThunkAPI<void, string>(
+  "user/removeFriend",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "DELETE",
+      `/users/@me/friends/${id}`,
+      null,
+      thunkAPI
+    );
+  }
+);

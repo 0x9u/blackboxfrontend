@@ -9,14 +9,13 @@ import {
   MdClose,
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { useGetGuildMembersQuery } from "../../api/guildApi";
-import { useLeaveGuildMutation } from "../../api/userApi";
 import {
   setShowChatUserList,
   setShowCreateInviteModal,
   setShowGuildDMSettings,
 } from "../../app/slices/clientSlice";
 import { RootState } from "../../app/store";
+import { leaveGuild } from "../../api/userApi";
 
 const ChatBar: FC = () => {
   const dispatch = useDispatch();
@@ -48,18 +47,6 @@ const ChatBar: FC = () => {
       ) ?? false
   );
 
-  const isMembersLoaded = useSelector((state: RootState) => {
-    const guild = state.client.guildLoaded[currentGuild ?? ""];
-    if (guild == undefined) {
-      return false;
-    }
-    return guild.members;
-  }); //worst code of all time right here
-
-  useGetGuildMembersQuery(currentGuild ?? "", {
-    skip: isMembersLoaded,
-  });
-
   const currentDM = useSelector((state: RootState) => state.client.currentDM);
 
   const currentGuildTitle = useSelector((state: RootState) =>
@@ -71,8 +58,6 @@ const ChatBar: FC = () => {
       ? state.guild.guilds[currentGuild]?.name
       : "Not Selected"
   );
-
-  const [leaveGuild] = useLeaveGuildMutation();
 
   return (
     <div className="relative flex h-16 flex-row border-b border-black bg-shade-4 px-4 shadow-xl">

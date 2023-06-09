@@ -19,6 +19,9 @@
 11. Add Chat mentions (IMPORTANT)
 12. Add Chat notifications (IMPORTANT)
 
+**VERY IMPORTANT**
+    - Fix typing on promise for API
+
 ## 2.0
 
 1. Make unity games and add to games

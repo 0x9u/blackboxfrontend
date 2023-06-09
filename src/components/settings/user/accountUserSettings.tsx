@@ -1,14 +1,8 @@
 import React, { FC, useState } from "react";
-import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { User } from "../../../api/types/user";
 import { RootState } from "../../../app/store";
 import Button from "../../buttonComponent";
-import Input from "../../inputComponent";
-import UploadPic from "../../uploadPicComponent";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import {
   setShowEditEmailModal,
   setShowEditPassModal,

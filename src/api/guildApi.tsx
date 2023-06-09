@@ -1,236 +1,290 @@
-import { chatApi } from "./api";
+import { asyncThunkAPI, requestAPI } from "./api";
 import { Msg } from "./types/msg";
-import { Guild, GuildUpload, Invite } from "./types/guild";
+import { GuildUpload, Invite } from "./types/guild";
 import { Member } from "./types/user";
+import axios, { AxiosError } from "axios";
 import {
   setGuildBannedLoaded,
   setGuildInvitesLoaded,
   setGuildMembersLoaded,
-  setGuildMsgsLoaded,
 } from "../app/slices/clientSlice";
+import { ErrorBody } from "./types/error";
 
-const guildApi = chatApi.injectEndpoints({
-  endpoints: (builder) => ({
-    postGuild: builder.mutation<void, GuildUpload>({
-      query: (guild) => {
-        const formData = new FormData();
-        formData.append("body", JSON.stringify(guild.body));
-        if (guild.image) {
-          const data = new Blob([guild.image], { type: guild.image.type });
-          console.log(guild.image.name);
-          formData.append("image", data, guild.image.name);
-        }
+export const createGuild = asyncThunkAPI<void, GuildUpload>(
+  "guild/create",
+  async (guild: GuildUpload, thunkAPI) => {
+    const formData = new FormData();
+    formData.append("body", JSON.stringify(guild.body));
+    if (guild.image) {
+      const data = new Blob([guild.image], { type: guild.image.type });
+      console.log(guild.image.name);
+      formData.append("image", data, guild.image.name);
+    }
+    return await requestAPI<void>("POST", "/guilds", formData, thunkAPI);
+  }
+);
 
-        return {
-          url: "/guilds",
-          method: "POST",
-          body: formData,
-        };
-      },
-    }),
-    patchGuild: builder.mutation<void, { id: string; body: GuildUpload }>({
-      query: (args) => {
-        const { id, body: guild } = args;
-        const formData = new FormData();
-        formData.append("body", JSON.stringify(guild.body));
-        if (guild.image) {
-          const data = new Blob([guild.image], { type: guild.image.type });
-          console.log(guild.image.name);
-          formData.append("image", data, guild.image.name);
-        }
-
-        return {
-          url: `/guilds/${id}`,
-          method: "PATCH",
-          body: formData,
-        };
-      },
-    }),
-    deleteGuild: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/guilds/${id}`,
-        method: "DELETE",
-      }),
-    }),
-    makeOwner: builder.mutation<void, { id: string; userId: string }>({
-      query: ({ id, userId }) => ({
-        url: `/guilds/${id}`,
-        method: "PATCH",
-        body: { ownerId: userId } as Guild,
-      }),
-    }),
-    getGuildMembers: builder.query<Member[], string>({
-      query: (id) => ({
-        url: `/guilds/${id}/members`,
-        method: "GET",
-      }),
-      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
-        await queryFulfilled;
-        dispatch(setGuildMembersLoaded(arg));
-      },
-    }),
-    deleteGuildMember: builder.mutation<void, { id: string; userId: string }>({
-      query: ({ id, userId }) => ({
-        url: `/guilds/${id}/members/${userId}`,
-        method: "DELETE",
-      }),
-    }),
-    getGuildMsgs: builder.query<Msg[], { id: string; time: number }>({
-      query: ({ id, time }) => {
-        if (time === 0) time = new Date().valueOf();
-        return {
-          url: `/guilds/${id}/msgs`,
-          method: "GET",
-          params: { time },
-        };
-      },
-      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
-        const { data } = await queryFulfilled;
-        console.log(data.length)
-        if (data.length < 50) dispatch(setGuildMsgsLoaded(arg.id));
-      },
-    }),
-    postGuildMsg: builder.mutation<void, { id: string; msg: Msg }>({
-      query: ({ id, msg }) => ({
-        url: `/guilds/${id}/msgs`,
-        method: "POST",
-        body: msg,
-      }),
-    }),
-    deleteGuildMsg: builder.mutation<void, { id: string; msgId: string }>({
-      query: ({ id, msgId }) => ({
-        url: `/guilds/${id}/msgs/${msgId}`,
-        method: "DELETE",
-      }),
-    }),
-    patchGuildMsg: builder.mutation<
-      void,
-      { id: number; msgId: number; msg: Msg }
-    >({
-      query: ({ id, msgId, msg }) => ({
-        url: `/guilds/${id}/msgs/${msgId}`,
-        method: "PATCH",
-        body: msg,
-      }),
-    }),
-    readGuildMsg: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/guilds/${id}/msgs/read`,
-        method: "POST",
-      }),
-    }),
-    getGuildBans: builder.query<Member[], string>({
-      query: (id) => ({
-        url: `/guilds/${id}/bans`,
-        method: "GET",
-      }),
-      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
-        await queryFulfilled;
-        dispatch(setGuildBannedLoaded(arg));
-      },
-    }),
-    putGuildBan: builder.mutation<void, { id: string; userId: string }>({
-      query: ({ id, userId }) => ({
-        url: `/guilds/${id}/bans/${userId}`,
-        method: "PUT",
-      }),
-    }),
-    deleteGuildBan: builder.mutation<void, { id: string; userId: string }>({
-      query: ({ id, userId }) => ({
-        url: `/guilds/${id}/bans/${userId}`,
-        method: "DELETE",
-      }),
-    }),
-    getGuildInvites: builder.query<Invite[], string>({
-      query: (id) => ({
-        url: `/guilds/${id}/invites`,
-        method: "GET",
-      }),
-      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
-        await queryFulfilled;
-        dispatch(setGuildInvitesLoaded(arg));
-      },
-    }),
-    joinGuildInvite: builder.mutation<void, string>({
-      query: (code) => ({
-        url: "/guilds/join",
-        method: "POST",
-        body: {
-          invite: code,
-        },
-      }),
-    }),
-    postGuildInvite: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/guilds/${id}/invites`,
-        method: "POST",
-      }),
-    }),
-    deleteGuildInvite: builder.mutation<void, { id: string; invite: string }>({
-      query: (args) => ({
-        url: `/guilds/${args.id}/invites/${args.invite}`,
-        method: "DELETE",
-      }),
-    }),
-    putGuildAdmin: builder.mutation<void, { id: string; userId: string }>({
-      query: ({ id, userId }) => ({
-        url: `/guilds/${id}/admins/${userId}`,
-        method: "PUT",
-      }),
-    }),
-    deleteGuildAdmin: builder.mutation<void, { id: string; userId: string }>({
-      query: ({ id, userId }) => ({
-        url: `/guilds/${id}/admins/${userId}`,
-        method: "DELETE",
-      }),
-    }),
-  }),
+export const editGuild = asyncThunkAPI<
+  void,
+  { id: string; guild: GuildUpload }
+>("guild/edit", async (args: { id: string; guild: GuildUpload }, thunkAPI) => {
+  const { id, guild } = args;
+  const formData = new FormData();
+  formData.append("body", JSON.stringify(guild.body));
+  if (guild.image) {
+    const data = new Blob([guild.image], { type: guild.image.type });
+    console.log(guild.image.name);
+    formData.append("image", data, guild.image.name);
+  }
+  return await requestAPI<void>("PATCH", `/guilds/${id}`, formData, thunkAPI);
 });
 
-export const {
-  postGuild,
-  patchGuild,
-  getGuildMembers,
-  deleteGuildMember,
-  getGuildMsgs,
-  postGuildMsg,
-  deleteGuildMsg,
-  patchGuildMsg,
-  readGuildMsg,
-  getGuildBans,
-  putGuildBan,
-  deleteGuildBan,
-  getGuildInvites,
-  postGuildInvite,
-  deleteGuildInvite,
-  deleteGuild,
-  putGuildAdmin,
-  deleteGuildAdmin,
-  joinGuildInvite,
-  makeOwner,
-} = guildApi.endpoints;
+export const deleteGuild = asyncThunkAPI<void, string>(
+  "guild/delete",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>("DELETE", `/guilds/${id}`, null, thunkAPI);
+  }
+);
 
-export const {
-  usePostGuildMutation,
-  usePatchGuildMutation,
-  useGetGuildMembersQuery,
-  useDeleteGuildMemberMutation,
-  useGetGuildMsgsQuery,
-  usePostGuildMsgMutation,
-  useDeleteGuildMsgMutation,
-  usePatchGuildMsgMutation,
-  useReadGuildMsgMutation,
-  useGetGuildBansQuery,
-  usePutGuildBanMutation,
-  useDeleteGuildBanMutation,
-  useGetGuildInvitesQuery,
-  usePostGuildInviteMutation,
-  useDeleteGuildInviteMutation,
-  useDeleteGuildMutation,
-  usePutGuildAdminMutation,
-  useDeleteGuildAdminMutation,
-  useMakeOwnerMutation,
-  useJoinGuildInviteMutation,
-} = guildApi;
+export const makeOwner = asyncThunkAPI<void, { id: string; userId: string }>(
+  "guild/makeOwner",
+  async (args: { id: string; userId: string }, thunkAPI) => {
+    const { id, userId } = args;
+    return await requestAPI<void>(
+      "PATCH",
+      `/guilds/${id}`,
+      { ownerId: userId },
+      thunkAPI
+    );
+  }
+);
 
-export default guildApi;
+export const getGuildMembers = asyncThunkAPI<Member[], string>(
+  "guild/getMembers",
+  async (id: string, thunkAPI) => {
+    const response = await requestAPI<Member[]>(
+      "GET",
+      `/guilds/${id}/members`,
+      null,
+      thunkAPI
+    );
+    thunkAPI.dispatch(setGuildMembersLoaded(id));
+    return response;
+  }
+);
+
+export const kickGuildMember = asyncThunkAPI<
+  void,
+  { id: string; userId: string }
+>(
+  "guild/kickMember",
+  async (args: { id: string; userId: string }, thunkAPI) => {
+    const { id, userId } = args;
+    return await requestAPI<void>(
+      "DELETE",
+      `/guilds/${id}/members/${userId}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const getGuildMsgs = asyncThunkAPI<Msg[], { id: string; time: number }>(
+  "guild/getMsgs",
+  async (args: { id: string; time: number }, thunkAPI) => {
+    var { id, time } = args;
+    if (time === 0) time = Math.floor(new Date().valueOf() / 1000);
+    const response = await requestAPI<Msg[]>(
+      "GET",
+      `/guilds/${id}/msgs?time=${time}`,
+      null,
+      thunkAPI
+    );
+    return response;
+  }
+);
+
+export const createGuildMsg = asyncThunkAPI<void, { id: string; msg: Msg }>(
+  "guild/createMsg",
+  async (args: { id: string; msg: Msg }, thunkAPI) => {
+    const { id, msg } = args;
+    return await requestAPI<void>("POST", `/guilds/${id}/msgs`, msg, thunkAPI);
+  }
+);
+
+export const deleteGuildMsg = asyncThunkAPI<
+  void,
+  { id: string; msgId: string }
+>("guild/deleteMsg", async (args: { id: string; msgId: string }, thunkAPI) => {
+  const { id, msgId } = args;
+  return await requestAPI<void>(
+    "DELETE",
+    `/guilds/${id}/msgs/${msgId}`,
+    null,
+    thunkAPI
+  );
+});
+
+export const editGuildMsg = asyncThunkAPI<
+  void,
+  { id: string; msgId: string; msg: Msg }
+>(
+  "guild/editMsg",
+  async (args: { id: string; msgId: string; msg: Msg }, thunkAPI) => {
+    const { id, msgId, msg } = args;
+    return await requestAPI<void>(
+      "PATCH",
+      `/guilds/${id}/msgs/${msgId}`,
+      msg,
+      thunkAPI
+    );
+  }
+);
+
+export const readGuildMsg = asyncThunkAPI<void, string>(
+  "guild/readMsg",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "POST",
+      `/guilds/${id}/msgs/read`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const getGuildBans = asyncThunkAPI<Member[], string>(
+  "guild/getBans",
+  async (id: string, thunkAPI) => {
+    const response = await requestAPI<Member[]>(
+      "GET",
+      `/guilds/${id}/bans`,
+      null,
+      thunkAPI
+    );
+    thunkAPI.dispatch(setGuildBannedLoaded(id));
+    return response;
+  }
+);
+
+export const banGuildMember = asyncThunkAPI<
+  void,
+  { id: string; userId: string }
+>("guild/banMember", async (args: { id: string; userId: string }, thunkAPI) => {
+  const { id, userId } = args;
+  return await requestAPI<void>(
+    "PUT",
+    `/guilds/${id}/bans/${userId}`,
+    null,
+    thunkAPI
+  );
+});
+
+export const unbanGuildMember = asyncThunkAPI<
+  void,
+  { id: string; userId: string }
+>(
+  "guild/unbanMember",
+  async (args: { id: string; userId: string }, thunkAPI) => {
+    const { id, userId } = args;
+    return await requestAPI<void>(
+      "DELETE",
+      `/guilds/${id}/bans/${userId}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const getGuildInvites = asyncThunkAPI<Invite[], string>(
+  "guild/getInvites",
+  async (id: string, thunkAPI) => {
+    const response = await requestAPI<Invite[]>(
+      "GET",
+      `/guilds/${id}/invites`,
+      null,
+      thunkAPI
+    ).catch((err) => {
+      if (axios.isAxiosError(err))
+        return thunkAPI.rejectWithValue(
+          (err as AxiosError<ErrorBody>)?.response?.data ?? ({} as ErrorBody)
+        );
+    });
+    thunkAPI.dispatch(setGuildInvitesLoaded(id));
+    return response;
+  }
+);
+
+export const createGuildInvite = asyncThunkAPI<void, string>(
+  "guild/createInvite",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "POST",
+      `/guilds/${id}/invites`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const deleteGuildInvite = asyncThunkAPI<
+  void,
+  { id: string; inviteId: string }
+>(
+  "guild/deleteInvite",
+  async (args: { id: string; inviteId: string }, thunkAPI) => {
+    const { id, inviteId } = args;
+    return await requestAPI<void>(
+      "DELETE",
+      `/guilds/${id}/invites/${inviteId}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const joinGuildInvite = asyncThunkAPI<void, Invite>(
+  "guild/joinInvite",
+  async (invite: Invite, thunkAPI) => {
+    return await requestAPI<void>(
+      "POST",
+      `/guilds/join`,
+      {
+        invite: invite.invite,
+      },
+      thunkAPI
+    );
+  }
+);
+
+export const createGuildAdmin = asyncThunkAPI<
+  void,
+  { id: string; userId: string }
+>(
+  "guild/createAdmin",
+  async (args: { id: string; userId: string }, thunkAPI) => {
+    const { id, userId } = args;
+    return await requestAPI<void>(
+      "PUT",
+      `/guilds/${id}/admins/${userId}`,
+      null,
+      thunkAPI
+    );
+  }
+);
+
+export const deleteGuildAdmin = asyncThunkAPI<
+  void,
+  { id: string; userId: string }
+>(
+  "guild/deleteAdmin",
+  async (args: { id: string; userId: string }, thunkAPI) => {
+    const { id, userId } = args;
+    return await requestAPI<void>(
+      "DELETE",
+      `/guilds/${id}/admins/${userId}`,
+      null,
+      thunkAPI
+    );
+  }
+);

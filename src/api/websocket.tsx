@@ -1,12 +1,13 @@
 import {
   deleteGuildLoaded,
+  initGuildLoaded,
   removeCurrentDM,
   removeCurrentGuild,
   setLoadingWS,
 } from "../app/slices/clientSlice";
+import { Middleware } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
-import { chatApi } from "./api";
-import { Msg } from "./types/msg";
+import { Msg, UnreadMsg } from "./types/msg";
 import { Guild } from "./types/guild";
 import { User, Member } from "./types/user";
 import Events from "./types/events";
@@ -76,20 +77,30 @@ type HelloResFrame = {
   heartbeatInterval: number;
 };
 
-const gatewayApi = chatApi.injectEndpoints({
-  endpoints: (builder) => ({
-    startWS: builder.query({
-      queryFn: () => ({ data: null }),
-      onCacheEntryAdded: async (
-        arg,
-        { dispatch, getState, cacheEntryRemoved, updateCachedData }
-      ) => {
-        const ws = new WebSocket("ws://localhost:8080/api/ws/");
-        //put a recursive function if it disconnects or something later
+// Define your action types
+const WS_CONNECT = "WS_CONNECT";
+const WS_DISCONNECT = "WS_DISCONNECT";
+
+// Define your Redux actions
+export const wsConnect = () => ({ type: WS_CONNECT });
+export const wsDisconnect = () => ({ type: WS_DISCONNECT });
+
+const gatewayAPI: Middleware = (storeAPI) => {
+  let ws: WebSocket | null = null;
+  const dispatch = storeAPI.dispatch;
+  const getState = storeAPI.getState as () => RootState;
+
+  return (next) => (action) => {
+    switch (action.type) {
+      case WS_CONNECT:
+        ws = new WebSocket("ws://localhost:8080/api/ws/");
         dispatch(setLoadingWS(true));
         ws.onopen = () => {
           console.log("ws connected");
           console.log("ws a", OpCodes.HELLO);
+        };
+        ws.onerror = (e) => {
+          console.log("ws error", e);
         };
         var pingInterval: ReturnType<typeof setInterval>;
         var timeToPing: number;
@@ -99,7 +110,7 @@ const gatewayApi = chatApi.injectEndpoints({
             case OpCodes.READY:
               console.log(timeToPing);
               pingInterval = setInterval(() => {
-                ws.send(
+                ws!.send(
                   JSON.stringify({
                     op: OpCodes.HEARTBEAT,
                     data: null,
@@ -111,11 +122,11 @@ const gatewayApi = chatApi.injectEndpoints({
             case OpCodes.HELLO:
               const hello: HelloResFrame = data.data;
               timeToPing = hello.heartbeatInterval;
-              ws.send(
+              ws!.send(
                 JSON.stringify({
                   op: OpCodes.IDENTIFY,
                   data: {
-                    token: (getState() as RootState).auth.token,
+                    token: getState().auth.token,
                   } as HelloFrame,
                   event: "",
                 } as DataFrame)
@@ -132,7 +143,7 @@ const gatewayApi = chatApi.injectEndpoints({
                   const eventData: Msg = data.data;
                   console.log(eventData);
                   //shitty change later - placeholder code
-                  const selfUserId = (getState() as RootState).user.selfUser;
+                  const selfUserId = getState().user.selfUser;
                   console.log(eventData);
                   if (eventData.mentionsEveryone) {
                     dispatch(incMentionMsg(eventData.guildId));
@@ -194,7 +205,9 @@ const gatewayApi = chatApi.injectEndpoints({
                 }
                 case Events.CREATE_GUILD: {
                   const eventData: Guild = data.data;
+                  eventData.unread = {} as UnreadMsg;
                   dispatch(addGuild(eventData));
+                  dispatch(initGuildLoaded(eventData.id));
                   break;
                 }
                 case Events.DELETE_GUILD: {
@@ -318,13 +331,17 @@ const gatewayApi = chatApi.injectEndpoints({
           clearInterval(pingInterval);
           dispatch(setLoadingWS(true));
         };
-        await cacheEntryRemoved;
-        ws.close();
-      },
-    }),
-  }),
-});
+        break;
+      case WS_DISCONNECT:
+        if (ws !== null) {
+          ws.close();
+        }
+        ws = null;
+        break;
+      default:
+        return next(action);
+    }
+  };
+};
 
-export const { useStartWSQuery } = gatewayApi;
-
-export default gatewayApi;
+export default gatewayAPI;

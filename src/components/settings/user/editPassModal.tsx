@@ -1,5 +1,4 @@
 import React, { FC, useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { setShowEditPassModal } from "../../../app/slices/clientSlice";
 import Button from "../../buttonComponent";
 import Input from "../../inputComponent";
@@ -9,8 +8,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { EditUserPasswordForm } from "../../../api/types/user";
-import { usePatchUserPasswordMutation } from "../../../api/userApi";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
+import { useEditUserPassword } from "../../../api/hooks/userHooks";
+import { useAppDispatch } from "../../../app/store";
 
 type editPassForm = {
   password: string;
@@ -19,9 +18,7 @@ type editPassForm = {
 };
 
 const EditPassModal: FC = () => {
-  const dispatch = useDispatch();
-  const [patchUser, { error: patchUserError, status: patchUserStatus }] =
-    usePatchUserPasswordMutation();
+  const dispatch = useAppDispatch();
   const {
     register,
     handleSubmit,
@@ -46,25 +43,20 @@ const EditPassModal: FC = () => {
       })
     ),
   });
+  const {
+    callFunction: editUserPassword,
+    error,
+    status,
+  } = useEditUserPassword();
   useEffect(() => {
-    if (
-      patchUserError &&
-      (patchUserError as FetchBaseQueryError).status === 401
-    ) {
+    if (error) {
       setError("password", {
-        message: "Incorrect password",
+        message: error?.error,
       });
-    } else if (
-      patchUserError &&
-      (patchUserError as FetchBaseQueryError).status === 400
-    ) {
-      setError("password", {
-        message: "An error occured in the server",
-      });
-    } else if (patchUserStatus.valueOf() === "fulfilled") {
+    } else if (status.valueOf() === "finished") {
       dispatch(setShowEditPassModal(false));
     }
-  }, [patchUserStatus, patchUserError]);
+  }, [status, error]);
   return (
     <Modal
       title={"Edit Password"}
@@ -78,7 +70,7 @@ const EditPassModal: FC = () => {
             password: data.password,
             newPassword: data.newPassword,
           };
-          patchUser(body);
+          editUserPassword(body);
         })}
       >
         <div className="flex flex-col p-4 pt-0">

@@ -1,6 +1,5 @@
-import { yupResolver } from "@hookform/resolvers/yup";
 import React, { FC, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { setShowEditUsernameModal } from "../../../app/slices/clientSlice";
 import Button from "../../buttonComponent";
 import Input from "../../inputComponent";
@@ -8,12 +7,12 @@ import ModalBottom from "../../modal/modalBottomComponent";
 import Modal from "../../modal/modalComponent";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import { usePatchUserNameMutation } from "../../../api/userApi";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
 import { EditUserNameForm } from "../../../api/types/user";
+import { useEditUserName } from "../../../api/hooks/userHooks";
+import { useAppDispatch } from "../../../app/store";
 
 const EditUsernameModal: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const {
     register,
     handleSubmit,
@@ -32,36 +31,17 @@ const EditUsernameModal: FC = () => {
       })
     ),
   });
-  const [patchUserName, { error: patchUserError, status: patchUserStatus }] =
-    usePatchUserNameMutation();
 
+  const { callFunction: editUserName, error, status } = useEditUserName();
   useEffect(() => {
-    if (
-      patchUserError &&
-      (patchUserError as FetchBaseQueryError).status === 401
-    ) {
+    if (error) {
       setError("password", {
-        message: "Incorrect password",
+        message: error?.error,
       });
-    } else if (
-      patchUserError &&
-      (patchUserError as FetchBaseQueryError).status === 409
-    ) {
-      setError("username", {
-        message: "Username already taken",
-      });
-    } else if (
-      patchUserError &&
-      (patchUserError as FetchBaseQueryError).status === 400
-    ) {
-      setError("password", {
-        message: "An error occured in the server",
-      });
-    } else if (patchUserStatus.valueOf() === "fulfilled") {
+    } else if (status === "finished") {
       dispatch(setShowEditUsernameModal(false));
     }
-  }, [patchUserStatus, patchUserError]);
-
+  }, [status, error]);
   return (
     <Modal
       title={"Edit Username"}
@@ -71,7 +51,7 @@ const EditUsernameModal: FC = () => {
     >
       <form
         onSubmit={handleSubmit((data) => {
-          patchUserName(data);
+          editUserName(data);
         })}
       >
         <div className="flex flex-col p-4 pt-0">

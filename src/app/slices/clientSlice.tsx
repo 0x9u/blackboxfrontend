@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createAccount, AuthRes, postAuth } from "../../api/authApi";
-import { getGuildInvites } from "../../api/guildApi";
+import { getGuildInvites, getGuildMsgs } from "../../api/guildApi";
 import { GuildList } from "../../api/types/guild";
 import { Permissions, User } from "../../api/types/user";
 import { getGuilds, getSelf } from "../../api/userApi";
+import { Msg } from "../../api/types/msg";
 
 type guildLoaded = {
+  intialMsgs: boolean;
   msgs: boolean;
   members: boolean;
   invites: boolean;
@@ -53,7 +55,7 @@ const initialState: ClientState = {
   currentAdminMode: "guilds",
   currentMode: "chat",
   loadingWS: false,
-  
+
   showChatUserList: false,
 
   showAddChatModal: false,
@@ -65,7 +67,7 @@ const initialState: ClientState = {
 
   showGuildDMSettings: false,
   showUserSettings: false,
-  
+
   permissions: {} as Permissions,
 
   userSelfLoaded: false,
@@ -148,9 +150,31 @@ const clientSlice = createSlice({
     setShowUserSettings: (state, action: PayloadAction<boolean>) => {
       state.showUserSettings = action.payload;
     },
+    initGuildLoaded: (state, action: PayloadAction<string>) => {
+      state.guildLoaded[action.payload] = {
+        intialMsgs: false,
+        msgs: false,
+        members: false,
+        invites: false,
+        banned: false,
+      };
+    },
+    setGuildIntialMsgsLoaded: (state, action: PayloadAction<string>) => {
+      if (!state.guildLoaded[action.payload]) {
+        state.guildLoaded[action.payload] = {
+          intialMsgs: false,
+          msgs: false,
+          members: false,
+          invites: false,
+          banned: false,
+        };
+      }
+      state.guildLoaded[action.payload].intialMsgs = true;
+    },
     setGuildMsgsLoaded: (state, action: PayloadAction<string>) => {
       if (!state.guildLoaded[action.payload]) {
         state.guildLoaded[action.payload] = {
+          intialMsgs: false,
           msgs: false,
           members: false,
           invites: false,
@@ -165,6 +189,7 @@ const clientSlice = createSlice({
     setGuildMembersLoaded: (state, action: PayloadAction<string>) => {
       if (!state.guildLoaded[action.payload]) {
         state.guildLoaded[action.payload] = {
+          intialMsgs: false,
           msgs: false,
           members: false,
           invites: false,
@@ -176,6 +201,7 @@ const clientSlice = createSlice({
     setGuildInvitesLoaded: (state, action: PayloadAction<string>) => {
       if (!state.guildLoaded[action.payload]) {
         state.guildLoaded[action.payload] = {
+          intialMsgs: false,
           msgs: false,
           members: false,
           invites: false,
@@ -187,6 +213,7 @@ const clientSlice = createSlice({
     setGuildBannedLoaded: (state, action: PayloadAction<string>) => {
       if (!state.guildLoaded[action.payload]) {
         state.guildLoaded[action.payload] = {
+          intialMsgs: false,
           msgs: false,
           members: false,
           invites: false,
@@ -198,19 +225,39 @@ const clientSlice = createSlice({
   },
 
   extraReducers(builder) {
-    builder.addMatcher(
-      getSelf.matchFulfilled,
-      (state, action: PayloadAction<User>) => {
-        state.userSelfLoaded = true;
-        state.permissions = action.payload.permissions;
-      }
-    );
-    builder.addMatcher(
-      getGuilds.matchFulfilled,
+    builder.addCase(getSelf.fulfilled, (state, action: PayloadAction<User>) => {
+      state.userSelfLoaded = true;
+      state.permissions = action.payload.permissions;
+    });
+    builder.addCase(
+      getGuilds.fulfilled,
       (state, action: PayloadAction<GuildList>) => {
         state.guildListLoaded = true;
+        const list = action.payload;
+        for (const guild of list.guilds) {
+          state.guildLoaded[guild.id] = {
+            intialMsgs: false,
+            msgs: false,
+            members: false,
+            invites: false,
+            banned: false,
+          };
+        }
       }
     );
+    builder.addCase(getGuildMsgs.fulfilled, (state, action) => {
+      const messages = action.payload;
+      console.log(messages.length, action.meta.arg.id);
+      if (messages.length < 50) {
+        console.log(
+          "activated",
+          action.meta.arg.id,
+          messages.length,
+          messages.length < 50
+        );
+        state.guildLoaded[action.meta.arg.id].msgs = true;
+      }
+    });
   },
 });
 
@@ -235,6 +282,8 @@ export const {
   setShowEditProfilePictureModal,
   setShowGuildDMSettings,
   setShowUserSettings,
+  initGuildLoaded,
+  setGuildIntialMsgsLoaded,
   setGuildMsgsLoaded,
   setGuildMembersLoaded,
   setGuildInvitesLoaded,

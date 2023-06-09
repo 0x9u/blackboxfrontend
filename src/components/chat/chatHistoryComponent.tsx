@@ -2,20 +2,18 @@ import React, { FC, useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import MsgElement from "./msgComponent";
 import ChatInput from "./chatInputComponent";
-import {
-  useGetGuildMsgsQuery,
-  useReadGuildMsgMutation,
-} from "../../api/guildApi";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../app/store";
+import { getGuildMsgs, readGuildMsg } from "../../api/guildApi";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "../../app/store";
 import { Msg } from "../../api/types/msg";
 import { SkeletonLoaderChatMsg } from "../skeletonLoaderComponent";
 import { Guild } from "../../api/types/guild";
 import { MdMessage } from "react-icons/md";
 import { clearUnreadMsg } from "../../app/slices/guildSlice";
+import { setGuildIntialMsgsLoaded } from "../../app/slices/clientSlice";
 
 const ChatHistory: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const currentID = useSelector((state: RootState) => {
     return state.client.currentChatMode === "dm"
       ? state.client.currentDM
@@ -24,10 +22,22 @@ const ChatHistory: FC = () => {
 
   const isMsgsLoaded = useSelector((state: RootState) => {
     const guild = state.client.guildLoaded[currentID ?? ""];
+    console.log(guild);
     if (guild == undefined) {
       return false;
     }
+    console.log(guild.msgs);
     return guild.msgs;
+  });
+
+  const isIntialMsgsLoaded = useSelector((state: RootState) => {
+    const guild = state.client.guildLoaded[currentID ?? ""];
+    console.log(guild);
+    if (guild == undefined) {
+      return false;
+    }
+    console.log(guild.msgs);
+    return guild.intialMsgs;
   });
 
   const unreadMsgs = useSelector((state: RootState) => {
@@ -35,16 +45,12 @@ const ChatHistory: FC = () => {
     return guild.unread;
   });
 
-  const [readMsg] = useReadGuildMsgMutation();
-
-  const [a, setA] = useState<number>(0);
-
   const lastTime = useSelector((state: RootState) => {
     const lastMsgId =
       state.msg.guildMsgIds[currentID ?? ""]?.[
         state.msg.guildMsgIds[currentID ?? ""]?.length - 1
       ] ?? "";
-    console.log(lastMsgId);
+    console.log("lasttime ", lastMsgId);
     const lastMsg = state.msg.msgs[lastMsgId];
     const lastTime = lastMsg?.created
       ? Math.round(new Date(lastMsg?.created).valueOf() / 1000)
@@ -55,14 +61,7 @@ const ChatHistory: FC = () => {
   const msgsLength = useSelector((state: RootState) => {
     return state.msg.guildMsgIds[currentID ?? ""]?.length ?? 0;
   });
-
-  const { isFetching } = useGetGuildMsgsQuery(
-    { id: currentID ?? "", time: a },
-    {
-      skip: isMsgsLoaded,
-    }
-  );
-
+  console.log(msgsLength);
   const msgHistory = useSelector((state: RootState) => {
     const msgHistoryOrder = state.msg.guildMsgIds[currentID ?? ""] ?? [];
     var msgHistoryz: Msg[] = [];
@@ -76,6 +75,14 @@ const ChatHistory: FC = () => {
     }
     return msgHistoryz;
   });
+
+  useEffect(() => {
+    //temp fix
+    if (!isIntialMsgsLoaded)
+      dispatch(getGuildMsgs({ id: currentID ?? "", time: lastTime })).then(() =>
+        dispatch(setGuildIntialMsgsLoaded(currentID ?? ""))
+      );
+  }, [currentID]);
 
   const lastReadTime = new Date(unreadMsgs.time).toLocaleString();
 
@@ -91,11 +98,14 @@ const ChatHistory: FC = () => {
           inverse
           dataLength={msgsLength}
           loader={<SkeletonLoaderChatMsg />}
-          endMessage={<p>done</p>}
+          endMessage={
+            <p className="mx-4 font-bold text-white">
+              This is the beginning of this chat
+            </p>
+          }
           hasMore={!isMsgsLoaded}
           next={() => {
-            setA(lastTime);
-            console.log(lastTime);
+            dispatch(getGuildMsgs({ id: currentID ?? "", time: lastTime }));
           }}
         >
           {msgHistory.map((msg, index, msgs) => {
@@ -133,8 +143,8 @@ const ChatHistory: FC = () => {
               <a
                 className="cursor-pointer select-none justify-self-end font-semibold text-gray hover:underline active:text-gray/75"
                 onClick={() => {
+                  dispatch(readGuildMsg(currentID ?? ""));
                   dispatch(clearUnreadMsg(currentID ?? ""));
-                  readMsg(currentID ?? "");
                 }}
               >
                 Mark as read

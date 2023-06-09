@@ -1,5 +1,4 @@
-import React, { FC, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import React, { FC, useEffect, useState } from "react";
 import { setShowEditEmailModal } from "../../../app/slices/clientSlice";
 import Button from "../../buttonComponent";
 import Input from "../../inputComponent";
@@ -9,13 +8,17 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { EditUserEmailForm } from "../../../api/types/user";
-import { usePatchUserEmailMutation } from "../../../api/userApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
+import { useEditUserEmail } from "../../../api/hooks/userHooks";
+import { useAppDispatch } from "../../../app/store";
 
 const EditEmailModal: FC = () => {
-  const dispatch = useDispatch();
-  const [patchUser, { error: patchUserError, status: patchUserStatus }] =
-    usePatchUserEmailMutation();
+  const dispatch = useAppDispatch();
+
+  const {callFunction : editUserEmail, error, status} = useEditUserEmail();
+
+
+
   const {
     register,
     handleSubmit,
@@ -32,25 +35,17 @@ const EditEmailModal: FC = () => {
       })
     ),
   });
+
   useEffect(() => {
-    if (
-      patchUserError &&
-      (patchUserError as FetchBaseQueryError).status === 401
-    ) {
+    if (status === "failed") {
       setError("password", {
-        message: "Incorrect password",
+        message: error?.error,
       });
-    } else if (
-      patchUserError &&
-      (patchUserError as FetchBaseQueryError).status === 400
-    ) {
-      setError("password", {
-        message: "An error occured in the server",
-      });
-    } else if (patchUserStatus.valueOf() === "fulfilled") {
+    } else if (status === "finished") {
       dispatch(setShowEditEmailModal(false));
     }
-  }, [patchUserStatus, patchUserError]);
+  }, [error]);
+
   return (
     <Modal
       title={"Edit Email"}
@@ -61,7 +56,7 @@ const EditEmailModal: FC = () => {
       <form
         autoComplete="off"
         onSubmit={handleSubmit((data) => {
-          patchUser(data);
+          editUserEmail(data);
         })}
       >
         <div className="flex flex-col p-4 pt-0">

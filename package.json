@@ -17,6 +17,7 @@
     "@mui/styled-engine-sc": "^5.11.9",
     "@reduxjs/toolkit": "^1.9.2",
     "@types/react-mentions": "^4.1.8",
+    "axios": "^1.4.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
     "moment": "^2.29.4",
@@ -31,6 +32,7 @@
     "redux-persist": "^6.0.0",
     "sort-by": "^0.0.2",
     "styled-components": "^5.3.6",
+    "ws": "^8.13.0",
     "yup": "^0.32.11"
   },
   "devDependencies": {

@@ -1,9 +1,5 @@
 import React, { FC, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import {
-  setShowEditEmailModal,
-  setShowEditProfilePictureModal,
-} from "../../../app/slices/clientSlice";
+import { setShowEditProfilePictureModal } from "../../../app/slices/clientSlice";
 import Button from "../../buttonComponent";
 import Input from "../../inputComponent";
 import ModalBottom from "../../modal/modalBottomComponent";
@@ -13,12 +9,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import UploadPic from "../../uploadPicComponent";
 import { EditUserPictureForm } from "../../../api/types/user";
-import { patchGuild } from "../../../api/guildApi";
-import {
-  patchUserPicture,
-  usePatchUserPictureMutation,
-} from "../../../api/userApi";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
+import { useEditUserPicture } from "../../../api/hooks/userHooks";
+import { useAppDispatch } from "../../../app/store";
 
 type editPictureForm = {
   picture: FileList;
@@ -26,14 +18,10 @@ type editPictureForm = {
 };
 
 const EditProfilePictureModal: FC = () => {
-  const dispatch = useDispatch();
-
-  const [patchUser, { error: patchUserError, status: patchUserStatus }] =
-    usePatchUserPictureMutation();
+  const dispatch = useAppDispatch();
   const {
     register,
     handleSubmit,
-    setValue,
     setError,
     formState: { errors },
   } = useForm<editPictureForm>({
@@ -65,25 +53,16 @@ const EditProfilePictureModal: FC = () => {
       })
     ),
   });
+  const { callFunction: editUserPicture, error, status } = useEditUserPicture();
   useEffect(() => {
-    if (
-      patchUserError &&
-      (patchUserError as FetchBaseQueryError).status === 401
-    ) {
+    if (status === "failed") {
       setError("password", {
-        message: "Incorrect password",
+        message: error?.error,
       });
-    } else if (
-      patchUserError &&
-      (patchUserError as FetchBaseQueryError).status === 400
-    ) {
-      setError("password", {
-        message: "An error occured in the server",
-      });
-    } else if (patchUserStatus.valueOf() === "fulfilled") {
+    } else if (status === "finished") {
       dispatch(setShowEditProfilePictureModal(false));
     }
-  }, [patchUserStatus, patchUserError]);
+  }, [status]);
   return (
     <Modal
       title={"Edit Profile Picture"}
@@ -99,7 +78,7 @@ const EditProfilePictureModal: FC = () => {
             image: picture,
             password: data.password,
           };
-          patchUser(body);
+          editUserPicture(body);
         })}
       >
         <div className="flex flex-col p-4 pt-0">

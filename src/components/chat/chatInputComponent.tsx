@@ -6,9 +6,14 @@ import { Msg } from "../../api/types/msg";
 import { RootState, useAppDispatch } from "../../app/store";
 import Button from "../buttonComponent";
 import { createGuildMsg } from "../../api/guildApi";
+import {
+  useGetGuildMembers,
+  useGetGuildMembersForMention,
+} from "../../api/hooks/guildHooks";
 
 const chatInputArea: FC = () => {
   const [value, setValue] = useState<string>("");
+  const [playAnimation, setPlayAnimation] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
 
@@ -18,31 +23,8 @@ const chatInputArea: FC = () => {
       : state.client.currentGuild
   );
 
-  const userList = useSelector((state: RootState) => {
-    const userIds = state.user.guildMembersIds[currentId ?? ""] ?? [];
-    const userList: Record<string, string> = {};
-    for (const userId of userIds) {
-      if (state.user.users[userId] !== undefined) {
-        userList[userId] = state.user.users[userId].name;
-      }
-    }
-    return userList;
-  });
-  const userListInfo = useSelector((state: RootState) => {
-    const userIds = state.user.guildMembersIds[currentId ?? ""] ?? [];
-    const userList: SuggestionDataItem[] = [];
-    for (const userId of userIds) {
-      if (state.user.users[userId] !== undefined) {
-        const user: SuggestionDataItem = {
-          id: userId,
-          display: state.user.users[userId].name,
-        };
-        userList.push(user);
-      }
-    }
-    userList.push({ id: "everyone", display: "everyone" });
-    return userList;
-  });
+  const { userListMention, userList } = useGetGuildMembersForMention();
+
   function send() {
     if (currentId) {
       dispatch(
@@ -53,7 +35,12 @@ const chatInputArea: FC = () => {
   }
   return (
     <div className="min-h-16 shrink-0 px-4">
-      <div className="min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ">
+      <div
+        className={`min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ${
+          playAnimation ? "animate-shake" : ""
+        }`}
+        onAnimationEnd={() => setPlayAnimation(false)}
+      >
         <div className="my-auto shrink-0">
           <input id="file-upload" type="file" className="hidden h-10 w-10" />
           <label htmlFor="file-upload">
@@ -72,7 +59,11 @@ const chatInputArea: FC = () => {
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
-              send();
+              if (value !== "") {
+                send();
+              } else {
+                setPlayAnimation(true);
+              }
             }
           }}
           forceSuggestionsAboveCursor={true}
@@ -90,7 +81,7 @@ const chatInputArea: FC = () => {
           <Mention /* TODO: somehow make suggestions menu rounded*/
             trigger="@"
             markup="<@__id__>"
-            data={userListInfo}
+            data={userListMention}
             className="rounded-sm bg-shade-5/50 py-1"
             renderSuggestion={(suggestion, search, highlightedDisplay) => (
               <div className="bg-shade-1 py-1 text-lg">

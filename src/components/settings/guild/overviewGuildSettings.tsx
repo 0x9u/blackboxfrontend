@@ -110,7 +110,11 @@ const OverviewGuildSettings: FC = () => {
           </p>
         </div>
         <div className="my-auto">
-          <Input label="server name" register={register("name")} />
+          <Input
+            label="server name"
+            register={register("name")}
+            error={errors.name}
+          />
         </div>
       </div>
       <div className="flex flex-row justify-between py-4 px-2">

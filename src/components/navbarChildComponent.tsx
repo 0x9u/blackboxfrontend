@@ -1,9 +1,8 @@
 import React, { FC } from "react";
 import { MdSettings } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { setShowUserSettings } from "../app/slices/clientSlice";
-import { RootState } from "../app/store";
 import { useGetSelfQuery } from "../api/hooks/userHooks";
 
 interface navbarChildProps {
@@ -21,7 +20,6 @@ const navbarChild: FC<navbarChildProps> = ({ children }) => {
 
   return (
     <div className="flex min-h-screen w-64 flex-col bg-shade-3">
-      {/* got it working after 1 hour of debugging css*/}
       <div className="flex h-0 grow flex-col space-y-1">{children}</div>
       <div className="flex h-16 flex-row border-t border-shade-4 bg-shade-2 py-2 px-4">
         <img

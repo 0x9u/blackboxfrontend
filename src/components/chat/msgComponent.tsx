@@ -1,49 +1,81 @@
-import React, { FC, Fragment, useMemo, useState } from "react";
+import React, { FC, createRef, useMemo, useState, useEffect } from "react";
 import { MdDelete, MdEdit, MdRepeat } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
+import { RootState, useAppDispatch } from "../../app/store";
+import {
+  createGuildMsg,
+  deleteGuildMsg,
+  editGuildMsg,
+  retryGuildMsg,
+} from "../../api/guildApi";
+import {
+  useGetGuildMembers,
+  useGetGuildMembersForMention,
+} from "../../api/hooks/guildHooks";
+import { User } from "../../api/types/user";
+import { setCurrentEditMsgId } from "../../app/slices/clientSlice";
+import { Mention, MentionsInput } from "react-mentions";
+import { Msg } from "../../api/types/msg";
 
 interface msgProps {
+  id: string;
   content: string;
   failed?: boolean;
   username: string;
   userImageId: string;
   created: string;
   modified?: string;
+  mentions: User[];
   combined: boolean;
+  editing: boolean;
 }
 
 const Msg: FC<msgProps> = ({
+  id,
   content,
   failed,
   username,
   userImageId,
   created,
   modified,
+  mentions,
   combined,
+  editing,
 }) => {
+  const dispatch = useAppDispatch();
   const formatedContent = content.split(/(\<\@(?:\d+|everyone)\>)/g);
   const imageURL =
     userImageId !== "-1"
       ? `http://localhost:8080/api/files/user/${userImageId}`
       : "./blackboxuser.jpg";
-  const userList = useSelector((state: RootState) => {
-    const users =
-      state.user.guildMembersIds[state.client.currentGuild ?? ""] ?? [];
-    const userInfo: Record<string, string> = {};
-    for (const user of users) {
-      const data = state.user.users[user];
-      if (data !== undefined) {
-        userInfo[data.id] = data.name;
-      }
-    }
-    return userInfo;
-  });
+
+  //crappy replace later (temp)
+
+  const currentGuild = useSelector(
+    (state: RootState) =>
+      (state.client.currentChatMode === "guild"
+        ? state.client.currentGuild
+        : state.client.currentDM) ?? ""
+  );
+
+  const { userListMention, userList } = useGetGuildMembersForMention();
+
   const selfUserId = useSelector((state: RootState) => state.user.selfUser);
   const mentionedSelfUser = useMemo(() => {
     const search = new RegExp(`\<\@(${selfUserId}|everyone)\>`);
     return search.test(content);
   }, [selfUserId, content]);
+
+  const [value, setValue] = useState<string>(content);
+  const [playAnimation, setPlayAnimation] = useState<boolean>(false);
+  const editInput = createRef<HTMLTextAreaElement>();
+
+  useEffect(() => {
+    if (editing && editInput.current) {
+      editInput.current.setSelectionRange(value.length, value.length);
+      editInput.current.focus();
+    }
+  }, [editing]);
 
   return (
     <div
@@ -59,9 +91,7 @@ const Msg: FC<msgProps> = ({
         <img
           className="h-12 w-12 shrink-0 rounded-full border border-black"
           src={imageURL}
-        >
-          {/* for pfp */}
-        </img>
+        ></img>
       )}
       <div
         className={`flex flex-grow ${
@@ -77,35 +107,170 @@ const Msg: FC<msgProps> = ({
             <p className="text-lg font-semibold leading-relaxed text-white">
               {username}
             </p>
-            <p className="text-xs font-medium leading-relaxed text-white brightness-75">
-              Created on {created} {modified && `and Edited at ${modified}`}
+            {!failed && (
+              <p className="text-xs font-medium leading-relaxed text-white brightness-75">
+                Created on {created} {modified && `and Edited at ${modified}`}
+              </p>
+            )}
+          </div>
+        )}
+        {!editing ? (
+          <div className={`${!combined ? "mr-28" : "ml-16 mr-4"} w-full`}>
+            <p
+              className={`font-normal leading-relaxed ${
+                !failed ? "text-white" : "text-red"
+              }`}
+            >
+              {formatedContent.map((e: string, i: number) => {
+                const mentionMatched = e.match(
+                  /\<\@((?<userid>\d+)|(?<everyone>everyone))\>/
+                );
+                if (mentionMatched?.groups) {
+                  return (
+                    <span className="rounded-sm bg-shade-5/50 py-1" key={i}>
+                      @
+                      {mentions.find(
+                        (user) =>
+                          user.id === (mentionMatched.groups?.userid ?? "")
+                      )?.name ?? mentionMatched.groups.everyone}
+                    </span>
+                  );
+                } else {
+                  return e;
+                }
+              })}
+            </p>
+          </div>
+        ) : (
+          <div
+            className={`mb-2 flex flex-col ${
+              !combined ? "mr-28" : "ml-16 mr-4"
+            } w-full`}
+          >
+            <div
+              className={`min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ${
+                playAnimation ? "animate-shake" : ""
+              }`}
+              onAnimationEnd={() => setPlayAnimation(false)}
+            >
+              <MentionsInput
+                rows={1}
+                autoCorrect="off"
+                placeholder="Type your message here!"
+                value={value}
+                onChange={(v) => {
+                  console.log(v.target.value);
+                  setValue(v.target.value);
+                }}
+                inputRef={editInput}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (value !== "") {
+                      dispatch(
+                        editGuildMsg({
+                          id: currentGuild,
+                          msgId: id,
+                          msg: { content: value } as Msg,
+                        })
+                      );
+                      dispatch(setCurrentEditMsgId(null));
+                    } else {
+                      setPlayAnimation(true);
+                    }
+                  }
+                }}
+                forceSuggestionsAboveCursor={true}
+                a11ySuggestionsListLabel={"People"}
+                className={
+                  "[&>div>textarea]:textbox-scrollbar my-4 block max-h-[25vh] w-0 grow overflow-y-auto bg-shade-2 text-lg leading-relaxed text-white"
+                }
+                style={{
+                  input: {
+                    overflow: "auto",
+                    outline: 0,
+                  },
+                }}
+              >
+                <Mention /* TODO: somehow make suggestions menu rounded*/
+                  trigger="@"
+                  markup="<@__id__>"
+                  data={userListMention}
+                  className="rounded-sm bg-shade-5/50 py-1"
+                  renderSuggestion={(
+                    suggestion,
+                    search,
+                    highlightedDisplay
+                  ) => (
+                    <div className="bg-shade-1 py-1 text-lg">
+                      @{highlightedDisplay}
+                    </div>
+                  )}
+                  displayTransform={(id, display) => {
+                    return `@${userList[display] ?? "everyone"}`;
+                  }}
+                  appendSpaceOnAdd={true}
+                />
+              </MentionsInput>
+            </div>
+            <p className="select-none whitespace-nowrap text-sm font-thin text-white">
+              Press Enter to{" "}
+              <a
+                className=" cursor-pointer text-shade-5 hover:underline"
+                onClick={() => {
+                  if (value !== "") {
+                    dispatch(
+                      editGuildMsg({
+                        id: currentGuild,
+                        msgId: id,
+                        msg: { content: value } as Msg,
+                      })
+                    );
+                    dispatch(setCurrentEditMsgId(null));
+                  } else {
+                    setPlayAnimation(true);
+                  }
+                }}
+              >
+                Save
+              </a>
+              {" • "}Press ESC to{" "}
+              <a
+                className=" cursor-pointer text-shade-5 hover:underline"
+                onClick={() => dispatch(setCurrentEditMsgId(null))}
+              >
+                Cancel
+              </a>
             </p>
           </div>
         )}
-        <div className={`${!combined ? "mr-28" : "ml-16 mr-4"} w-full`}>
-          <p className="font-normal leading-relaxed text-white">
-            {formatedContent.map((e: string, i: number) => {
-              const mention = e.match(
-                /\<\@((?<userid>\d+)|(?<everyone>everyone))\>/
-              );
-              if (mention?.groups) {
-                return (
-                  <span className="rounded-sm bg-shade-5/50 py-1" key={i}>
-                    @
-                    {userList?.[mention.groups.userid] ??
-                      mention.groups.everyone}
-                  </span>
-                );
-              } else {
-                return e;
-              }
-            })}
-          </p>
-        </div>
         <div className="group invisible absolute right-1 -top-4 z-50 !ml-auto mb-auto flex select-none flex-row space-x-2 rounded-sm bg-shade-2 p-1 group-hover:visible">
-          <MdRepeat className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10" />
-          <MdEdit className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10" />
-          <MdDelete className="h-6 w-6 cursor-pointer text-red hover:bg-white/25 active:bg-white/10" />
+          {failed && (
+            <MdRepeat
+              className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10"
+              onClick={() => {
+                console.log("retrying msg");
+                dispatch(retryGuildMsg({ id: currentGuild, msgId: id }));
+              }}
+            />
+          )}
+          {!editing && !failed && (
+            <MdEdit
+              className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10"
+              onClick={() => {
+                console.log("editing msg");
+                dispatch(setCurrentEditMsgId(id));
+              }}
+            />
+          )}
+          <MdDelete
+            className="h-6 w-6 cursor-pointer text-red hover:bg-white/25 active:bg-white/10"
+            onClick={() => {
+              console.log("deleting msg");
+              dispatch(deleteGuildMsg({ id: currentGuild, msgId: id }));
+              dispatch(setCurrentEditMsgId(null));
+            }}
+          />
         </div>
       </div>
     </div>

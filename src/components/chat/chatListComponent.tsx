@@ -8,26 +8,25 @@ import {
   setCurrentGuild,
   setShowAddChatModal,
 } from "../../app/slices/clientSlice";
-import { RootState } from "../../app/store";
 import { SkeletonLoaderChatList } from "../skeletonLoaderComponent";
 import { useGetGuildDms } from "../../api/hooks/userHooks";
+import { loadGuildMembers } from "../../api/hooks/guildHooks";
 
 const ChatList: FC = () => {
   const dispatch = useDispatch();
 
-  const { guilds, dms, loaded } = useGetGuildDms();
+  const {
+    guilds,
+    dms,
+    loaded,
+    users,
+    currentChatMode,
+    currentDM,
+    currentGuild,
+  } = useGetGuildDms();
 
-  const users = useSelector((state: RootState) => state.user.users);
-
-  const currentChatMode = useSelector(
-    (state: RootState) => state.client.currentChatMode
-  );
-
-  const currentGuild = useSelector(
-    (state: RootState) => state.client.currentGuild
-  );
-
-  const currentDM = useSelector((state: RootState) => state.client.currentDM);
+  loadGuildMembers();
+  
 
   const [firstRender, setFirstRender] = useState<boolean>(true);
 

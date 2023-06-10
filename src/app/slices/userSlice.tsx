@@ -241,6 +241,11 @@ const userSlice = createSlice({
       state.selfUser = null;
       state.users = {};
       state.userMemberCount = {};
+      state.dmIds = [];
+      state.pendingFriendIds = [];
+      state.guildMembersIds = {};
+      state.guildAdminIds = {};
+      state.guildBannedIds = {};
     },
   },
   extraReducers: (builder) => {
@@ -353,4 +358,5 @@ export const {
   removeGuildMembers,
   addGuildAdminID,
   removeGuildAdminID,
+  resetUsers,
 } = userSlice.actions;

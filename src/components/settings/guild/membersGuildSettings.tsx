@@ -7,7 +7,6 @@ import {
   kickGuildMember,
   makeOwner,
 } from "../../../api/guildApi";
-import { Member } from "../../../api/types/user";
 import { RootState, useAppDispatch } from "../../../app/store";
 import Button from "../../buttonComponent";
 import { useGetGuildMembers } from "../../../api/hooks/guildHooks";
@@ -27,7 +26,8 @@ const MembersGuildSettings: FC = () => {
       ) ?? false
   );
 
-  const { currentGuild, guildMembers, loaded } = useGetGuildMembers();
+  const { currentGuild, guildMembers, guildMembersOrder, loaded } =
+    useGetGuildMembers();
 
   return (
     <div>
@@ -38,57 +38,65 @@ const MembersGuildSettings: FC = () => {
           <p className="mr-6">Actions</p>
         </div>
         <div className="h-full w-full space-y-2 overflow-auto">
-          {guildMembers.map((member: Member) => (
+          {guildMembersOrder.map((id: string) => (
             <div
               className="text-md flex flex-row justify-between"
-              key={`${currentGuild}-${member.userInfo.id}`}
+              key={`${currentGuild}-${id}`}
             >
               <div className="flex flex-row space-x-2">
                 <img
                   className="h-10 w-10 rounded-full border-2 border-black"
                   src={
-                    member.userInfo.imageId !== "-1"
-                      ? `http://localhost:8080/api/files/user/${member.userInfo.imageId}`
+                    guildMembers[id]?.userInfo.imageId !== "-1"
+                      ? `http://localhost:8080/api/files/user/${guildMembers[id]?.userInfo.imageId}`
                       : "./blackboxuser.jpg"
                   }
                 ></img>
                 <p className="m-auto text-lg text-white/75">
-                  {member.userInfo.name}
-                  {member.owner ? "👑" : member.admin ? "🛡️" : ""}
+                  {guildMembers[id]?.userInfo.name}
+                  {guildMembers[id]?.owner
+                    ? "👑"
+                    : guildMembers[id]?.admin
+                    ? "🛡️"
+                    : ""}
                 </p>
               </div>
               <div className="flex flex-row space-x-2">
-                {!member.owner && !member.admin && userIsOwner && (
-                  <Button
-                    value="Make Admin"
-                    type="button"
-                    className="m-auto h-8 w-28 px-0"
-                    onClick={() =>
-                      dispatch(
-                        createGuildAdmin({
-                          id: currentGuild || "",
-                          userId: member.userInfo.id,
-                        })
-                      )
-                    }
-                  />
-                )}
-                {!member.owner && member.admin && userIsOwner && (
-                  <Button
-                    value="Remove Admin"
-                    type="button"
-                    className="m-auto h-8 w-32 px-0"
-                    onClick={() =>
-                      dispatch(
-                        deleteGuildAdmin({
-                          id: currentGuild || "",
-                          userId: member.userInfo.id,
-                        })
-                      )
-                    }
-                  />
-                )}
-                {!member.owner && userIsOwner && (
+                {!guildMembers[id]?.owner &&
+                  !guildMembers[id]?.admin &&
+                  userIsOwner && (
+                    <Button
+                      value="Make Admin"
+                      type="button"
+                      className="m-auto h-8 w-28 px-0"
+                      onClick={() =>
+                        dispatch(
+                          createGuildAdmin({
+                            id: currentGuild || "",
+                            userId: id,
+                          })
+                        )
+                      }
+                    />
+                  )}
+                {!guildMembers[id]?.owner &&
+                  guildMembers[id]?.admin &&
+                  userIsOwner && (
+                    <Button
+                      value="Remove Admin"
+                      type="button"
+                      className="m-auto h-8 w-32 px-0"
+                      onClick={() =>
+                        dispatch(
+                          deleteGuildAdmin({
+                            id: currentGuild || "",
+                            userId: id,
+                          })
+                        )
+                      }
+                    />
+                  )}
+                {!guildMembers[id]?.owner && userIsOwner && (
                   <Button
                     value="Make Owner"
                     type="button"
@@ -97,14 +105,14 @@ const MembersGuildSettings: FC = () => {
                       dispatch(
                         makeOwner({
                           id: currentGuild || "",
-                          userId: member.userInfo.id,
+                          userId: id,
                         })
                       )
                     }
                   />
                 )}
-                {!member.owner &&
-                  !member.admin &&
+                {!guildMembers[id]?.owner &&
+                  !guildMembers[id]?.admin &&
                   (userIsAdmin || userIsOwner) && (
                     <Button
                       value="Kick"
@@ -115,14 +123,14 @@ const MembersGuildSettings: FC = () => {
                         dispatch(
                           kickGuildMember({
                             id: currentGuild || "",
-                            userId: member.userInfo.id,
+                            userId: id,
                           })
                         )
                       }
                     />
                   )}
-                {!member.owner &&
-                  !member.admin &&
+                {!guildMembers[id]?.owner &&
+                  !guildMembers[id]?.admin &&
                   (userIsAdmin || userIsOwner) && (
                     <Button
                       value="Ban"
@@ -132,7 +140,7 @@ const MembersGuildSettings: FC = () => {
                         dispatch(
                           banGuildMember({
                             id: currentGuild || "",
-                            userId: member.userInfo.id,
+                            userId: id,
                           })
                         )
                       }

@@ -1,90 +1,33 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import MsgElement from "./msgComponent";
 import ChatInput from "./chatInputComponent";
 import { getGuildMsgs, readGuildMsg } from "../../api/guildApi";
-import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../app/store";
-import { Msg } from "../../api/types/msg";
 import { SkeletonLoaderChatMsg } from "../skeletonLoaderComponent";
-import { Guild } from "../../api/types/guild";
 import { MdMessage } from "react-icons/md";
 import { clearUnreadMsg } from "../../app/slices/guildSlice";
-import { setGuildIntialMsgsLoaded } from "../../app/slices/clientSlice";
+import { useGetGuildMsgInfo } from "../../api/hooks/guildHooks";
+import { useSelector } from "react-redux";
 
 const ChatHistory: FC = () => {
   const dispatch = useAppDispatch();
-  const currentID = useSelector((state: RootState) => {
-    return state.client.currentChatMode === "dm"
-      ? state.client.currentDM
-      : state.client.currentGuild;
-  });
 
-  const isMsgsLoaded = useSelector((state: RootState) => {
-    const guild = state.client.guildLoaded[currentID ?? ""];
-    console.log(guild);
-    if (guild == undefined) {
-      return false;
-    }
-    console.log(guild.msgs);
-    return guild.msgs;
-  });
+  const {
+    currentGuild,
+    msgsHistory,
+    msgsLength,
+    msgsUnread,
+    isMsgsLoaded,
+    lastTime,
+    currentEditMsgId,
+  } = useGetGuildMsgInfo();
 
-  const isIntialMsgsLoaded = useSelector((state: RootState) => {
-    const guild = state.client.guildLoaded[currentID ?? ""];
-    console.log(guild);
-    if (guild == undefined) {
-      return false;
-    }
-    console.log(guild.msgs);
-    return guild.intialMsgs;
-  });
+  const lastReadTime = new Date(msgsUnread.time).toLocaleString();
 
-  const unreadMsgs = useSelector((state: RootState) => {
-    const guild = state.guild.guilds[currentID ?? ""] ?? ({} as Guild);
-    return guild.unread;
-  });
-
-  const lastTime = useSelector((state: RootState) => {
-    const lastMsgId =
-      state.msg.guildMsgIds[currentID ?? ""]?.[
-        state.msg.guildMsgIds[currentID ?? ""]?.length - 1
-      ] ?? "";
-    console.log("lasttime ", lastMsgId);
-    const lastMsg = state.msg.msgs[lastMsgId];
-    const lastTime = lastMsg?.created
-      ? Math.round(new Date(lastMsg?.created).valueOf() / 1000)
-      : 0;
-    return lastTime;
-  });
-
-  const msgsLength = useSelector((state: RootState) => {
-    return state.msg.guildMsgIds[currentID ?? ""]?.length ?? 0;
-  });
-  console.log(msgsLength);
-  const msgHistory = useSelector((state: RootState) => {
-    const msgHistoryOrder = state.msg.guildMsgIds[currentID ?? ""] ?? [];
-    var msgHistoryz: Msg[] = [];
-    for (const msgId of msgHistoryOrder) {
-      const msg = state.msg.msgs[msgId];
-      if (msg == undefined) {
-        continue;
-      }
-
-      msgHistoryz.push(msg);
-    }
-    return msgHistoryz;
-  });
-
-  useEffect(() => {
-    //temp fix
-    if (!isIntialMsgsLoaded)
-      dispatch(getGuildMsgs({ id: currentID ?? "", time: lastTime })).then(() =>
-        dispatch(setGuildIntialMsgsLoaded(currentID ?? ""))
-      );
-  }, [currentID]);
-
-  const lastReadTime = new Date(unreadMsgs.time).toLocaleString();
+  const userInfo = useSelector(
+    (state: RootState) => state.user.users[state.user.selfUser ?? ""]
+  );
 
   return (
     <div className="relative flex grow flex-col">
@@ -105,10 +48,10 @@ const ChatHistory: FC = () => {
           }
           hasMore={!isMsgsLoaded}
           next={() => {
-            dispatch(getGuildMsgs({ id: currentID ?? "", time: lastTime }));
+            dispatch(getGuildMsgs({ id: currentGuild ?? "", time: lastTime }));
           }}
         >
-          {msgHistory.map((msg, index, msgs) => {
+          {msgsHistory.map((msg, index, msgs) => {
             const createdDate = new Date(msg.created);
             const modifiedDate = new Date(msg.modified);
             const beforeCreatedDate = new Date(
@@ -119,32 +62,38 @@ const ChatHistory: FC = () => {
             return (
               <MsgElement
                 key={msg.id}
+                id={msg.id}
                 content={msg.content}
-                username={msg.author.name}
+                username={!msg.failed ? msg.author.name : userInfo.name}
                 created={createdDate.toLocaleString()}
                 modified={modifiedDate.toLocaleString()}
-                userImageId={msg.author.imageId}
+                userImageId={
+                  !msg.failed ? msg.author.imageId : userInfo.imageId
+                }
+                mentions={msg.mentions ?? []}
                 combined={
                   Math.abs(
                     createdDate.getTime() - beforeCreatedDate.getTime()
-                  ) < 60000
+                  ) < 60000 && !msg.failed
                 }
+                editing={msg.id === currentEditMsgId}
+                failed={msg.failed}
               />
             );
           })}
         </InfiniteScroll>
       </div>
-      {unreadMsgs.count > 0 && (
+      {msgsUnread.count > 0 && (
         <div className="absolute w-full px-4">
           <div className="whitespace-nowrap rounded-b-md bg-shade-2 px-4 py-1 font-medium text-white">
             <p>
               <MdMessage className="inline-block h-6 w-6" /> Unread Msgs:{" "}
-              {unreadMsgs.count} Last Read: {lastReadTime}{" "}
+              {msgsUnread.count} Last Read: {lastReadTime}{" "}
               <a
                 className="cursor-pointer select-none justify-self-end font-semibold text-gray hover:underline active:text-gray/75"
                 onClick={() => {
-                  dispatch(readGuildMsg(currentID ?? ""));
-                  dispatch(clearUnreadMsg(currentID ?? ""));
+                  dispatch(readGuildMsg(currentGuild ?? ""));
+                  dispatch(clearUnreadMsg(currentGuild ?? ""));
                 }}
               >
                 Mark as read

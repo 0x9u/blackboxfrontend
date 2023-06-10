@@ -25,4 +25,5 @@ export interface Msg {
   attachments: Attachment[];
   mentions : User[];
   mentionsEveryone : boolean;
+  failed? : boolean;
 }

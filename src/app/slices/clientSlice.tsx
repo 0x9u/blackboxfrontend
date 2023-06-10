@@ -1,13 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { createAccount, AuthRes, postAuth } from "../../api/authApi";
-import { getGuildInvites, getGuildMsgs } from "../../api/guildApi";
+import {
+  getGuildBans,
+  getGuildInvites,
+  getGuildMembers,
+  getGuildMsgs,
+} from "../../api/guildApi";
 import { GuildList } from "../../api/types/guild";
 import { Permissions, User } from "../../api/types/user";
 import { getGuilds, getSelf } from "../../api/userApi";
-import { Msg } from "../../api/types/msg";
 
 type guildLoaded = {
-  intialMsgs: boolean;
+  initialMsgs: boolean;
   msgs: boolean;
   members: boolean;
   invites: boolean;
@@ -21,7 +24,9 @@ type ClientState = {
   currentFriendsMode: "friends" | "requests" | "add" | "blocked";
   currentAdminMode: "guilds" | "users" | "server";
   currentMode: "chat" | "friends" | "games" | "admin";
-  loadingWS: boolean;
+  currentEditMsgId: string | null;
+
+  wsStatus: "connected" | "disconnected" | "connecting";
 
   showChatUserList: boolean;
 
@@ -54,7 +59,9 @@ const initialState: ClientState = {
   currentFriendsMode: "friends",
   currentAdminMode: "guilds",
   currentMode: "chat",
-  loadingWS: false,
+  currentEditMsgId: null,
+
+  wsStatus: "disconnected",
 
   showChatUserList: false,
 
@@ -119,8 +126,14 @@ const clientSlice = createSlice({
     ) => {
       state.currentMode = action.payload;
     },
-    setLoadingWS: (state, action: PayloadAction<boolean>) => {
-      state.loadingWS = action.payload;
+    setCurrentEditMsgId: (state, action: PayloadAction<string | null>) => {
+      state.currentEditMsgId = action.payload;
+    },
+    setWsStatus: (
+      state,
+      action: PayloadAction<"connecting" | "connected" | "disconnected">
+    ) => {
+      state.wsStatus = action.payload;
     },
     setShowChatUserList: (state, action: PayloadAction<boolean>) => {
       state.showChatUserList = action.payload;
@@ -152,7 +165,7 @@ const clientSlice = createSlice({
     },
     initGuildLoaded: (state, action: PayloadAction<string>) => {
       state.guildLoaded[action.payload] = {
-        intialMsgs: false,
+        initialMsgs: false,
         msgs: false,
         members: false,
         invites: false,
@@ -162,19 +175,19 @@ const clientSlice = createSlice({
     setGuildIntialMsgsLoaded: (state, action: PayloadAction<string>) => {
       if (!state.guildLoaded[action.payload]) {
         state.guildLoaded[action.payload] = {
-          intialMsgs: false,
+          initialMsgs: false,
           msgs: false,
           members: false,
           invites: false,
           banned: false,
         };
       }
-      state.guildLoaded[action.payload].intialMsgs = true;
+      state.guildLoaded[action.payload].initialMsgs = true;
     },
     setGuildMsgsLoaded: (state, action: PayloadAction<string>) => {
       if (!state.guildLoaded[action.payload]) {
         state.guildLoaded[action.payload] = {
-          intialMsgs: false,
+          initialMsgs: false,
           msgs: false,
           members: false,
           invites: false,
@@ -189,7 +202,7 @@ const clientSlice = createSlice({
     setGuildMembersLoaded: (state, action: PayloadAction<string>) => {
       if (!state.guildLoaded[action.payload]) {
         state.guildLoaded[action.payload] = {
-          intialMsgs: false,
+          initialMsgs: false,
           msgs: false,
           members: false,
           invites: false,
@@ -201,7 +214,7 @@ const clientSlice = createSlice({
     setGuildInvitesLoaded: (state, action: PayloadAction<string>) => {
       if (!state.guildLoaded[action.payload]) {
         state.guildLoaded[action.payload] = {
-          intialMsgs: false,
+          initialMsgs: false,
           msgs: false,
           members: false,
           invites: false,
@@ -213,7 +226,7 @@ const clientSlice = createSlice({
     setGuildBannedLoaded: (state, action: PayloadAction<string>) => {
       if (!state.guildLoaded[action.payload]) {
         state.guildLoaded[action.payload] = {
-          intialMsgs: false,
+          initialMsgs: false,
           msgs: false,
           members: false,
           invites: false,
@@ -222,12 +235,33 @@ const clientSlice = createSlice({
       }
       state.guildLoaded[action.payload].banned = true;
     },
+    resetClient: (state) => {
+      state.blockedListLoaded = false;
+      state.currentAdminMode = "guilds";
+      state.currentDM = null;
+      state.currentGuild = null;
+      state.currentEditMsgId = null;
+      state.guildLoaded = {};
+      state.userSelfLoaded = false;
+      state.friendListLoaded = false;
+      state.guildListLoaded = false;
+      state.permissions = {} as Permissions;
+      state.showAddChatModal = false;
+      state.showChatUserList = false;
+      state.showCreateInviteModal = false;
+      state.showEditPassModal = false;
+      state.showEditUsernameModal = false;
+      state.showEditEmailModal = false;
+      state.showEditProfilePictureModal = false;
+      state.showGuildDMSettings = false;
+      state.showUserSettings = false;
+    },
   },
 
   extraReducers(builder) {
     builder.addCase(getSelf.fulfilled, (state, action: PayloadAction<User>) => {
       state.userSelfLoaded = true;
-      state.permissions = action.payload.permissions;
+      state.permissions = action.payload.permissions ?? ({} as Permissions);
     });
     builder.addCase(
       getGuilds.fulfilled,
@@ -236,7 +270,7 @@ const clientSlice = createSlice({
         const list = action.payload;
         for (const guild of list.guilds) {
           state.guildLoaded[guild.id] = {
-            intialMsgs: false,
+            initialMsgs: false,
             msgs: false,
             members: false,
             invites: false,
@@ -245,6 +279,16 @@ const clientSlice = createSlice({
         }
       }
     );
+    builder.addCase(getGuildMembers.fulfilled, (state, action) => {
+      console.log("got guild members", action.meta.arg);
+      state.guildLoaded[action.meta.arg].members = true;
+    });
+    builder.addCase(getGuildInvites.fulfilled, (state, action) => {
+      state.guildLoaded[action.meta.arg].invites = true;
+    });
+    builder.addCase(getGuildBans.fulfilled, (state, action) => {
+      state.guildLoaded[action.meta.arg].banned = true;
+    });
     builder.addCase(getGuildMsgs.fulfilled, (state, action) => {
       const messages = action.payload;
       console.log(messages.length, action.meta.arg.id);
@@ -272,7 +316,8 @@ export const {
   setCurrentFriendsMode,
   setCurrentAdminMode,
   setCurrentMode,
-  setLoadingWS,
+  setCurrentEditMsgId,
+  setWsStatus,
   setShowChatUserList,
   setShowAddChatModal,
   setShowCreateInviteModal,
@@ -289,4 +334,5 @@ export const {
   setGuildInvitesLoaded,
   setGuildBannedLoaded,
   deleteGuildLoaded,
+  resetClient,
 } = clientSlice.actions;

@@ -1,6 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Msg } from "../../api/types/msg";
-import { getGuildMsgs } from "../../api/guildApi";
+import {
+  createGuildMsg,
+  getGuildMsgs,
+  retryGuildMsg,
+} from "../../api/guildApi";
 import { Guild } from "../../api/types/guild";
 
 type MsgState = {
@@ -24,6 +28,7 @@ const msgSlice = createSlice({
       state,
       action: PayloadAction<{ guildId: string; msg: Msg }>
     ) => {
+      //TODO: author isnt normalized so normalize later on
       const { guildId, msg } = action.payload;
       state.msgs[msg.id] = msg;
       if (state.guildMsgIds[guildId] === undefined) {
@@ -37,7 +42,13 @@ const msgSlice = createSlice({
     },
     editMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
-      state.msgs[msg.id] = msg;
+      if (state.msgs[msg.id] === undefined) {
+        console.log("not exists");
+        return;
+      }
+      state.msgs[msg.id].content = msg.content;
+      state.msgs[msg.id].mentions = msg.mentions;
+      state.msgs[msg.id].mentionsEveryone = msg.mentionsEveryone;
     },
     removeGuildMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
@@ -104,6 +115,27 @@ const msgSlice = createSlice({
         }
       }
     );
+    builder.addCase(createGuildMsg.rejected, (state, action) => {
+      console.log("failed to send msg");
+      const errorMsgId = `error-${Date.now().toLocaleString()}-${Math.floor(
+        Math.random() * 1000
+      )}`;
+      const guildId = action.meta.arg.id;
+      var failedMsg = action.meta.arg.msg;
+      failedMsg.id = errorMsgId;
+      failedMsg.failed = true;
+      state.msgs[errorMsgId] = failedMsg;
+      state.guildMsgIds[guildId].unshift(errorMsgId);
+    });
+    builder.addCase(retryGuildMsg.fulfilled, (state, action) => {
+      console.log("retry success");
+      const failedMsgId = action.meta.arg.msgId;
+      delete state.msgs[failedMsgId];
+      const guildId = action.meta.arg.id;
+      state.guildMsgIds[guildId] = state.guildMsgIds[guildId].filter(
+        (id) => id !== failedMsgId
+      );
+    });
   },
 });
 

@@ -120,37 +120,41 @@ export const useEditUserName = () => {
 export const useGetSelfQuery = () => {
   const dispatch = useAppDispatch();
 
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const userInfo = useSelector(
-    (state: RootState) =>
+  const { userInfo, loaded } = useSelector((state: RootState) => ({
+    userInfo:
       state.user.users[state.user.selfUser || ""] ??
       ({
         name: "Unavailable",
         imageId: "-1",
         email: "Unavailable",
         id: "-1",
-      } as User)
-  );
+      } as User),
+    loaded: state.client.userSelfLoaded,
+  }));
   useEffect(() => {
-    dispatch(getSelf()).then(() => {
-      setLoaded(true);
-    });
-  }, [dispatch]);
+    if (!loaded) dispatch(getSelf());
+  }, [dispatch, loaded]);
 
   return { userInfo, loaded };
 };
 
 export const useGetGuildDms = () => {
   const dispatch = useAppDispatch();
-  const { guilds, dms, loaded } = useSelector((state: RootState) => ({
+  const contents = useSelector((state: RootState) => ({
     guilds:
-      state.guild.guildIds.map((id) => state.guild.guilds[id]) ??
+      state.guild.guildIds.map((id: string) => state.guild.guilds[id]) ??
       ([] as Guild[]),
-    dms: state.guild.dmIds.map((id) => state.guild.dms[id]) ?? ([] as DmUser[]),
+    dms:
+      state.guild.dmIds.map((id: string) => state.guild.dms[id]) ??
+      ([] as DmUser[]),
     loaded: state.client.guildListLoaded,
+    currentDM: state.client.currentDM,
+    currentGuild: state.client.currentGuild,
+    currentChatMode: state.client.currentChatMode,
+    users: state.user.users,
   }));
   useEffect(() => {
-    if (!loaded) dispatch(getGuilds());
-  }, [dispatch]);
-  return { guilds, dms, loaded };
+    if (!contents.loaded) dispatch(getGuilds());
+  }, [dispatch, contents.loaded]);
+  return contents;
 };

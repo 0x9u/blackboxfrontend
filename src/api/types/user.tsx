@@ -5,7 +5,7 @@ export interface User {
   imageId: string;
   flags: number;
   options: number;
-  permissions: Permissions;
+  permissions?: Permissions;
 }
 
 export interface EditUserPasswordForm {

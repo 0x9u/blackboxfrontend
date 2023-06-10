@@ -1,32 +1,23 @@
 import React, { FC } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
 import { SkeletonLoaderUserList } from "../skeletonLoaderComponent";
 import User from "./userComponent";
 import { useGetGuildMembers } from "../../api/hooks/guildHooks";
 
 const UserList: FC = () => {
-  const { currentGuild, guildMembers, loaded } = useGetGuildMembers();
-
-  const currentOwner = useSelector(
-    (state: RootState) => state.guild.guilds[currentGuild ?? ""]?.ownerId ?? ""
-  );
-
-  const adminIds = useSelector(
-    (state: RootState) => state.user.guildAdminIds[currentGuild ?? ""] ?? []
-  );
+  const { currentGuild, guildMembers, guildMembersOrder, loaded } =
+    useGetGuildMembers();
 
   return (
     <div className="list-scrollbar relative flex h-full w-64 shrink-0 flex-col space-y-2 overflow-y-auto bg-shade-3 py-2">
       {!loaded && <SkeletonLoaderUserList />}
-      {guildMembers.map(({ userInfo: member }) => (
+      {guildMembersOrder.map((id: string) => (
         <User
-          key={currentGuild + "-" + member.id}
-          userid={member.id}
-          username={member.name}
-          userImageId={member.imageId}
-          owner={member.id === currentOwner}
-          admin={adminIds.includes(member.id)}
+          key={currentGuild + "-" + id}
+          userid={id}
+          username={guildMembers[id]?.userInfo.name}
+          userImageId={guildMembers[id]?.userInfo.imageId}
+          owner={guildMembers[id]?.owner}
+          admin={guildMembers[id]?.admin}
         />
       ))}
     </div>

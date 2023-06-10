@@ -3,7 +3,7 @@ import { setShowGuildDMSettings } from "../../../app/slices/clientSlice";
 import SettingsPage from "../settingsPage";
 import SettingsPanel from "../settingsPanel";
 import SettingsSideBar from "../settingsSideBar";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import SettingsSideBarButton from "../settingsSideBarButton";
 import SettingsSideBarGroup from "../settingsSideBarGroup";
 import OverviewGuildSettings from "./overviewGuildSettings";

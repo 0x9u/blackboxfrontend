@@ -9,6 +9,7 @@ import {
   setGuildMembersLoaded,
 } from "../app/slices/clientSlice";
 import { ErrorBody } from "./types/error";
+import { RootState } from "../app/store";
 
 export const createGuild = asyncThunkAPI<void, GuildUpload>(
   "guild/create",
@@ -109,6 +110,25 @@ export const createGuildMsg = asyncThunkAPI<void, { id: string; msg: Msg }>(
   async (args: { id: string; msg: Msg }, thunkAPI) => {
     const { id, msg } = args;
     return await requestAPI<void>("POST", `/guilds/${id}/msgs`, msg, thunkAPI);
+  }
+);
+
+export const retryGuildMsg = asyncThunkAPI<void, { id: string; msgId: string }>(
+  "guild/retryMsg",
+  async (args: { id: string; msgId: string }, thunkAPI) => {
+    console.log("test aaaaaaaaa");
+    const { id, msgId } = args;
+    const msg = (thunkAPI.getState() as RootState).msg.msgs[msgId];
+    console.log("bruh sas", msgId);
+    // msg.failed = undefined;
+    console.log(msg);
+    console.log("work u fucking piece of shit");
+    return await requestAPI<void>(
+      "POST",
+      `/guilds/${id}/msgs`,
+      { content: msg.content } as Msg,
+      thunkAPI
+    );
   }
 );
 

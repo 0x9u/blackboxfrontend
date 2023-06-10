@@ -2,8 +2,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getGuildInvites } from "../../api/guildApi";
 import { DmUser, Dm } from "../../api/types/dm";
 import { Guild, GuildList, Invite } from "../../api/types/guild";
-import { Msg } from "../../api/types/msg";
-import { AxiosResponse, AxiosError } from "axios";
 import { getGuilds } from "../../api/userApi";
 import { ErrorBody } from "../../api/types/error";
 type GuildState = {
@@ -120,6 +118,8 @@ const guildSlice = createSlice({
     resetGuilds: (state) => {
       state.guildIds = [];
       state.guilds = {};
+      state.dmIds = [];
+      state.dms = {};
       state.invites = {};
     },
   },

@@ -3,7 +3,7 @@ import {
   initGuildLoaded,
   removeCurrentDM,
   removeCurrentGuild,
-  setLoadingWS,
+  setWsStatus,
 } from "../app/slices/clientSlice";
 import { Middleware } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
@@ -94,7 +94,6 @@ const gatewayAPI: Middleware = (storeAPI) => {
     switch (action.type) {
       case WS_CONNECT:
         ws = new WebSocket("ws://localhost:8080/api/ws/");
-        dispatch(setLoadingWS(true));
         ws.onopen = () => {
           console.log("ws connected");
           console.log("ws a", OpCodes.HELLO);
@@ -118,6 +117,8 @@ const gatewayAPI: Middleware = (storeAPI) => {
                   } as DataFrame)
                 );
               }, timeToPing / 4);
+              console.log("ready");
+              dispatch(setWsStatus("connected"));
               break;
             case OpCodes.HELLO:
               const hello: HelloResFrame = data.data;
@@ -320,16 +321,12 @@ const gatewayAPI: Middleware = (storeAPI) => {
                 }
               }
               break;
-            case OpCodes.READY:
-              console.log("ready");
-              dispatch(setLoadingWS(false));
-              break;
           }
         };
         ws.onclose = () => {
           console.log("ws closed");
           clearInterval(pingInterval);
-          dispatch(setLoadingWS(true));
+          dispatch(setWsStatus("disconnected"));
         };
         break;
       case WS_DISCONNECT:

@@ -1,4 +1,4 @@
-import React, { FC, createRef, useState } from "react";
+import React, { FC, createRef, useEffect, useState } from "react";
 import { MdOutlineAddCircle } from "react-icons/md";
 import { Mention, MentionsInput, SuggestionDataItem } from "react-mentions";
 import { useSelector } from "react-redux";
@@ -9,6 +9,7 @@ import { createGuildMsg } from "../../api/guildApi";
 import {
   useGetGuildMembers,
   useGetGuildMembersForMention,
+  useUserIsTyping,
 } from "../../api/hooks/guildHooks";
 
 const chatInputArea: FC = () => {
@@ -25,6 +26,17 @@ const chatInputArea: FC = () => {
 
   const { userListMention, userList } = useGetGuildMembersForMention();
 
+  const userListTyping = useSelector((state: RootState) => {
+    const userList = state.guild.userIsTyping[currentId ?? ""] ?? [];
+    return userList.map((id) => {
+      const user = state.user.users[id];
+      if (user) return { id, username: user.name };
+      else return { id, username: "Loading..." };
+    });
+  });
+
+  useUserIsTyping(value);
+
   function send() {
     if (currentId) {
       dispatch(
@@ -33,6 +45,7 @@ const chatInputArea: FC = () => {
       setValue("");
     }
   }
+
   return (
     <div className="min-h-16 shrink-0 px-4">
       <div
@@ -53,7 +66,6 @@ const chatInputArea: FC = () => {
           placeholder="Type your message here!"
           value={value}
           onChange={(v) => {
-            console.log(v.target.value);
             setValue(v.target.value);
           }}
           onKeyDown={(e) => {
@@ -97,9 +109,18 @@ const chatInputArea: FC = () => {
         </MentionsInput>
         <Button type="button" value="Send" className="my-auto" onClick={send} />
       </div>
-      <p className="min-h-2 shrink-0 pl-1 font-semibold leading-relaxed text-white">
-        person is typing...
-      </p>
+      <div className="h-6 shrink-0 pl-1">
+        <p className="font-semibold text-white">
+          {userListTyping?.length > 0 &&
+            `${
+              userListTyping.length < 5
+                ? userListTyping.map((val, index, array) => {
+                    return `${val.username}${array[index + 1] ? ", " : ""}`;
+                  }) + " is"
+                : "Multiple people are"
+            } typing`}
+        </p>
+      </div>
     </div>
   );
 };

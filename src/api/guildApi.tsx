@@ -308,3 +308,15 @@ export const deleteGuildAdmin = asyncThunkAPI<
     );
   }
 );
+
+export const userIsTyping = asyncThunkAPI<void, string>(
+  "guild/userIsTyping",
+  async (id: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "POST",
+      `/guilds/${id}/msgs/typing`,
+      null,
+      thunkAPI
+    );
+  }
+);

@@ -34,7 +34,7 @@ const User: FC<userProps> = ({
         ref={myRef}
       >
         <img
-          className="h-12 w-12 shrink-0 rounded-full border border-black select-none"
+          className="h-12 w-12 shrink-0 select-none rounded-full border border-black"
           src={imageURL}
         >
           {/* for pfp */}
@@ -67,10 +67,23 @@ const User: FC<userProps> = ({
                 {username}
               </p>
             </div>
-            <div className=" ml-auto flex flex-row justify-end space-x-2 rounded bg-shade-3 p-1">
-              <MdMessage className="h-8 w-8 text-white hover:text-white/80 active:text-white/75 cursor-pointer" />
-              <MdPersonAdd className="h-8 w-8 text-green hover:text-green/80 active:text-green/75 cursor-pointer" />
-              <MdBlock className="h-8 w-8 text-red hover:text-red/80 active:text-red/75 cursor-pointer" />
+            <div className="flex flex-row justify-end ">
+              <div className="my-auto flex shrink-0 grow flex-row px-1">
+                <img
+                  src="./blackboxowner.png"
+                  className="h-6 w-6 group/ownerBadge"
+                ></img>
+                <div
+                  className="bg-gray-900 tooltip dark:bg-gray-700 invisible group/ownerBade-hover:visible absolute z-10 inline-block rounded-lg px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300"
+                >
+                  Owner
+                </div>
+              </div>
+              <div className="flex flex-row space-x-2 rounded bg-shade-3 p-1">
+                <MdMessage className="h-8 w-8 cursor-pointer text-white hover:text-white/80 active:text-white/75" />
+                <MdPersonAdd className="h-8 w-8 cursor-pointer text-green hover:text-green/80 active:text-green/75" />
+                <MdBlock className="h-8 w-8 cursor-pointer text-red hover:text-red/80 active:text-red/75" />
+              </div>
             </div>
           </div>
         </div>

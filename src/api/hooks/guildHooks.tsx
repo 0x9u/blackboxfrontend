@@ -7,6 +7,7 @@ import {
   getGuildMembers,
   getGuildMsgs,
   joinGuildInvite,
+  userIsTyping,
 } from "../guildApi";
 import { RootState, useAppDispatch } from "../../app/store";
 import { Guild, GuildUpload, Invite } from "../types/guild";
@@ -216,4 +217,27 @@ export const useGetGuildMembersForMention = () => {
     userListMention.push({ id: "everyone", display: "everyone" });
     return { userListMention, userList };
   });
+};
+
+export const useUserIsTyping = (value: string) => {
+  const dispatch = useAppDispatch();
+  const [isTyping, setIsTyping] = useState(false);
+  const { currentGuild } = useSelector((state: RootState) => {
+    return {
+      currentGuild: state.client.currentGuild ?? "",
+    };
+  });
+  useEffect(() => {
+    if (!isTyping && value !== "") {
+      //typing delay 5 seconds to prevent spam (redo later kinda shitty)
+      setIsTyping(true);
+      dispatch(userIsTyping(currentGuild));
+      setTimeout(() => {
+        setIsTyping(false);
+      }, 5000);
+    }
+  }, [value]);
+  useEffect(() => {
+    setIsTyping(false);
+  }, [currentGuild]);
 };

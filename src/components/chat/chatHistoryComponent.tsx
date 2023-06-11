@@ -42,7 +42,7 @@ const ChatHistory: FC = () => {
           dataLength={msgsLength}
           loader={<SkeletonLoaderChatMsg />}
           endMessage={
-            <p className="mx-4 font-bold text-white">
+            <p className="mx-4 mt-4 font-bold text-white">
               This is the beginning of this chat
             </p>
           }
@@ -57,6 +57,7 @@ const ChatHistory: FC = () => {
             const beforeCreatedDate = new Date(
               msgs[index + 1]?.created ?? Infinity
             );
+            const beforeAuthor = msgs[index + 1]?.author.id;
             //const beforeModifiedDate = new Date(msgs[index - 1]?.modified ?? 0);
 
             return (
@@ -64,6 +65,7 @@ const ChatHistory: FC = () => {
                 key={msg.id}
                 id={msg.id}
                 content={msg.content}
+                authorid={msg.author.id}
                 username={!msg.failed ? msg.author.name : userInfo.name}
                 created={createdDate.toLocaleString()}
                 modified={modifiedDate.toLocaleString()}
@@ -74,7 +76,9 @@ const ChatHistory: FC = () => {
                 combined={
                   Math.abs(
                     createdDate.getTime() - beforeCreatedDate.getTime()
-                  ) < 60000 && !msg.failed
+                  ) < 60000 &&
+                  !msg.failed &&
+                  beforeAuthor === msg.author.id
                 }
                 editing={msg.id === currentEditMsgId}
                 failed={msg.failed}

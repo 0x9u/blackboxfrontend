@@ -21,6 +21,7 @@ interface msgProps {
   id: string;
   content: string;
   failed?: boolean;
+  authorid: string;
   username: string;
   userImageId: string;
   created: string;
@@ -36,6 +37,7 @@ const Msg: FC<msgProps> = ({
   failed,
   username,
   userImageId,
+  authorid,
   created,
   modified,
   mentions,
@@ -254,7 +256,7 @@ const Msg: FC<msgProps> = ({
               }}
             />
           )}
-          {!editing && !failed && (
+          {!editing && !failed && selfUserId === authorid && (
             <MdEdit
               className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10"
               onClick={() => {
@@ -263,14 +265,17 @@ const Msg: FC<msgProps> = ({
               }}
             />
           )}
-          <MdDelete
-            className="h-6 w-6 cursor-pointer text-red hover:bg-white/25 active:bg-white/10"
-            onClick={() => {
-              console.log("deleting msg");
-              dispatch(deleteGuildMsg({ id: currentGuild, msgId: id }));
-              dispatch(setCurrentEditMsgId(null));
-            }}
-          />
+          {
+            selfUserId === authorid &&
+            <MdDelete
+              className="h-6 w-6 cursor-pointer text-red hover:bg-white/25 active:bg-white/10"
+              onClick={() => {
+                console.log("deleting msg");
+                dispatch(deleteGuildMsg({ id: currentGuild, msgId: id }));
+                dispatch(setCurrentEditMsgId(null));
+              }}
+            />
+          }
         </div>
       </div>
     </div>

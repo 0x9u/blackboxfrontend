@@ -10,6 +10,7 @@ type GuildState = {
   dms: Record<string, DmUser>;
   guilds: Record<string, Guild>;
   invites: Record<string, Invite[]>;
+  userIsTyping : Record<string, string[]>;
 };
 
 const initialState: GuildState = {
@@ -18,6 +19,7 @@ const initialState: GuildState = {
   dms: {}, //dms still access same guild messages
   guilds: {},
   invites: {},
+  userIsTyping: {},
 };
 
 const guildSlice = createSlice({
@@ -115,12 +117,29 @@ const guildSlice = createSlice({
         (oinvite) => oinvite.invite !== invite.invite
       );
     },
+    addTyping: (state, action: PayloadAction<{id: string, userId: string}>) => {
+      if (!state.userIsTyping[action.payload.id]) {
+        state.userIsTyping[action.payload.id] = [];
+      }
+      state.userIsTyping[action.payload.id].push(action.payload.userId);
+    },
+    removeTyping: (state, action: PayloadAction<{id: string, userId: string}>) => {
+      if (!state.userIsTyping[action.payload.id]) {
+        console.log("not exists");
+        return;
+      }
+      state.userIsTyping[action.payload.id] = state.userIsTyping[action.payload.id].filter(
+        (userId) => userId !== action.payload.userId
+      );
+    },
+
     resetGuilds: (state) => {
       state.guildIds = [];
       state.guilds = {};
       state.dmIds = [];
       state.dms = {};
       state.invites = {};
+      state.userIsTyping = {};
     },
   },
   extraReducers: (builder) => {
@@ -185,5 +204,7 @@ export const {
   updateDm,
   addInvite,
   removeInvite,
+  addTyping,
+  removeTyping,
   resetGuilds,
 } = guildSlice.actions;

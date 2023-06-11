@@ -26,7 +26,6 @@ const ChatList: FC = () => {
   } = useGetGuildDms();
 
   loadGuildMembers();
-  
 
   const [firstRender, setFirstRender] = useState<boolean>(true);
 

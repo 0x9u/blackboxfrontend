@@ -28,6 +28,8 @@ import {
   addDm,
   incUnreadMsg,
   incMentionMsg,
+  addTyping,
+  removeTyping,
 } from "../app/slices/guildSlice";
 import { Invite } from "./types/guild";
 import {
@@ -90,6 +92,8 @@ const gatewayAPI: Middleware = (storeAPI) => {
   const dispatch = storeAPI.dispatch;
   const getState = storeAPI.getState as () => RootState;
 
+  let timeoutTyping: Record<string, ReturnType<typeof setTimeout>> = {};
+
   return (next) => (action) => {
     switch (action.type) {
       case WS_CONNECT:
@@ -109,6 +113,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
             case OpCodes.READY:
               console.log(timeToPing);
               pingInterval = setInterval(() => {
+                //TODO: add a deadline check to see if server responded
                 ws!.send(
                   JSON.stringify({
                     op: OpCodes.HEARTBEAT,
@@ -312,6 +317,24 @@ const gatewayAPI: Middleware = (storeAPI) => {
                 case Events.UPDATE_USER_INFO: {
                   const eventData: User = data.data;
                   dispatch(updateUser(eventData));
+                  break;
+                }
+                case Events.USER_DM_TYPING:
+                case Events.USER_TYPING: {
+                  const eventData: Member = data.data;
+                  const guildId = eventData.guildId;
+                  const userId = eventData.userInfo.id;
+                  if (userId === getState().user.selfUser) return;
+
+                  if (timeoutTyping[userId]) {
+                    clearTimeout(timeoutTyping[userId]);
+                  } else {
+                    dispatch(addTyping({ id: guildId, userId }));
+                  }
+                  timeoutTyping[userId] = setTimeout(() => {
+                    dispatch(removeTyping({ id: guildId, userId }));
+                    delete timeoutTyping[userId];
+                  }, 7500);
                   break;
                 }
                 case Events.LOG_OUT: {

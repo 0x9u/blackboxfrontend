@@ -1,6 +1,6 @@
 import React, { FC, createRef, useEffect, useState } from "react";
 import { MdOutlineAddCircle } from "react-icons/md";
-import { Mention, MentionsInput, SuggestionDataItem } from "react-mentions";
+import { Mention, MentionsInput } from "react-mentions";
 import { useSelector } from "react-redux";
 import { Msg } from "../../api/types/msg";
 import { RootState, useAppDispatch } from "../../app/store";
@@ -14,6 +14,7 @@ import {
 
 const chatInputArea: FC = () => {
   const [value, setValue] = useState<string>("");
+  const [files, setFiles] = useState<File[]>([]);
   const [playAnimation, setPlayAnimation] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
@@ -46,8 +47,31 @@ const chatInputArea: FC = () => {
     }
   }
 
+  function selectFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) {
+      setFiles((prevFiles) => [...prevFiles, ...(e.target.files ?? [])]);
+    }
+  }
+
   return (
     <div className="min-h-16 shrink-0 px-4">
+      <div className="flex flex-row">
+        {files.map((file, index) => {
+          return (
+            //file debug
+            <div key={index} className="mb-2 h-32 w-32 rounded-md bg-shade-2">
+              {file.type === "image/png" ||
+              file.type === "image/jpeg" ||
+              file.type === "image/gif" ? (
+                <img src={file.webkitRelativePath}></img>
+              ) : (
+                <p className="text-white">Unsupported file type</p>
+              )}
+              <p className=" overflow-ellipsis text-white">{file.name}</p>
+            </div>
+          );
+        })}
+      </div>
       <div
         className={`min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ${
           playAnimation ? "animate-shake" : ""
@@ -55,7 +79,13 @@ const chatInputArea: FC = () => {
         onAnimationEnd={() => setPlayAnimation(false)}
       >
         <div className="my-auto shrink-0">
-          <input id="file-upload" type="file" className="hidden h-10 w-10" />
+          <input
+            id="file-upload"
+            type="file"
+            multiple
+            onChange={selectFiles}
+            className="hidden h-10 w-10"
+          />
           <label htmlFor="file-upload">
             <MdOutlineAddCircle className="h-10 w-10 cursor-pointer text-white/90 hover:text-white" />
           </label>

@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  createGuildMsg,
   getGuildBans,
   getGuildInvites,
   getGuildMembers,
@@ -37,6 +38,8 @@ type ClientState = {
   showEditEmailModal: boolean;
   showEditProfilePictureModal: boolean;
 
+  showCooldownModal: boolean;
+
   showGuildDMSettings: boolean;
   showUserSettings: boolean;
 
@@ -71,6 +74,8 @@ const initialState: ClientState = {
   showEditUsernameModal: false,
   showEditEmailModal: false,
   showEditProfilePictureModal: false,
+
+  showCooldownModal: false,
 
   showGuildDMSettings: false,
   showUserSettings: false,
@@ -156,6 +161,9 @@ const clientSlice = createSlice({
 
     setShowEditProfilePictureModal: (state, action: PayloadAction<boolean>) => {
       state.showEditProfilePictureModal = action.payload;
+    },
+    setShowCooldownModal: (state, action: PayloadAction<boolean>) => {
+      state.showCooldownModal = action.payload;
     },
     setShowGuildDMSettings: (state, action: PayloadAction<boolean>) => {
       state.showGuildDMSettings = action.payload;
@@ -302,6 +310,14 @@ const clientSlice = createSlice({
         state.guildLoaded[action.meta.arg.id].msgs = true;
       }
     });
+    builder.addCase(createGuildMsg.rejected, (state, action) => {
+      if (action.payload) {
+        const { error } = action.payload;
+        if (error === "cooldown: cooldown is active") {
+          state.showCooldownModal = true;
+        }
+      }
+    });
   },
 });
 
@@ -325,6 +341,7 @@ export const {
   setShowEditEmailModal,
   setShowEditUsernameModal,
   setShowEditProfilePictureModal,
+  setShowCooldownModal,
   setShowGuildDMSettings,
   setShowUserSettings,
   initGuildLoaded,

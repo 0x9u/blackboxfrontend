@@ -4,7 +4,7 @@
 - add file upload and show progress
 - add chat functionality for dms
 - automatic read messages
-- show modal if cooldown active
+- show modal if cooldown active - done (need to remove focus tho)
 
 ## friends
 - show friends list
@@ -22,5 +22,14 @@
 
 # User Profiles
 - Add badges
+
+# bugs
+- fix delete msg breaks infinite scroll
+- fix delete and edit msg for dont save chat history
+- fix contents not loading unless clicked when reconnected
+
+
+# maybe
+- have option to prevent non friends from dming
 
 # v2.0

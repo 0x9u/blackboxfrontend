@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import GuildSettings from "../../../components/settings/guild/guildSettings";
 import InviteModal from "../../../components/chat/inviteModalComponent";
+import CooldownModal from "../../../components/chat/chatCooldownModalComponent";
 
 const Chat: FC = () => {
   const showAddChatModal = useSelector(
@@ -34,6 +35,9 @@ const Chat: FC = () => {
     (state: RootState) => state.client.currentGuild
   );
   const currentDM = useSelector((state: RootState) => state.client.currentDM);
+  const showCooldownModal = useSelector(
+    (state: RootState) => state.client.showCooldownModal
+  );
 
   return (
     <div className="flex min-h-full grow flex-row">
@@ -42,12 +46,11 @@ const Chat: FC = () => {
         <ChatList />
       </NavbarChild>
       <Page>
-        {(currentGuild === null && currentChatMode === "guild") || (currentDM === null && currentChatMode === "dm") ? (
+        {(currentGuild === null && currentChatMode === "guild") ||
+        (currentDM === null && currentChatMode === "dm") ? (
           <div className="flex h-0 grow flex-row">
             <div className="flex flex-grow flex-col items-center justify-center">
-              <div className="text-3xl font-bold text-white">
-                Not Selected!
-              </div>
+              <div className="text-3xl font-bold text-white">Not Selected!</div>
             </div>
           </div>
         ) : (
@@ -61,6 +64,7 @@ const Chat: FC = () => {
         )}
       </Page>
       {showAddChatModal && <ChatModal />}
+      {showCooldownModal && <CooldownModal />}
       {showCreateInviteModal && <InviteModal />}
       {showGuildDMSettings && <GuildSettings />}
     </div>

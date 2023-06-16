@@ -57,7 +57,7 @@ const ChatHistory: FC = () => {
             const beforeCreatedDate = new Date(
               msgs[index + 1]?.created ?? Infinity
             );
-            const beforeAuthor = msgs[index + 1]?.author.id;
+            const beforeAuthor = msgs[index + 1]?.author?.id ?? "";
             //const beforeModifiedDate = new Date(msgs[index - 1]?.modified ?? 0);
 
             return (
@@ -65,7 +65,7 @@ const ChatHistory: FC = () => {
                 key={msg.id}
                 id={msg.id}
                 content={msg.content}
-                authorid={msg.author.id}
+                authorid={!msg.failed ? msg.author.id : userInfo.id}
                 username={!msg.failed ? msg.author.name : userInfo.name}
                 created={createdDate.toLocaleString()}
                 modified={modifiedDate.toLocaleString()}

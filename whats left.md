@@ -5,6 +5,7 @@
 - add chat functionality for dms
 - automatic read messages
 - show modal if cooldown active - done (need to remove focus tho)
+- show modal if message too long
 
 ## friends
 - show friends list
@@ -22,6 +23,7 @@
 
 # User Profiles
 - Add badges
+- add support for cropping images
 
 # bugs
 - fix delete msg breaks infinite scroll

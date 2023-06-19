@@ -82,6 +82,7 @@ const ChatHistory: FC = () => {
                 }
                 editing={msg.id === currentEditMsgId}
                 failed={msg.failed}
+                attachments={msg.attachments}
               />
             );
           })}

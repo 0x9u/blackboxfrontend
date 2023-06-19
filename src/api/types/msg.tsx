@@ -10,6 +10,7 @@ export interface UnreadMsg {
 export interface Attachment {
   id: string;
   filename: string;
+  type: string;
 }
 
 export interface Msg {
@@ -23,7 +24,7 @@ export interface Msg {
   msgSaved: boolean;
   requestId: string; //we randomize up to 5 char
   attachments: Attachment[];
-  mentions : User[];
-  mentionsEveryone : boolean;
-  failed? : boolean;
+  mentions: User[];
+  mentionsEveryone: boolean;
+  failed?: boolean;
 }

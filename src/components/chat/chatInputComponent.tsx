@@ -1,5 +1,5 @@
 import React, { FC, createRef, useEffect, useState } from "react";
-import { MdOutlineAddCircle } from "react-icons/md";
+import { MdOutlineAddCircle, MdOutlineCancel } from "react-icons/md";
 import { Mention, MentionsInput } from "react-mentions";
 import { useSelector } from "react-redux";
 import { Msg } from "../../api/types/msg";
@@ -41,9 +41,10 @@ const chatInputArea: FC = () => {
   function send() {
     if (currentId) {
       dispatch(
-        createGuildMsg({ id: currentId, msg: { content: value } as Msg })
+        createGuildMsg({ id: currentId, msg: { content: value } as Msg, files })
       );
       setValue("");
+      setFiles([]);
     }
   }
 
@@ -53,29 +54,36 @@ const chatInputArea: FC = () => {
     }
   }
 
+  useEffect(() => {
+    setValue("");
+    setFiles([]);
+  }, [currentId]);
+
   return (
-    <div className="min-h-16 shrink-0 px-4">
-      <div className="flex flex-row">
+    <div className="flex flex-col min-h-16 grow-0 w-full px-4 space-y-2">
+      {/* temp fix TODO: replace width and fix bug later*/}
+      < div className="flex flex-row space-x-4 overflow-x-auto w-[calc(100vw-16rem-5rem-2rem)] textbox-scrollbar">
         {files.map((file, index) => {
           return (
             //file debug
-            <div key={index} className="mb-2 h-32 w-32 rounded-md bg-shade-2">
+            <div key={index} className="flex flex-col shrink-0 mb-2 h-48 w-48 rounded-md p-2 bg-shade-2">
+              <MdOutlineCancel className="h-6 w-6 ml-auto text-white/90 hover:text-white/75 cursor-pointer" />
               {file.type === "image/png" ||
-              file.type === "image/jpeg" ||
-              file.type === "image/gif" ? (
-                <img src={file.webkitRelativePath}></img>
+                file.type === "image/jpeg" ||
+                file.type === "image/gif" ? (
+                <img src={URL.createObjectURL(file)} className="object-contain h-32 w-40"></img>
               ) : (
-                <p className="text-white">Unsupported file type</p>
+                <p className="text-white h-32 w-40">Unsupported file type</p>
               )}
-              <p className=" overflow-ellipsis text-white">{file.name}</p>
+              <p className=" truncate h-6 text-white text-xs">{file.name}</p>
+
             </div>
           );
         })}
       </div>
       <div
-        className={`min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ${
-          playAnimation ? "animate-shake" : ""
-        }`}
+        className={`min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ${playAnimation ? "animate-shake" : ""
+          }`}
         onAnimationEnd={() => setPlayAnimation(false)}
       >
         <div className="my-auto shrink-0">
@@ -142,12 +150,11 @@ const chatInputArea: FC = () => {
       <div className="h-6 shrink-0 pl-1">
         <p className="font-semibold text-white">
           {userListTyping?.length > 0 &&
-            `${
-              userListTyping.length < 5
-                ? userListTyping.map((val, index, array) => {
-                    return `${val.username}${array[index + 1] ? ", " : ""}`;
-                  }) + " is"
-                : "Multiple people are"
+            `${userListTyping.length < 5
+              ? userListTyping.map((val, index, array) => {
+                return `${val.username}${array[index + 1] ? ", " : ""}`;
+              }) + " is"
+              : "Multiple people are"
             } typing`}
         </p>
       </div>

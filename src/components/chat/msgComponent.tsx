@@ -3,19 +3,18 @@ import { MdDelete, MdEdit, MdRepeat } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../app/store";
 import {
-  createGuildMsg,
   deleteGuildMsg,
   editGuildMsg,
   retryGuildMsg,
 } from "../../api/guildApi";
 import {
-  useGetGuildMembers,
   useGetGuildMembersForMention,
 } from "../../api/hooks/guildHooks";
 import { User } from "../../api/types/user";
 import { setCurrentEditMsgId } from "../../app/slices/clientSlice";
 import { Mention, MentionsInput } from "react-mentions";
-import { Msg } from "../../api/types/msg";
+import { Attachment, Msg } from "../../api/types/msg";
+import MsgAttachment from "./msgAttachmentComponent";
 
 interface msgProps {
   id: string;
@@ -29,6 +28,7 @@ interface msgProps {
   mentions: User[];
   combined: boolean;
   editing: boolean;
+  attachments?: Attachment[];
 }
 
 const Msg: FC<msgProps> = ({
@@ -43,6 +43,7 @@ const Msg: FC<msgProps> = ({
   mentions,
   combined,
   editing,
+  attachments,
 }) => {
   const dispatch = useAppDispatch();
   const formatedContent = content.split(/(\<\@(?:\d+|everyone)\>)/g);
@@ -81,13 +82,11 @@ const Msg: FC<msgProps> = ({
 
   return (
     <div
-      className={`group relative box-border flex flex-row space-x-4 px-4 ${
-        !combined ? "mt-4 pt-1" : ""
-      } hover:bg-black/25 ${
-        mentionedSelfUser
+      className={`group relative box-border flex flex-row space-x-4 px-4 ${!combined ? "mt-4 pt-1" : ""
+        } hover:bg-black/25 ${mentionedSelfUser
           ? " border-l-2 border-green bg-green/25 hover:bg-green/10"
           : ""
-      }`}
+        }`}
     >
       {!combined && (
         <img
@@ -96,15 +95,13 @@ const Msg: FC<msgProps> = ({
         ></img>
       )}
       <div
-        className={`flex flex-grow ${
-          !combined ? "flex-col" : "flex-row-reverse"
-        }`}
+        className={`flex flex-grow ${!combined ? "flex-col" : "flex-row-reverse"
+          }`}
       >
         {!combined && (
           <div
-            className={`flex w-full flex-grow flex-row items-center space-x-2 whitespace-nowrap ${
-              !combined ? "" : "justify-self-end"
-            }`}
+            className={`flex w-full flex-grow flex-row items-center space-x-2 whitespace-nowrap ${!combined ? "" : "justify-self-end"
+              }`}
           >
             <p className="text-lg font-semibold leading-relaxed text-white">
               {username}
@@ -119,9 +116,8 @@ const Msg: FC<msgProps> = ({
         {!editing ? (
           <div className={`${!combined ? "mr-28" : "ml-16 mr-4"} w-full`}>
             <p
-              className={`font-normal leading-relaxed ${
-                !failed ? "text-white" : "text-red"
-              }`}
+              className={`font-normal leading-relaxed ${!failed ? "text-white" : "text-red"
+                }`}
             >
               {formatedContent.map((e: string, i: number) => {
                 const mentionMatched = e.match(
@@ -142,17 +138,16 @@ const Msg: FC<msgProps> = ({
                 }
               })}
             </p>
+            <MsgAttachment attachments={attachments} />
           </div>
         ) : (
           <div
-            className={`mb-2 flex flex-col ${
-              !combined ? "mr-28" : "ml-16 mr-4"
-            } w-full`}
+            className={`mb-2 flex flex-col ${!combined ? "mr-28" : "ml-16 mr-4"
+              } w-full`}
           >
             <div
-              className={`min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ${
-                playAnimation ? "animate-shake" : ""
-              }`}
+              className={`min-h-14 flex w-full flex-row space-x-2 rounded bg-shade-2 px-4 ${playAnimation ? "animate-shake" : ""
+                }`}
               onAnimationEnd={() => setPlayAnimation(false)}
             >
               <MentionsInput
@@ -278,7 +273,7 @@ const Msg: FC<msgProps> = ({
           }
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

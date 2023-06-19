@@ -105,11 +105,16 @@ export const getGuildMsgs = asyncThunkAPI<Msg[], { id: string; time: number }>(
   }
 );
 
-export const createGuildMsg = asyncThunkAPI<void, { id: string; msg: Msg }>(
+export const createGuildMsg = asyncThunkAPI<void, { id: string; msg: Msg, files: File[] }>(
   "guild/createMsg",
-  async (args: { id: string; msg: Msg }, thunkAPI) => {
-    const { id, msg } = args;
-    return await requestAPI<void>("POST", `/guilds/${id}/msgs`, msg, thunkAPI);
+  async (args: { id: string; msg: Msg, files: File[] }, thunkAPI) => {
+    const { id, msg, files } = args;
+    const formData = new FormData();
+    formData.append("body", JSON.stringify(msg));
+    files.forEach((file) => {
+      formData.append("file", file, file.name);
+    });
+    return await requestAPI<void>("POST", `/guilds/${id}/msgs`, formData, thunkAPI);
   }
 );
 

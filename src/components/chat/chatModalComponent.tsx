@@ -9,7 +9,6 @@ import UploadPic from "../uploadPicComponent";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useDispatch } from "react-redux";
 import { setShowAddChatModal } from "../../app/slices/clientSlice";
 import { Guild, GuildList, GuildUpload, Invite } from "../../api/types/guild";
 import { useJoinGuild } from "../../api/hooks/guildHooks";

@@ -32,9 +32,16 @@
 - fix delete msg breaks infinite scroll
 - fix delete and edit msg for dont save chat history
 - fix contents not loading unless clicked when reconnected
+- isfulfilled not working
+- mentions not working in dms - fixed
+- dm not reopening when user sends msg
 
+# attachments
 - show download option for image and video
 - support embed audio
+
+# etc
+- redirect user back if token fails
 
 # maybe
 - have option to prevent non friends from dming

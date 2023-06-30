@@ -215,18 +215,27 @@ export const useGetGuildMsgInfo = () => {
 
 export const useGetGuildMembersForMention = () => {
   return useSelector((state: RootState) => {
-    const userIds =
-      state.user.guildMembersIds[state.client.currentGuild ?? ""] ?? [];
     const userListMention: SuggestionDataItem[] = [];
+    const currentChatMode = state.client.currentChatMode;
     const userList: Record<string, string> = {};
-    for (const userId of userIds) {
-      if (state.user.users[userId] !== undefined) {
-        const user: SuggestionDataItem = {
-          id: userId,
-          display: state.user.users[userId].name,
-        };
-        userListMention.push(user);
-        userList[userId] = state.user.users[userId].name;
+    if (currentChatMode === "dm") {
+      const currentDM = state.client.currentDM;
+      const userId = state.guild.dms[currentDM ?? ""]?.userId ?? "";
+      const username = state.user.users[userId]?.name ?? "";
+      userListMention.push({ id: userId, display: username });
+      userList[userId] = username;
+    } else {
+      const userIds =
+        state.user.guildMembersIds[state.client.currentGuild ?? ""] ?? [];
+      for (const userId of userIds) {
+        if (state.user.users[userId] !== undefined) {
+          const user: SuggestionDataItem = {
+            id: userId,
+            display: state.user.users[userId].name,
+          };
+          userListMention.push(user);
+          userList[userId] = state.user.users[userId].name;
+        }
       }
     }
     userListMention.push({ id: "everyone", display: "everyone" });

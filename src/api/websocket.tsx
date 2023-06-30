@@ -6,6 +6,7 @@ import {
   removeCurrentGuild,
   setCurrentChatMode,
   setCurrentDM,
+  setCurrentMode,
   setShowChatUserList,
   setUserDMtobeOpened,
   setWsStatus,
@@ -269,6 +270,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
                   ) {
                     dispatch(setCurrentDM(eventData.id));
                     dispatch(setCurrentChatMode("dm"));
+                    dispatch(setCurrentMode("chat"));
                     dispatch(setShowChatUserList(false));
                     dispatch(setUserDMtobeOpened(null));
                   }

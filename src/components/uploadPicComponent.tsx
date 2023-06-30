@@ -84,7 +84,7 @@ const UploadPic: FC<uploadPicProps> = ({
   }, [image]);
   return (
     <div
-      className={`relative rounded-full border-2 w-${width} h-${height} overflow-hidden`}
+      className={`relative rounded-full border-black border-2 w-${width} h-${height} overflow-hidden`}
     >
       <input
         id="image-upload"
@@ -113,7 +113,7 @@ const UploadPic: FC<uploadPicProps> = ({
         htmlFor="image-upload"
         className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-white opacity-0 duration-300 ease-in-out hover:opacity-100 "
       >
-        <MdUpload className="h-[75%] w-[75%]" />
+        <MdUpload className="h-[75%] w-[75%] text-black" />
       </label>
     </div>
   );

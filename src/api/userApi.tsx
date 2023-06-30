@@ -199,8 +199,8 @@ export const acceptFriendRequest = asyncThunkAPI<void, string>(
   "user/acceptFriendRequest",
   async (id: string, thunkAPI) => {
     return await requestAPI<void>(
-      "PUT",
-      `/users/@me/friends/${id}`,
+      "POST",
+      `/users/@me/requests/${id}/accept`,
       null,
       thunkAPI
     );
@@ -211,8 +211,8 @@ export const declineFriendRequest = asyncThunkAPI<void, string>(
   "user/declineFriendRequest",
   async (id: string, thunkAPI) => {
     return await requestAPI<void>(
-      "DELETE",
-      `/users/@me/requests/${id}`,
+      "POST",
+      `/users/@me/requests/${id}/decline`,
       null,
       thunkAPI
     );

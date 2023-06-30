@@ -141,11 +141,13 @@ const userSlice = createSlice({
     ) => {
       console.log("add dm user id", action.payload.userId, "dm id", action.payload.dmId);
       state.dmUserIds[action.payload.userId] = action.payload.dmId;
+      state.userMemberCount[action.payload.userId]++;
       console.log("dmid", state.dmUserIds[action.payload.userId]);
     },
     removeDmUserId: (state, action: PayloadAction<{ userId: string }>) => {
       console.log("remove dm user id", action.payload.userId);
       console.log("dmid", state.dmUserIds[action.payload.userId]);
+      state.userMemberCount[action.payload.userId]--;
       delete state.dmUserIds[action.payload.userId];
     },
     removeGuildBannedID: (state, action: PayloadAction<Member>) => {

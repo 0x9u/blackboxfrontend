@@ -32,12 +32,11 @@ export const useEditUserEmail = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
-  const isAFulfilledAction = isFulfilled(editUserEmail);
 
   const callFunction = async (data: EditUserEmailForm) => {
     setStatus("loading");
     const result = await dispatch(editUserEmail(data));
-    if (isAFulfilledAction(editUserEmail)) {
+    if (result.meta.requestStatus === "fulfilled") {
       //less goooooo
       console.log("Success");
       setStatus("finished");
@@ -57,12 +56,11 @@ export const useEditUserPassword = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
-  const isAFulfilledAction = isFulfilled(editUserPassword);
 
   const callFunction = async (data: EditUserPasswordForm) => {
     setStatus("loading");
     const result = await dispatch(editUserPassword(data));
-    if (isAFulfilledAction(editUserPassword)) {
+    if (result.meta.requestStatus === "fulfilled") {
       //less goooooo
       console.log("Success");
       setStatus("finished");
@@ -107,12 +105,11 @@ export const useEditUserName = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
-  const isAFulfilledAction = isFulfilled(editUserName);
 
   const callFunction = async (data: EditUserNameForm) => {
     setStatus("loading");
     const result = await dispatch(editUserName(data));
-    if (isAFulfilledAction(editUserName)) {
+    if (result.meta.requestStatus === "fulfilled") {
       //less goooooo
       console.log("Success");
       setStatus("finished");
@@ -172,6 +169,7 @@ export const useGetFriendList = () => {
   const dispatch = useAppDispatch();
   const contents = useSelector((state: RootState) => ({
     friends: state.user.friendIds.map((id: string) => state.user.users[id]),
+    openDms: state.user.dmUserIds,
     loaded: state.client.friendListLoaded,
   }));
   useEffect(() => {
@@ -217,12 +215,11 @@ export const useAddFriend = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
-  const isAFulfilledAction = isFulfilled(sendFriendRequest);
 
   const callFunction = async (data: string) => {
     setStatus("loading");
     const result = await dispatch(sendFriendRequest(data));
-    if (isAFulfilledAction(sendFriendRequest)) {
+    if (result.meta.requestStatus === "fulfilled") {
       //less goooooo
       console.log("Success");
       setStatus("finished");
@@ -230,6 +227,7 @@ export const useAddFriend = () => {
     } else {
       console.log("Failure");
       setStatus("failed");
+      console.log(result.payload);
       setError(result.payload ?? null);
     }
   };
@@ -242,12 +240,11 @@ export const useAddFriendById = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
-  const isAFulfilledAction = isFulfilled(sendFriendRequestById);
 
   const callFunction = async (data: string) => {
     setStatus("loading");
     const result = await dispatch(sendFriendRequestById(data));
-    if (isAFulfilledAction(sendFriendRequestById)) {
+    if (result.meta.requestStatus === "fulfilled") {
       //less goooooo
       console.log("Success");
       setStatus("finished");

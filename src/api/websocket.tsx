@@ -1,8 +1,13 @@
 import {
   deleteGuildLoaded,
+  initDmGuildLoaded,
   initGuildLoaded,
   removeCurrentDM,
   removeCurrentGuild,
+  setCurrentChatMode,
+  setCurrentDM,
+  setShowChatUserList,
+  setUserDMtobeOpened,
   setWsStatus,
 } from "../app/slices/clientSlice";
 import { Middleware } from "@reduxjs/toolkit";
@@ -34,7 +39,7 @@ import {
 import { Invite } from "./types/guild";
 import {
   addBlockedID,
-  addDMID,
+  addDmUserId,
   addFriendID,
   addGuildAdminID,
   addGuildBannedID,
@@ -42,7 +47,7 @@ import {
   addPendingFriendID,
   addRequestedFriendID,
   removeBlockedID,
-  removeDMID,
+  removeDmUserId,
   removeFriendID,
   removeGuildAdminID,
   removeGuildBannedID,
@@ -145,12 +150,13 @@ const gatewayAPI: Middleware = (storeAPI) => {
               console.log("dispatch");
 
               switch (data.event) {
-                case Events.CREATE_GUILD_MESSAGE: {
+                case Events.CREATE_GUILD_MESSAGE:
+                case Events.CREATE_DM_MESSAGE: {
                   const eventData: Msg = data.data;
                   console.log(eventData);
                   //shitty change later - placeholder code
                   const selfUserId = getState().user.selfUser;
-                  console.log(eventData);
+                  console.log("msg sent", eventData);
                   if (eventData.mentionsEveryone) {
                     dispatch(incMentionMsg(eventData.guildId));
                   } else {
@@ -190,13 +196,6 @@ const gatewayAPI: Middleware = (storeAPI) => {
                 case Events.DELETE_DM_MESSAGE: {
                   const eventData: Msg = data.data;
                   dispatch(removeGuildMsg(eventData));
-                  break;
-                }
-                case Events.CREATE_DM_MESSAGE: {
-                  const eventData: Msg = data.data;
-                  dispatch(
-                    addGuildMsg({ guildId: eventData.guildId, msg: eventData })
-                  );
                   break;
                 }
                 case Events.CREATE_INVITE: {
@@ -252,15 +251,38 @@ const gatewayAPI: Middleware = (storeAPI) => {
                 }
                 case Events.CREATE_DM: {
                   const eventData: Dm = data.data;
+                  console.log(eventData);
                   dispatch(addDm(eventData));
-                  dispatch(addDMID(eventData.userInfo));
+                  dispatch(initDmGuildLoaded(eventData.id));
+                  dispatch(
+                    addDmUserId({
+                      userId: eventData.userInfo.id,
+                      dmId: eventData.id,
+                    })
+                  );
+                  console.log(
+                    getState().client.userDMtobeOpened,
+                    eventData.userInfo.id
+                  );
+                  if (
+                    getState().client.userDMtobeOpened === eventData.userInfo.id
+                  ) {
+                    dispatch(setCurrentDM(eventData.id));
+                    dispatch(setCurrentChatMode("dm"));
+                    dispatch(setShowChatUserList(false));
+                    dispatch(setUserDMtobeOpened(null));
+                  }
                   break;
                 }
                 case Events.DELETE_DM: {
                   const eventData: Dm = data.data;
+
+                  console.log("deleting", eventData);
+
                   dispatch(removeCurrentDM(eventData.id));
                   dispatch(removeDm(eventData));
-                  dispatch(removeDMID(eventData.userInfo));
+                  dispatch(removeDmUserId({ userId: eventData.userInfo.id }));
+                  dispatch(deleteGuildLoaded(eventData.id));
                   break;
                 }
                 case Events.ADD_FRIEND_REQUEST: {

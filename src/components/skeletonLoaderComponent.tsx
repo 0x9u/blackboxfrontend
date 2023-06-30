@@ -49,6 +49,4 @@ const SkeletonLoaderUserList: FC = () => {
     </div>
   )
 }
-
-
 export { SkeletonLoaderChatList, SkeletonLoaderChatMsg, SkeletonLoaderUserList };

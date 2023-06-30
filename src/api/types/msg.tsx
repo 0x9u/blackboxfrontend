@@ -17,7 +17,6 @@ export interface Msg {
   id: string;
   author: User;
   guildId: string;
-  dmId: string;
   content: string;
   created: string;
   modified: string;

@@ -22,7 +22,7 @@ export const requestAPI = async <T,>(
   try {
     const { data } = await axios<T>({
       method: type,
-      url : import.meta.env.VITE_API_ENDPOINT + endpoint,
+      url: import.meta.env.VITE_API_ENDPOINT + endpoint,
       data: body,
       headers: { authorization: auth.token },
       validateStatus: (status) => status < 400,
@@ -30,6 +30,8 @@ export const requestAPI = async <T,>(
     return data;
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
+      console.log("err rejecting", err);
+      console.log(thunkAPI.rejectWithValue)
       return thunkAPI.rejectWithValue(
         (err as AxiosError<ErrorBody>).response?.data
       );

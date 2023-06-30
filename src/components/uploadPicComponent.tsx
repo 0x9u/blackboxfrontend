@@ -1,5 +1,8 @@
-import React, { FC, useState, Ref } from "react";
-import { UseFormRegisterReturn } from "react-hook-form/dist/types";
+import React, { FC, useState, Ref, useEffect } from "react";
+import {
+  UseFormGetValues,
+  UseFormRegisterReturn,
+} from "react-hook-form/dist/types";
 
 import { MdUpload, MdCameraAlt } from "react-icons/md";
 
@@ -7,6 +10,7 @@ interface uploadPicProps {
   width: string;
   height: string;
   register?: UseFormRegisterReturn<any>;
+  image?: File;
   dark?: boolean;
   url?: string;
 }
@@ -15,6 +19,7 @@ const UploadPic: FC<uploadPicProps> = ({
   width,
   height,
   register,
+  image,
   dark,
   url,
 }) => {
@@ -22,8 +27,10 @@ const UploadPic: FC<uploadPicProps> = ({
   const [preview, setPreview] = useState<string | undefined>(undefined);
   const photoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
+    register?.onChange(e);
+
     const reader = new FileReader();
-    const file = e.target.files![0];
+    const file = image !== undefined ? image : e.target.files![0];
     console.log(file.name);
     if (
       file.type === "image/jpeg" ||
@@ -31,13 +38,50 @@ const UploadPic: FC<uploadPicProps> = ({
       file.type === "image/jpg" ||
       file.type === "image/gif"
     ) {
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
+      reader.onload = () => {
+        var img = new Image();
+        img.src = reader.result as string;
+        img.onload = () => {
+          if (img.width !== img.height) {
+            //temp
+            console.log("NOT square :(((((");
+          } else {
+            console.log("square!!!");
+            setPreview(reader.result as string);
+          }
+        };
       };
       reader.readAsDataURL(file);
     }
-    register?.onChange(e);
   };
+
+  useEffect(() => {
+    const reader = new FileReader();
+    const file = image;
+    console.log(file);
+    if (!file) return;
+    if (
+      file.type === "image/jpeg" ||
+      file.type === "image/png" ||
+      file.type === "image/jpg" ||
+      file.type === "image/gif"
+    ) {
+      reader.onload = () => {
+        var img = new Image();
+        img.src = reader.result as string;
+        img.onload = () => {
+          if (img.width !== img.height) {
+            //temp
+            console.log("NOT square :(((((");
+          } else {
+            console.log("square!!!");
+            setPreview(reader.result as string);
+          }
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [image]);
   return (
     <div
       className={`relative rounded-full border-2 w-${width} h-${height} overflow-hidden`}

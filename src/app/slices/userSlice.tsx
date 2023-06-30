@@ -15,11 +15,10 @@ type UserState = {
   users: Record<string, User>;
 
   friendIds: string[];
+  dmUserIds: Record<string, string>;
   requestedFriendIds: string[];
   pendingFriendIds: string[];
   blockedIds: string[];
-  dmIds: string[];
-
   selfUser: string | null;
 
   guildMembersIds: Record<string, string[]>;
@@ -32,10 +31,10 @@ const initialState: UserState = {
   users: {},
 
   friendIds: [],
+  dmUserIds: {}, //for checking if user already has dm
   requestedFriendIds: [],
   pendingFriendIds: [],
   blockedIds: [],
-  dmIds: [],
 
   selfUser: null,
 
@@ -53,8 +52,7 @@ function checkUserIsReferenced(state: UserState, id: string) {
     state.requestedFriendIds.indexOf(id) === -1 &&
     state.pendingFriendIds.indexOf(id) === -1 &&
     state.blockedIds.indexOf(id) === -1 &&
-    state.selfUser !== id &&
-    state.dmIds.indexOf(id) === -1
+    state.selfUser !== id
   ) {
     delete state.users[id];
   }
@@ -137,20 +135,18 @@ const userSlice = createSlice({
         (id) => id !== userInfo.id
       );
     },
-    addDMID: (state, action: PayloadAction<User>) => {
-      state.dmIds.push(action.payload.id);
-      state.users[action.payload.id] = action.payload;
+    addDmUserId: (
+      state,
+      action: PayloadAction<{ userId: string; dmId: string }>
+    ) => {
+      console.log("add dm user id", action.payload.userId, "dm id", action.payload.dmId);
+      state.dmUserIds[action.payload.userId] = action.payload.dmId;
+      console.log("dmid", state.dmUserIds[action.payload.userId]);
     },
-    removeDMID: (state, action: PayloadAction<User>) => {
-      state.friendIds = state.friendIds.filter(
-        (id) => id !== action.payload.id
-      );
-      if (state.userMemberCount[action.payload.id] === undefined) {
-        console.log("not exists");
-        return;
-      }
-      state.userMemberCount[action.payload.id]--;
-      checkUserIsReferenced(state, action.payload.id);
+    removeDmUserId: (state, action: PayloadAction<{ userId: string }>) => {
+      console.log("remove dm user id", action.payload.userId);
+      console.log("dmid", state.dmUserIds[action.payload.userId]);
+      delete state.dmUserIds[action.payload.userId];
     },
     removeGuildBannedID: (state, action: PayloadAction<Member>) => {
       const { guildId, userInfo } = action.payload;
@@ -241,7 +237,6 @@ const userSlice = createSlice({
       state.selfUser = null;
       state.users = {};
       state.userMemberCount = {};
-      state.dmIds = [];
       state.pendingFriendIds = [];
       state.guildMembersIds = {};
       state.guildAdminIds = {};
@@ -254,7 +249,7 @@ const userSlice = createSlice({
       (state, action: PayloadAction<GuildList>) => {
         for (const dm of action.payload.dms) {
           state.users[dm.userInfo.id] = dm.userInfo;
-          state.dmIds.push(dm.userInfo.id);
+          state.dmUserIds[dm.userInfo.id] = dm.id;
         }
       }
     );
@@ -347,8 +342,8 @@ export const {
   addGuildMembersID,
   addPendingFriendID,
   addGuildBannedID,
-  addDMID,
-  removeDMID,
+  addDmUserId,
+  removeDmUserId,
   removeFriendID,
   removeRequestedFriendID,
   removeGuildMembersID,

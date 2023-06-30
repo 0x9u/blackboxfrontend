@@ -8,7 +8,13 @@ import {
 } from "../../api/guildApi";
 import { GuildList } from "../../api/types/guild";
 import { Permissions, User } from "../../api/types/user";
-import { getGuilds, getSelf } from "../../api/userApi";
+import {
+  getBlocked,
+  getFriends,
+  getGuilds,
+  getRequestedFriends,
+  getSelf,
+} from "../../api/userApi";
 
 type guildLoaded = {
   initialMsgs: boolean;
@@ -28,6 +34,8 @@ type ClientState = {
   currentEditMsgId: string | null;
 
   wsStatus: "connected" | "disconnected" | "connecting";
+
+  userDMtobeOpened: string | null; //temp
 
   showChatUserList: boolean;
 
@@ -65,6 +73,8 @@ const initialState: ClientState = {
   currentEditMsgId: null,
 
   wsStatus: "disconnected",
+
+  userDMtobeOpened : null, //temp
 
   showChatUserList: false,
 
@@ -104,6 +114,9 @@ const clientSlice = createSlice({
     },
     setCurrentDM: (state, action: PayloadAction<string | null>) => {
       state.currentDM = action.payload;
+    },
+    setUserDMtobeOpened: (state, action: PayloadAction<string | null>) => {
+      state.userDMtobeOpened = action.payload;
     },
     removeCurrentDM: (state, action: PayloadAction<string>) => {
       if (state.currentDM === action.payload) {
@@ -178,6 +191,15 @@ const clientSlice = createSlice({
         members: false,
         invites: false,
         banned: false,
+      };
+    },
+    initDmGuildLoaded: (state, action: PayloadAction<string>) => {
+      state.guildLoaded[action.payload] = {
+        initialMsgs: false,
+        msgs: false,
+        members: true,
+        invites: true,
+        banned: true,
       };
     },
     setGuildIntialMsgsLoaded: (state, action: PayloadAction<string>) => {
@@ -271,6 +293,15 @@ const clientSlice = createSlice({
       state.userSelfLoaded = true;
       state.permissions = action.payload.permissions ?? ({} as Permissions);
     });
+    builder.addCase(getFriends.fulfilled, (state, action) => {
+      state.friendListLoaded = true;
+    });
+    builder.addCase(getRequestedFriends.fulfilled, (state, action) => {
+      state.requestedFriendListLoaded = true;
+    });
+    builder.addCase(getBlocked.fulfilled, (state, action) => {
+      state.blockedListLoaded = true;
+    });
     builder.addCase(
       getGuilds.fulfilled,
       (state, action: PayloadAction<GuildList>) => {
@@ -283,6 +314,15 @@ const clientSlice = createSlice({
             members: false,
             invites: false,
             banned: false,
+          };
+        }
+        for (const dm of list.dms) {
+          state.guildLoaded[dm.id] = {
+            initialMsgs: false,
+            msgs: false,
+            members: true,
+            invites: true,
+            banned: true,
           };
         }
       }
@@ -327,6 +367,7 @@ export const {
   setCurrentGuild,
   removeCurrentGuild,
   setCurrentDM,
+  setUserDMtobeOpened,
   removeCurrentDM,
   setCurrentChatMode,
   setCurrentFriendsMode,
@@ -345,6 +386,7 @@ export const {
   setShowGuildDMSettings,
   setShowUserSettings,
   initGuildLoaded,
+  initDmGuildLoaded,
   setGuildIntialMsgsLoaded,
   setGuildMsgsLoaded,
   setGuildMembersLoaded,

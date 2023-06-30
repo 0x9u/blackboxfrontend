@@ -44,6 +44,7 @@ const guildSlice = createSlice({
       state.guilds[action.payload.id].unread = unread;
     },
     incUnreadMsg: (state, action: PayloadAction<string>) => {
+      console.log("incUnreadMsg", action.payload, state.guilds[action.payload] !== undefined, state.dms[action.payload] !== undefined)
       if (state.guilds[action.payload] !== undefined) {
         state.guilds[action.payload].unread.count++;
       } else if (state.dms[action.payload] !== undefined) {
@@ -69,20 +70,22 @@ const guildSlice = createSlice({
         state.guilds[action.payload].unread.time = new Date().toISOString();
       } else if (state.dms[action.payload] !== undefined) {
         state.dms[action.payload].unread.count = 0;
-        state.guilds[action.payload].unread.mentions = 0;
+        state.dms[action.payload].unread.mentions = 0;
         state.dms[action.payload].unread.time = new Date().toISOString();
       } else {
         console.log("not exists");
       }
     },
     addDm: (state, action: PayloadAction<Dm>) => {
+      console.log(action.payload)
       state.dmIds.push(action.payload.id);
       const body: DmUser = {
         id: action.payload.id,
         unread: action.payload.unread,
         userId: action.payload.userInfo.id,
       };
-      state.dms[action.payload.userInfo.id] = body;
+      console.log(body);
+      state.dms[action.payload.id] = body;
     },
     removeDm: (state, action: PayloadAction<Dm>) => {
       state.dmIds = state.dmIds.filter((id) => id !== action.payload.id);

@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { setShowEditProfilePictureModal } from "../../../app/slices/clientSlice";
 import Button from "../../buttonComponent";
 import Input from "../../inputComponent";
@@ -11,6 +11,7 @@ import UploadPic from "../../uploadPicComponent";
 import { EditUserPictureForm } from "../../../api/types/user";
 import { useEditUserPicture } from "../../../api/hooks/userHooks";
 import { useAppDispatch } from "../../../app/store";
+import CropPic from "../../cropPicComponent";
 
 type editPictureForm = {
   picture: FileList;
@@ -19,10 +20,13 @@ type editPictureForm = {
 
 const EditProfilePictureModal: FC = () => {
   const dispatch = useAppDispatch();
+  const [showCrop, setShowCrop] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
     setError,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<editPictureForm>({
     resolver: yupResolver(
@@ -81,23 +85,59 @@ const EditProfilePictureModal: FC = () => {
           editUserPicture(body);
         })}
       >
-        <div className="flex flex-col p-4 pt-0">
-          <div className="h-32 w-32 px-16">
-            <UploadPic width="32" height="32" register={register("picture")} />
-            <p className=" text-center text-sm font-medium text-red">
-              {errors.picture?.message}
-            </p>
-          </div>
-          <Input
-            label="Password"
-            type="password"
-            dark
-            register={register("password")}
-            error={errors.password}
+        {showCrop ? (
+          <CropPic
+            setValue={setValue}
+            getValues={getValues}
+            onFinish={() => {
+              setShowCrop(false);
+            }}
           />
-        </div>
+        ) : (
+          <div className="flex flex-col p-4 pt-0">
+            <div className="h-32 w-32 px-16">
+              <UploadPic
+                width="32"
+                height="32"
+                image={getValues("picture")?.[0]}
+                register={register("picture", {
+                  onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                    var img = new Image();
+                    var file = e.target.files![0];
+                    console.log("rizzer", file);
+                    if (file) {
+                      console.log("rizzed");
+                      img = new Image();
+                      var objectURL = URL.createObjectURL(file);
+                      img.onload = function () {
+                        console.log("rizz", img.width, img.height);
+                        if (img.width !== img.height) {
+                          console.log("square");
+                          setShowCrop(true);
+                        }
+                        URL.revokeObjectURL(objectURL);
+                      };
+                      img.src = objectURL;
+                    }
+                  },
+                })}
+              />
+              <p className=" text-center text-sm font-medium text-red">
+                {errors.picture?.message}
+              </p>
+            </div>
+
+            <Input
+              label="Password"
+              type="password"
+              dark
+              register={register("password")}
+              error={errors.password}
+            />
+          </div>
+        )}
         <ModalBottom>
-          <Button value="Finish" type="submit" />
+          <Button value="Finish" type="submit" disabled={showCrop} />
         </ModalBottom>
       </form>
     </Modal>

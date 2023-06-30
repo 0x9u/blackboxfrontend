@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import MsgElement from "./msgComponent";
 import ChatInput from "./chatInputComponent";
@@ -15,6 +15,8 @@ const ChatHistory: FC = () => {
 
   const {
     currentGuild,
+    currentChatMode,
+    currentDm,
     msgsHistory,
     msgsLength,
     msgsUnread,
@@ -23,11 +25,21 @@ const ChatHistory: FC = () => {
     currentEditMsgId,
   } = useGetGuildMsgInfo();
 
+  console.log(msgsUnread)
+
   const lastReadTime = new Date(msgsUnread.time).toLocaleString();
+
+  const scrollIntoView = useRef<HTMLDivElement>(null);
 
   const userInfo = useSelector(
     (state: RootState) => state.user.users[state.user.selfUser ?? ""]
   );
+
+  useEffect(() => {
+    if (scrollIntoView.current) {
+      scrollIntoView.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [msgsHistory]);
 
   return (
     <div className="relative flex grow flex-col">
@@ -48,9 +60,17 @@ const ChatHistory: FC = () => {
           }
           hasMore={!isMsgsLoaded}
           next={() => {
-            dispatch(getGuildMsgs({ id: currentGuild ?? "", time: lastTime }));
+            dispatch(
+              getGuildMsgs({
+                id:
+                  (currentChatMode === "guild" ? currentGuild : currentDm) ??
+                  "",
+                time: lastTime,
+              })
+            );
           }}
         >
+          <div ref={scrollIntoView}></div>
           {msgsHistory.map((msg, index, msgs) => {
             const createdDate = new Date(msg.created);
             const modifiedDate = new Date(msg.modified);
@@ -68,7 +88,11 @@ const ChatHistory: FC = () => {
                 authorid={!msg.failed ? msg.author.id : userInfo.id}
                 username={!msg.failed ? msg.author.name : userInfo.name}
                 created={createdDate.toLocaleString()}
-                modified={modifiedDate.toLocaleString()}
+                modified={
+                  msg.modified !== "0001-01-01T00:00:00Z"
+                    ? modifiedDate.toLocaleString()
+                    : ""
+                }
                 userImageId={
                   !msg.failed ? msg.author.imageId : userInfo.imageId
                 }
@@ -97,8 +121,20 @@ const ChatHistory: FC = () => {
               <a
                 className="cursor-pointer select-none justify-self-end font-semibold text-gray hover:underline active:text-gray/75"
                 onClick={() => {
-                  dispatch(readGuildMsg(currentGuild ?? ""));
-                  dispatch(clearUnreadMsg(currentGuild ?? ""));
+                  dispatch(
+                    readGuildMsg(
+                      (currentChatMode === "guild"
+                        ? currentGuild
+                        : currentDm) ?? ""
+                    )
+                  );
+                  dispatch(
+                    clearUnreadMsg(
+                      (currentChatMode === "guild"
+                        ? currentGuild
+                        : currentDm) ?? ""
+                    )
+                  );
                 }}
               >
                 Mark as read

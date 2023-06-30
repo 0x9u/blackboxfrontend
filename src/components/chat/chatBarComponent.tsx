@@ -8,17 +8,17 @@ import {
   MdOutlineExitToApp,
   MdClose,
 } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   setShowChatUserList,
   setShowCreateInviteModal,
   setShowGuildDMSettings,
 } from "../../app/slices/clientSlice";
-import { RootState } from "../../app/store";
-import { leaveGuild } from "../../api/userApi";
+import { RootState, useAppDispatch } from "../../app/store";
+import { deleteDM, leaveGuild } from "../../api/userApi";
 
 const ChatBar: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const [showMiniMenu, setShowMiniMenu] = useState<boolean>(false);
 
@@ -119,7 +119,10 @@ const ChatBar: FC = () => {
           </Fragment>
         ) : (
           <Fragment>
-            <MdClose className="my-auto h-10 w-10 shrink-0 cursor-pointer text-white/90 hover:text-white/75 active:text-white/50" />
+            <MdClose
+              className="my-auto h-10 w-10 shrink-0 cursor-pointer text-white/90 hover:text-white/75 active:text-white/50"
+              onClick={() => dispatch(deleteDM(currentDM ?? ""))}
+            />
             <label className="my-auto text-white">Close Direct Message</label>
           </Fragment>
         )}

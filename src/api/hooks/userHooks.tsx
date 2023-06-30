@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { isFulfilled } from "@reduxjs/toolkit";
+import { isFulfilled, isRejected, isRejectedWithValue } from "@reduxjs/toolkit";
 import { RootState, useAppDispatch } from "../../app/store";
 import { useSelector } from "react-redux";
 import {
@@ -14,7 +14,10 @@ import {
   editUserName,
   editUserPassword,
   editUserPicture,
+  getBlocked,
+  getFriends,
   getGuilds,
+  getRequestedFriends,
   getSelf,
 } from "../userApi";
 import { ErrorBody } from "../types/error";
@@ -27,11 +30,12 @@ export const useEditUserEmail = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
+  const isAFulfilledAction = isFulfilled(editUserEmail);
 
   const callFunction = async (data: EditUserEmailForm) => {
     setStatus("loading");
     const result = await dispatch(editUserEmail(data));
-    if (isFulfilled(editUserEmail)) {
+    if (isAFulfilledAction(editUserEmail)) {
       //less goooooo
       console.log("Success");
       setStatus("finished");
@@ -51,11 +55,12 @@ export const useEditUserPassword = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
+  const isAFulfilledAction = isFulfilled(editUserPassword);
 
   const callFunction = async (data: EditUserPasswordForm) => {
     setStatus("loading");
     const result = await dispatch(editUserPassword(data));
-    if (isFulfilled(editUserEmail)) {
+    if (isAFulfilledAction(editUserPassword)) {
       //less goooooo
       console.log("Success");
       setStatus("finished");
@@ -75,12 +80,13 @@ export const useEditUserPicture = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
+  const isAFulfilledAction = isFulfilled(editUserPicture);
 
   const callFunction = async (data: EditUserPictureForm) => {
     setStatus("loading");
     const result = await dispatch(editUserPicture(data));
-    if (isFulfilled(editUserEmail)) {
-      //less goooooo
+
+    if (isAFulfilledAction(editUserPicture)) {
       console.log("Success");
       setStatus("finished");
       setError(null);
@@ -99,11 +105,12 @@ export const useEditUserName = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
+  const isAFulfilledAction = isFulfilled(editUserName);
 
   const callFunction = async (data: EditUserNameForm) => {
     setStatus("loading");
     const result = await dispatch(editUserName(data));
-    if (isFulfilled(editUserEmail)) {
+    if (isAFulfilledAction(editUserName)) {
       //less goooooo
       console.log("Success");
       setStatus("finished");
@@ -155,6 +162,49 @@ export const useGetGuildDms = () => {
   }));
   useEffect(() => {
     if (!contents.loaded) dispatch(getGuilds());
+  }, [dispatch, contents.loaded]);
+  return contents;
+};
+
+export const useGetFriendList = () => {
+  const dispatch = useAppDispatch();
+  const contents = useSelector((state: RootState) => ({
+    friends: state.user.friendIds.map((id: string) => state.user.users[id]),
+    loaded: state.client.friendListLoaded,
+  }));
+  useEffect(() => {
+    if (!contents.loaded) dispatch(getFriends());
+  }, [dispatch, contents.loaded]);
+  return contents;
+};
+
+export const useGetRequestedFriendList = () => {
+  const dispatch = useAppDispatch();
+  const contents = useSelector((state: RootState) => ({
+    requestedFriends: state.user.requestedFriendIds.map(
+      (id: string) => state.user.users[id]
+    ),
+    pendingFriends: state.user.pendingFriendIds.map(
+      (id: string) => state.user.users[id]
+    ),
+    loaded: state.client.requestedFriendListLoaded,
+  }));
+  useEffect(() => {
+    if (!contents.loaded) dispatch(getRequestedFriends());
+  }, [dispatch, contents.loaded]);
+  return contents;
+};
+
+export const useGetBlockedList = () => {
+  const dispatch = useAppDispatch();
+  const contents = useSelector((state: RootState) => ({
+    blockedList: state.user.blockedIds.map(
+      (id: string) => state.user.users[id]
+    ),
+    loaded: state.client.blockedListLoaded,
+  }));
+  useEffect(() => {
+    if (!contents.loaded) dispatch(getBlocked());
   }, [dispatch, contents.loaded]);
   return contents;
 };

@@ -59,21 +59,23 @@ export const getBlocked = asyncThunkAPI<User[], void>(
   }
 );
 
-export const openDM = asyncThunkAPI<void, number>(
+export const openDM = asyncThunkAPI<void, string>(
   "user/openDM",
-  async (id: number, thunkAPI) => {
+  async (id: string, thunkAPI) => {
     return await requestAPI<void>(
-      "PUT",
-      `/users/@me/dms/${id}`,
-      null,
+      "POST",
+      `/users/@me/dms`,
+      {
+        ReceiverId: id,
+      },
       thunkAPI
     );
   }
 );
 
-export const deleteDM = asyncThunkAPI<void, number>(
+export const deleteDM = asyncThunkAPI<void, string>(
   "user/deleteDM",
-  async (id: number, thunkAPI) => {
+  async (id: string, thunkAPI) => {
     return await requestAPI<void>(
       "DELETE",
       `/users/@me/dms/${id}`,

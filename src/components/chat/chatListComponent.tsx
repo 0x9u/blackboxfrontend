@@ -54,14 +54,17 @@ const ChatList: FC = () => {
 
   return (
     <div className="list-scrollbar flex h-0 grow flex-col space-y-1 overflow-y-auto py-1 px-2">
-      <NavbarItem onClick={() => dispatch(setShowAddChatModal(true))}>
-        <MdAdd className="h-12 w-12 shrink-0"></MdAdd>
-        <p className="m-auto truncate px-2 leading-relaxed">Add Chat</p>
-      </NavbarItem>
+      {currentChatMode === "guild" && (
+        <NavbarItem onClick={() => dispatch(setShowAddChatModal(true))}>
+          <MdAdd className="h-12 w-12 shrink-0"></MdAdd>
+          <p className="m-auto truncate px-2 leading-relaxed">Add Chat</p>
+        </NavbarItem>
+      )}
       {!loaded ? (
         <SkeletonLoaderChatList />
       ) : currentChatMode === "dm" ? (
         dms.map((dm) => {
+          console.log(dm);
           const userImageId = users[dm.userId].imageId;
           const imageURL =
             userImageId !== "-1"

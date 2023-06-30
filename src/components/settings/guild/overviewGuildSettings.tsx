@@ -10,9 +10,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { editGuild } from "../../../api/guildApi";
+import CropImageModal from "../../cropImageModalComponent";
 
 const OverviewGuildSettings: FC = () => {
   const [formEdited, setFormEdited] = useState<boolean>(false);
+  const [showCrop, setShowCrop] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
 
@@ -38,6 +40,7 @@ const OverviewGuildSettings: FC = () => {
     register,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<editChatForm>({
     resolver: yupResolver(
@@ -103,7 +106,28 @@ const OverviewGuildSettings: FC = () => {
             height="32"
             dark
             url={guildImageURL}
-            register={register("picture")}
+            register={register("picture", {
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                var img = new Image();
+                var file = e.target.files![0];
+                console.log("rizzer", file);
+                if (file) {
+                  console.log("rizzed");
+                  img = new Image();
+                  var objectURL = URL.createObjectURL(file);
+                  img.onload = function () {
+                    console.log("rizz", img.width, img.height);
+                    if (img.width !== img.height) {
+                      console.log("square");
+                      setShowCrop(true);
+                    }
+                    URL.revokeObjectURL(objectURL);
+                  };
+                  img.src = objectURL;
+                }
+              },
+            })}
+            image={getValues("picture")?.[0]}
           />
           <p className="text-center text-xs text-white/75">
             Minimum size 128x128
@@ -140,6 +164,13 @@ const OverviewGuildSettings: FC = () => {
           <Button value="Submit" type="submit" className="h-8" />
         </div>
       </div>
+      {showCrop && (
+        <CropImageModal
+          getValues={getValues}
+          setValue={setValue}
+          exitFunc={() => setShowCrop(false)}
+        />
+      )}
     </form>
   );
 };

@@ -127,11 +127,12 @@ export const useJoinGuild = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
+  const isAFulfilledAction = isFulfilled(joinGuildInvite);
 
   const callFunction = async (data: Invite) => {
     setStatus("loading");
     const result = await dispatch(joinGuildInvite(data));
-    if (isFulfilled(joinGuildInvite)) {
+    if (isAFulfilledAction(joinGuildInvite)) {
       //less goooooo
       console.log("Success");
       setStatus("finished");
@@ -148,18 +149,22 @@ export const useJoinGuild = () => {
 export const useGetGuildMsgInfo = () => {
   const dispatch = useAppDispatch();
   const contents = useSelector((state: RootState) => {
+    const currentChatMode = state.client.currentChatMode;
+    const currentId =
+      (currentChatMode === "guild"
+        ? state.client.currentGuild
+        : state.client.currentDM) ?? "";
+
     const msgsHistory: Msg[] = [];
-    for (const msgId of state.msg.guildMsgIds[
-      state.client.currentGuild ?? ""
-    ] ?? []) {
+    for (const msgId of state.msg.guildMsgIds[currentId] ?? []) {
       const msg = state.msg.msgs[msgId];
       if (msg === undefined) {
         continue;
       }
       msgsHistory.push(msg);
     }
-    const guildMsgIds =
-      state.msg.guildMsgIds[state.client.currentGuild ?? ""] ?? [];
+
+    const guildMsgIds = state.msg.guildMsgIds[currentId] ?? [];
     const lastTime = Math.floor(
       new Date(
         state.msg.msgs[guildMsgIds[guildMsgIds.length - 1] ?? ""]?.created ?? 0
@@ -167,18 +172,19 @@ export const useGetGuildMsgInfo = () => {
     );
     return {
       currentGuild: state.client.currentGuild ?? "",
-      loaded:
-        state.client.guildLoaded[state.client.currentGuild ?? ""].msgs ?? true,
+      currentDm: state.client.currentDM ?? "",
+      currentChatMode: state.client.currentChatMode,
+      loaded: state.client.guildLoaded[currentId].msgs ?? true,
       isIntialMsgsLoaded:
-        state.client.guildLoaded[state.client.currentGuild ?? ""].initialMsgs ??
-        true,
-      isMsgsLoaded:
-        state.client.guildLoaded[state.client.currentGuild ?? ""].msgs ?? true,
-      msgsLength:
-        state.msg.guildMsgIds[state.client.currentGuild ?? ""]?.length ?? 0,
+        state.client.guildLoaded[currentId].initialMsgs ?? true,
+      isMsgsLoaded: state.client.guildLoaded[currentId].msgs ?? true,
+      msgsLength: state.msg.guildMsgIds[currentId]?.length ?? 0,
       lastTime,
       msgsUnread:
-        state.guild.guilds[state.client.currentGuild ?? ""]?.unread ?? 0,
+        (currentChatMode === "guild"
+          ? state.guild.guilds[currentId]
+          : state.guild.dms[currentId]
+        )?.unread ?? 0,
       currentEditMsgId: state.client.currentEditMsgId,
       msgsHistory,
     };
@@ -188,13 +194,22 @@ export const useGetGuildMsgInfo = () => {
     if (!contents.isIntialMsgsLoaded)
       dispatch(
         getGuildMsgs({
-          id: contents.currentGuild ?? "",
+          id:
+            contents.currentChatMode === "guild"
+              ? contents.currentGuild
+              : contents.currentDm,
           time: contents.lastTime,
         })
       ).then(() =>
-        dispatch(setGuildIntialMsgsLoaded(contents.currentGuild ?? ""))
+        dispatch(
+          setGuildIntialMsgsLoaded(
+            contents.currentChatMode === "guild"
+              ? contents.currentGuild
+              : contents.currentDm
+          )
+        )
       );
-  }, [contents.currentGuild]);
+  }, [contents.currentGuild, contents.currentDm, contents.currentChatMode]);
   return contents;
 };
 
@@ -222,16 +237,22 @@ export const useGetGuildMembersForMention = () => {
 export const useUserIsTyping = (value: string) => {
   const dispatch = useAppDispatch();
   const [isTyping, setIsTyping] = useState(false);
-  const { currentGuild } = useSelector((state: RootState) => {
+  const { currentId } = useSelector((state: RootState) => {
+    const currentChatMode = state.client.currentChatMode;
+    const currentId =
+      (currentChatMode === "guild"
+        ? state.client.currentGuild
+        : state.client.currentDM) ?? "";
+
     return {
-      currentGuild: state.client.currentGuild ?? "",
+      currentId,
     };
   });
   useEffect(() => {
     if (!isTyping && value !== "") {
       //typing delay 5 seconds to prevent spam (redo later kinda shitty)
       setIsTyping(true);
-      dispatch(userIsTyping(currentGuild));
+      dispatch(userIsTyping(currentId));
       setTimeout(() => {
         setIsTyping(false);
       }, 5000);
@@ -239,5 +260,5 @@ export const useUserIsTyping = (value: string) => {
   }, [value]);
   useEffect(() => {
     setIsTyping(false);
-  }, [currentGuild]);
+  }, [currentId]);
 };

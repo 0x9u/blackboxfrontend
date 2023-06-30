@@ -62,7 +62,7 @@ const chatInputArea: FC = () => {
   return (
     <div className="flex flex-col min-h-16 grow-0 w-full px-4 space-y-2">
       {/* temp fix TODO: replace width and fix bug later*/}
-      < div className="flex flex-row space-x-4 overflow-x-auto w-[calc(100vw-16rem-5rem-2rem)] textbox-scrollbar">
+      < div className="flex flex-row space-x-4 overflow-x-auto max-w-[calc(100vw-16rem-5rem-2rem)] textbox-scrollbar">
         {files.map((file, index) => {
           return (
             //file debug

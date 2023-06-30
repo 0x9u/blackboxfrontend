@@ -10,7 +10,7 @@
 
 ## friends
 - show friends list - done
-- allow user to friend others
+- allow user to friend others - done
 - open dms - done
 - block user
 - unfriend user

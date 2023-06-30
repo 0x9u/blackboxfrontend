@@ -171,10 +171,24 @@ export const unblockUser = asyncThunkAPI<void, string>(
 
 export const sendFriendRequest = asyncThunkAPI<void, string>(
   "user/sendFriendRequest",
+  async (username: string, thunkAPI) => {
+    return await requestAPI<void>(
+      "PUT",
+      `/users/@me/friends`,
+      {
+        username,
+      },
+      thunkAPI
+    );
+  }
+);
+
+export const sendFriendRequestById = asyncThunkAPI<void, string>(
+  "user/sendFriendRequestById",
   async (id: string, thunkAPI) => {
     return await requestAPI<void>(
       "PUT",
-      `/users/@me/requests/${id}`,
+      `/users/@me/friends/${id}`,
       null,
       thunkAPI
     );

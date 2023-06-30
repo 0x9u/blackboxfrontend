@@ -19,6 +19,8 @@ import {
   getGuilds,
   getRequestedFriends,
   getSelf,
+  sendFriendRequest,
+  sendFriendRequestById,
 } from "../userApi";
 import { ErrorBody } from "../types/error";
 import { Guild } from "../types/guild";
@@ -207,4 +209,54 @@ export const useGetBlockedList = () => {
     if (!contents.loaded) dispatch(getBlocked());
   }, [dispatch, contents.loaded]);
   return contents;
+};
+
+export const useAddFriend = () => {
+  const dispatch = useAppDispatch();
+  const [error, setError] = useState<ErrorBody | null>(null);
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "finished" | "failed"
+  >("idle");
+  const isAFulfilledAction = isFulfilled(sendFriendRequest);
+
+  const callFunction = async (data: string) => {
+    setStatus("loading");
+    const result = await dispatch(sendFriendRequest(data));
+    if (isAFulfilledAction(sendFriendRequest)) {
+      //less goooooo
+      console.log("Success");
+      setStatus("finished");
+      setError(null);
+    } else {
+      console.log("Failure");
+      setStatus("failed");
+      setError(result.payload ?? null);
+    }
+  };
+  return { callFunction, error, status };
+};
+
+export const useAddFriendById = () => {
+  const dispatch = useAppDispatch();
+  const [error, setError] = useState<ErrorBody | null>(null);
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "finished" | "failed"
+  >("idle");
+  const isAFulfilledAction = isFulfilled(sendFriendRequestById);
+
+  const callFunction = async (data: string) => {
+    setStatus("loading");
+    const result = await dispatch(sendFriendRequestById(data));
+    if (isAFulfilledAction(sendFriendRequestById)) {
+      //less goooooo
+      console.log("Success");
+      setStatus("finished");
+      setError(null);
+    } else {
+      console.log("Failure");
+      setStatus("failed");
+      setError(result.payload ?? null);
+    }
+  };
+  return { callFunction, error, status };
 };

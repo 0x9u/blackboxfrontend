@@ -10,6 +10,7 @@ import {
 } from "../app/slices/clientSlice";
 import { ErrorBody } from "./types/error";
 import { RootState } from "../app/store";
+import { addGuildMsg } from "../app/slices/msgSlice";
 
 export const createGuild = asyncThunkAPI<void, GuildUpload>(
   "guild/create",
@@ -105,16 +106,45 @@ export const getGuildMsgs = asyncThunkAPI<Msg[], { id: string; time: number }>(
   }
 );
 
-export const createGuildMsg = asyncThunkAPI<void, { id: string; msg: Msg, files: File[] }>(
+export const createGuildMsg = asyncThunkAPI<
+  void,
+  { id: string; msg: Msg; files: File[] }
+>(
   "guild/createMsg",
-  async (args: { id: string; msg: Msg, files: File[] }, thunkAPI) => {
+  async (args: { id: string; msg: Msg; files: File[] }, thunkAPI) => {
     const { id, msg, files } = args;
     const formData = new FormData();
+    var successful = false;
     formData.append("body", JSON.stringify(msg));
     files.forEach((file) => {
       formData.append("file", file, file.name);
     });
-    return await requestAPI<void>("POST", `/guilds/${id}/msgs`, formData, thunkAPI);
+    setTimeout(() => { // delayed because sometimes too fast
+      if (!successful) {
+      const loadingMsgId = `loading-${thunkAPI.requestId}`;
+      console.log("sending loading msg")
+      thunkAPI.dispatch(
+        addGuildMsg({
+          guildId: id,
+          msg: {
+            id: loadingMsgId,
+            content: msg.content,
+            loading: true,
+            guildId: id,
+          } as Msg,
+        })
+      ); }
+    }, 1250);
+    return await requestAPI<void>(
+      "POST",
+      `/guilds/${id}/msgs`,
+      formData,
+      thunkAPI
+    ).then((res) => {
+      successful = true;
+      console.log("worked msg sent");
+      return res;
+    });
   }
 );
 

@@ -45,6 +45,7 @@ type ClientState = {
   showEditUsernameModal: boolean;
   showEditEmailModal: boolean;
   showEditProfilePictureModal: boolean;
+  showDeleteAccountModal: boolean;
 
   showCooldownModal: boolean;
 
@@ -84,6 +85,7 @@ const initialState: ClientState = {
   showEditUsernameModal: false,
   showEditEmailModal: false,
   showEditProfilePictureModal: false,
+  showDeleteAccountModal: false,
 
   showCooldownModal: false,
 
@@ -171,7 +173,9 @@ const clientSlice = createSlice({
     setShowEditEmailModal: (state, action: PayloadAction<boolean>) => {
       state.showEditEmailModal = action.payload;
     },
-
+    setShowDeleteAccountModal: (state, action: PayloadAction<boolean>) => {
+      state.showDeleteAccountModal = action.payload;
+    },
     setShowEditProfilePictureModal: (state, action: PayloadAction<boolean>) => {
       state.showEditProfilePictureModal = action.payload;
     },
@@ -382,6 +386,7 @@ export const {
   setShowEditEmailModal,
   setShowEditUsernameModal,
   setShowEditProfilePictureModal,
+  setShowDeleteAccountModal,
   setShowCooldownModal,
   setShowGuildDMSettings,
   setShowUserSettings,

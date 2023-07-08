@@ -14,19 +14,22 @@ import { setCurrentEditMsgId } from "../../app/slices/clientSlice";
 import { Mention, MentionsInput } from "react-mentions";
 import { Attachment, Msg } from "../../api/types/msg";
 import MsgAttachment from "./msgAttachmentComponent";
+import { removeGuildMsg } from "../../app/slices/msgSlice";
 
 interface msgProps {
   id: string;
   content: string;
-  failed?: boolean;
   authorid: string;
   username: string;
   userImageId: string;
   created: string;
   modified?: string;
+  failed?: boolean;
+  loading?: boolean;
   mentions: User[];
   combined: boolean;
   editing: boolean;
+  requestId: string;
   attachments?: Attachment[];
 }
 
@@ -34,6 +37,7 @@ const Msg: FC<msgProps> = ({
   id,
   content,
   failed,
+  loading,
   username,
   userImageId,
   authorid,
@@ -42,6 +46,7 @@ const Msg: FC<msgProps> = ({
   mentions,
   combined,
   editing,
+  requestId,
   attachments,
 }) => {
   const dispatch = useAppDispatch();
@@ -109,7 +114,7 @@ const Msg: FC<msgProps> = ({
             <p className="text-lg font-semibold leading-relaxed text-white">
               {username}
             </p>
-            {!failed && (
+            {!failed && !loading && (
               <p className="text-xs font-medium leading-relaxed text-white brightness-75">
                 Created on {created} {modified && `and Edited at ${modified}`}
               </p>
@@ -121,7 +126,11 @@ const Msg: FC<msgProps> = ({
             <Linkify
               as="p"
               className={`font-normal leading-relaxed [&>a]:text-shade-5 [&>a]:hover:underline ${
-                !failed ? "text-white" : "text-red"
+                !failed
+                  ? loading
+                    ? "text-white/50"
+                    : "text-white"
+                  : "text-red"
               }`}
             >
               {formatedContent.map((e: string, i: number) => {
@@ -171,13 +180,25 @@ const Msg: FC<msgProps> = ({
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     if (value !== "") {
-                      dispatch(
-                        editGuildMsg({
-                          id: currentGuild,
-                          msgId: id,
-                          msg: { content: value } as Msg,
-                        })
-                      );
+                      console.log(requestId, "fucking work 2");
+                      if (requestId !== "") {
+                        dispatch(
+                          editGuildMsg({
+                            id: currentGuild,
+                            msgId: requestId,
+                            msg: { content: value } as Msg,
+                          })
+                        );
+                      } else {
+                        dispatch(
+                          editGuildMsg({
+                            id: currentGuild,
+                            msgId: id,
+                            msg: { content: value } as Msg,
+                          })
+                        );
+                      }
+                      dispatch(setCurrentEditMsgId(null));
                       dispatch(setCurrentEditMsgId(null));
                     } else {
                       setPlayAnimation(true);
@@ -223,13 +244,24 @@ const Msg: FC<msgProps> = ({
                 className=" cursor-pointer text-shade-5 hover:underline"
                 onClick={() => {
                   if (value !== "") {
-                    dispatch(
-                      editGuildMsg({
-                        id: currentGuild,
-                        msgId: id,
-                        msg: { content: value } as Msg,
-                      })
-                    );
+                    console.log(requestId, "fucking work 2");
+                    if (requestId !== "") {
+                      dispatch(
+                        editGuildMsg({
+                          id: currentGuild,
+                          msgId: requestId,
+                          msg: { content: value } as Msg,
+                        })
+                      );
+                    } else {
+                      dispatch(
+                        editGuildMsg({
+                          id: currentGuild,
+                          msgId: id,
+                          msg: { content: value } as Msg,
+                        })
+                      );
+                    }
                     dispatch(setCurrentEditMsgId(null));
                   } else {
                     setPlayAnimation(true);
@@ -258,7 +290,7 @@ const Msg: FC<msgProps> = ({
               }}
             />
           )}
-          {!editing && !failed && selfUserId === authorid && (
+          {!editing && !failed && !loading && selfUserId === authorid && (
             <MdEdit
               className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10"
               onClick={() => {
@@ -267,12 +299,23 @@ const Msg: FC<msgProps> = ({
               }}
             />
           )}
-          {selfUserId === authorid && (
+          {selfUserId === authorid && !loading && (
             <MdDelete
               className="h-6 w-6 cursor-pointer text-red hover:bg-white/25 active:bg-white/10"
               onClick={() => {
                 console.log("deleting msg");
-                dispatch(deleteGuildMsg({ id: currentGuild, msgId: id }));
+                console.log(id, "fucking work");
+                if (failed) {
+                  dispatch(
+                    removeGuildMsg({
+                      id,
+                      guildId: currentGuild,
+                      failed: true,
+                    } as Msg)
+                  );
+                } else {
+                  dispatch(deleteGuildMsg({ id: currentGuild, msgId: id }));
+                }
                 dispatch(setCurrentEditMsgId(null));
               }}
             />

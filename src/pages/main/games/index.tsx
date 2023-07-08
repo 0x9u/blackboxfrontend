@@ -9,9 +9,7 @@ const Games: FC = () => {
       <NavbarChild>
         <GamesList />
       </NavbarChild>
-      <Page>
-        T
-      </Page>
+      <Page>{" "}</Page>
     </div>
   );
 };

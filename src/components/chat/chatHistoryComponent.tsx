@@ -22,10 +22,11 @@ const ChatHistory: FC = () => {
     msgsUnread,
     isMsgsLoaded,
     lastTime,
+    isIntialMsgsLoaded,
     currentEditMsgId,
   } = useGetGuildMsgInfo();
 
-  console.log(msgsUnread)
+  console.log(msgsUnread);
 
   const lastReadTime = new Date(msgsUnread.time).toLocaleString();
 
@@ -47,6 +48,7 @@ const ChatHistory: FC = () => {
         id="chatHistory"
         className="flex h-0 shrink-0 grow flex-col-reverse space-y-reverse overflow-y-auto py-5"
       >
+        {!isIntialMsgsLoaded && <SkeletonLoaderChatMsg />}
         <InfiniteScroll
           style={{ display: "flex", flexDirection: "column-reverse" }}
           scrollableTarget="chatHistory"
@@ -78,6 +80,7 @@ const ChatHistory: FC = () => {
               msgs[index + 1]?.created ?? Infinity
             );
             const beforeAuthor = msgs[index + 1]?.author?.id ?? "";
+           // console.log("msg id", msg.id, "msg", msg);
             //const beforeModifiedDate = new Date(msgs[index - 1]?.modified ?? 0);
 
             return (
@@ -85,8 +88,12 @@ const ChatHistory: FC = () => {
                 key={msg.id}
                 id={msg.id}
                 content={msg.content}
-                authorid={!msg.failed ? msg.author.id : userInfo.id}
-                username={!msg.failed ? msg.author.name : userInfo.name}
+                authorid={
+                  !msg.failed && !msg.loading ? msg.author.id : userInfo.id
+                }
+                username={
+                  !msg.failed && !msg.loading ? msg.author.name : userInfo.name
+                }
                 created={createdDate.toLocaleString()}
                 modified={
                   msg.modified !== "0001-01-01T00:00:00Z"
@@ -94,7 +101,9 @@ const ChatHistory: FC = () => {
                     : ""
                 }
                 userImageId={
-                  !msg.failed ? msg.author.imageId : userInfo.imageId
+                  !msg.failed && !msg.loading
+                    ? msg.author.imageId
+                    : userInfo.imageId
                 }
                 mentions={msg.mentions ?? []}
                 combined={
@@ -106,7 +115,9 @@ const ChatHistory: FC = () => {
                 }
                 editing={msg.id === currentEditMsgId}
                 failed={msg.failed}
+                loading={msg.loading}
                 attachments={msg.attachments}
+                requestId={msg.requestId}
               />
             );
           })}

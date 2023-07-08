@@ -1,6 +1,7 @@
 import { asyncThunkAPI, requestAPI } from "./api";
 import { GuildList } from "./types/guild";
 import {
+  DeleteAccountForm,
   EditUserEmailForm,
   EditUserNameForm,
   EditUserPasswordForm,
@@ -228,5 +229,12 @@ export const removeFriend = asyncThunkAPI<void, string>(
       null,
       thunkAPI
     );
+  }
+);
+
+export const deleteAccount = asyncThunkAPI<void, DeleteAccountForm>(
+  "user/deleteAccount",
+  async (body: DeleteAccountForm, thunkAPI) => {
+    return await requestAPI<void>("DELETE", `/users/@me`, body, thunkAPI);
   }
 );

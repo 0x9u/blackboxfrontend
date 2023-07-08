@@ -1,7 +1,7 @@
-import React, { FC, useState, useEffect, Fragment } from "react";
+import React, { FC, useState, Fragment } from "react";
 import { MdBlock, MdMessage, MdPersonAdd } from "react-icons/md";
 import { RootState, useAppDispatch } from "../../app/store";
-import { openDM } from "../../api/userApi";
+import { blockUser, openDM, sendFriendRequestById } from "../../api/userApi";
 import { useSelector } from "react-redux";
 import {
   setCurrentChatMode,
@@ -32,6 +32,17 @@ const User: FC<userProps> = ({
 
   const userDMId = useSelector(
     (state: RootState) => state.user.dmUserIds[userid] ?? ""
+  );
+
+  const userIsFriend = useSelector(
+    (state: RootState) =>
+      state.user.friendIds.includes(userid) ||
+      state.user.pendingFriendIds.includes(userid) ||
+      state.user.requestedFriendIds.includes(userid)
+  );
+
+  const userIsBlocked = useSelector((state: RootState) =>
+    state.user.blockedIds.includes(userid)
   );
 
   const dispatch = useAppDispatch();
@@ -96,25 +107,41 @@ const User: FC<userProps> = ({
               <div className="flex flex-row space-x-2 rounded bg-shade-3 p-1">
                 {userid !== selfUserId && (
                   <Fragment>
-                    <MdMessage
-                      className="h-8 w-8 cursor-pointer text-white hover:text-white/80 active:text-white/75"
-                      onClick={() => {
-                        if (userDMId === "") {
-                          dispatch(setUserDMtobeOpened(userid)); //ws too fast sometimes so it has to be like this
-                          dispatch(openDM(userid)).then((res) => {
-                            if (res.meta.requestStatus === "rejected") {
-                              dispatch(setUserDMtobeOpened(null));
-                            }
-                          });
-                        } else {
-                          dispatch(setCurrentDM(userDMId));
-                          dispatch(setCurrentChatMode("dm"));
-                          dispatch(setShowChatUserList(false));
-                        }
-                      }}
-                    />
-                    <MdPersonAdd className="h-8 w-8 cursor-pointer text-green hover:text-green/80 active:text-green/75" />
-                    <MdBlock className="h-8 w-8 cursor-pointer text-red hover:text-red/80 active:text-red/75" />
+                    {!userIsBlocked && (
+                      <MdMessage
+                        className="h-8 w-8 cursor-pointer text-white hover:text-white/80 active:text-white/75"
+                        onClick={() => {
+                          if (userDMId === "") {
+                            dispatch(setUserDMtobeOpened(userid)); //ws too fast sometimes so it has to be like this
+                            dispatch(openDM(userid)).then((res) => {
+                              if (res.meta.requestStatus === "rejected") {
+                                dispatch(setUserDMtobeOpened(null));
+                              }
+                            });
+                          } else {
+                            dispatch(setCurrentDM(userDMId));
+                            dispatch(setCurrentChatMode("dm"));
+                            dispatch(setShowChatUserList(false));
+                          }
+                        }}
+                      />
+                    )}
+                    {!userIsFriend && !userIsBlocked && (
+                      <MdPersonAdd
+                        className="h-8 w-8 cursor-pointer text-green hover:text-green/80 active:text-green/75"
+                        onClick={() => {
+                          dispatch(sendFriendRequestById(userid));
+                        }}
+                      />
+                    )}
+                    {!userIsBlocked && (
+                      <MdBlock
+                        className="h-8 w-8 cursor-pointer text-red hover:text-red/80 active:text-red/75"
+                        onClick={() => {
+                          dispatch(blockUser(userid));
+                        }}
+                      />
+                    )}
                   </Fragment>
                 )}
               </div>

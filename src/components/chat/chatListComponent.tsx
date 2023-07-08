@@ -92,6 +92,11 @@ const ChatList: FC = () => {
                   ? users[dm.userId].name ?? "user not found"
                   : "Non existant"}
               </p>
+              {dm.unread.mentions > 0 && (
+                <div className="absolute left-8 top-2 h-4 w-4 rounded-full bg-red text-center text-xs leading-relaxed text-white">
+                  {dm.unread.mentions ?? 0}
+                </div>
+              )}
             </NavbarItem>
           );
         })

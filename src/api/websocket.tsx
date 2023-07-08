@@ -11,7 +11,7 @@ import {
   setUserDMtobeOpened,
   setWsStatus,
 } from "../app/slices/clientSlice";
-import { Middleware } from "@reduxjs/toolkit";
+import { AnyAction, Middleware } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
 import { Msg, UnreadMsg } from "./types/msg";
 import { Guild } from "./types/guild";
@@ -60,6 +60,7 @@ import {
 } from "../app/slices/userSlice";
 import { Dm } from "./types/dm";
 import { clearToken } from "../app/slices/authSlice";
+import { getGuildMsgs } from "./guildApi";
 
 enum OpCodes {
   DISPATCH = 0,
@@ -179,6 +180,31 @@ const gatewayAPI: Middleware = (storeAPI) => {
                 }
                 case Events.DELETE_GUILD_MESSAGE: {
                   const eventData: Msg = data.data;
+                  const currentId =
+                    (getState().client.currentChatMode === "guild"
+                      ? getState().client.currentGuild
+                      : getState().client.currentDM) ?? "";
+                  const msgLength =
+                    getState().msg.guildMsgIds[currentId]?.length ?? 0;
+                  const msgsLoaded =
+                    getState().client.guildLoaded[currentId].msgs ?? false;
+                  if (msgLength < 50 && !msgsLoaded && currentId !== "") {
+                    const lastMsgId =
+                      getState().msg.guildMsgIds[currentId][
+                        getState().msg.guildMsgIds[currentId].length - 1
+                      ];
+                    const lastTime = Math.floor(
+                      new Date(
+                        getState().msg.msgs[lastMsgId].created
+                      ).valueOf() / 1000
+                    );
+                    dispatch( //shitty change later - placeholder code (cant use useAppDispatch because its before intiailization since this is middleware)
+                      getGuildMsgs({
+                        id: currentId,
+                        time: lastTime,
+                      }) as any
+                    );
+                  }
                   dispatch(removeGuildMsg(eventData));
                   break;
                 }
@@ -300,6 +326,8 @@ const gatewayAPI: Middleware = (storeAPI) => {
                 case Events.ADD_USER_FRIENDLIST: {
                   const eventData: User = data.data;
                   dispatch(addFriendID(eventData));
+                  dispatch(removeRequestedFriendID(eventData));
+                  dispatch(removePendingFriendID(eventData));
                   break;
                 }
                 case Events.REMOVE_USER_FRIENDLIST: {
@@ -319,6 +347,11 @@ const gatewayAPI: Middleware = (storeAPI) => {
                 }
                 case Events.ADD_USER_BLOCKEDLIST: {
                   const eventData: User = data.data;
+
+                  dispatch(removePendingFriendID(eventData));
+                  dispatch(removeRequestedFriendID(eventData));
+                  dispatch(removeFriendID(eventData));
+
                   dispatch(addBlockedID(eventData));
                   break;
                 }

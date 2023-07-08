@@ -38,6 +38,7 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
   const dispatch = useAppDispatch();
@@ -54,6 +55,11 @@ const Login: FC<LoginProps> = ({ changeMode }) => {
         dispatch(postAuth(body)).then((action) => {
           if (action.type === postAuth.fulfilled.type) {
             navigate("/main");
+          } else if (action.type === postAuth.rejected.type) {
+            setError("username", {
+              type: "manual",
+              message: "Invalid username or password",
+            });
           }
         });
       })}

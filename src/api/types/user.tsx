@@ -28,6 +28,10 @@ export interface EditUserPictureForm {
   password: string;
 }
 
+export interface DeleteAccountForm {
+  password: string;
+}
+
 export interface Member {
   guildId: string;
   userInfo: User;

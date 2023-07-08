@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { isFulfilled, isRejected, isRejectedWithValue } from "@reduxjs/toolkit";
+import { useState } from "react";
 import { RootState, useAppDispatch } from "../../app/store";
 import { useSelector } from "react-redux";
 import {
+  DeleteAccountForm,
   EditUserEmailForm,
   EditUserNameForm,
   EditUserPasswordForm,
@@ -10,17 +10,12 @@ import {
   User,
 } from "../types/user";
 import {
+  deleteAccount,
   editUserEmail,
   editUserName,
   editUserPassword,
   editUserPicture,
-  getBlocked,
-  getFriends,
-  getGuilds,
-  getRequestedFriends,
-  getSelf,
   sendFriendRequest,
-  sendFriendRequestById,
 } from "../userApi";
 import { ErrorBody } from "../types/error";
 import { Guild } from "../types/guild";
@@ -80,13 +75,12 @@ export const useEditUserPicture = () => {
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
-  const isAFulfilledAction = isFulfilled(editUserPicture);
 
   const callFunction = async (data: EditUserPictureForm) => {
     setStatus("loading");
     const result = await dispatch(editUserPicture(data));
 
-    if (isAFulfilledAction(editUserPicture)) {
+    if (result.meta.requestStatus === "fulfilled") {
       console.log("Success");
       setStatus("finished");
       setError(null);
@@ -124,7 +118,7 @@ export const useEditUserName = () => {
 };
 
 export const useGetSelfQuery = () => {
-  const dispatch = useAppDispatch();
+  //const dispatch = useAppDispatch();
 
   const { userInfo, loaded } = useSelector((state: RootState) => ({
     userInfo:
@@ -137,15 +131,15 @@ export const useGetSelfQuery = () => {
       } as User),
     loaded: state.client.userSelfLoaded,
   }));
-  useEffect(() => {
+  /*useEffect(() => {
     if (!loaded) dispatch(getSelf());
-  }, [dispatch, loaded]);
+  }, [dispatch, loaded]);*/
 
   return { userInfo, loaded };
 };
 
 export const useGetGuildDms = () => {
-  const dispatch = useAppDispatch();
+  //const dispatch = useAppDispatch();
   const contents = useSelector((state: RootState) => ({
     guilds:
       state.guild.guildIds.map((id: string) => state.guild.guilds[id]) ??
@@ -159,27 +153,27 @@ export const useGetGuildDms = () => {
     currentChatMode: state.client.currentChatMode,
     users: state.user.users,
   }));
-  useEffect(() => {
+  /* useEffect(() => {
     if (!contents.loaded) dispatch(getGuilds());
-  }, [dispatch, contents.loaded]);
+  }, [dispatch, contents.loaded]); */
   return contents;
 };
 
 export const useGetFriendList = () => {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const contents = useSelector((state: RootState) => ({
     friends: state.user.friendIds.map((id: string) => state.user.users[id]),
     openDms: state.user.dmUserIds,
     loaded: state.client.friendListLoaded,
   }));
-  useEffect(() => {
+  /*useEffect(() => {
     if (!contents.loaded) dispatch(getFriends());
-  }, [dispatch, contents.loaded]);
+  }, [dispatch, contents.loaded]);*/
   return contents;
 };
 
 export const useGetRequestedFriendList = () => {
-  const dispatch = useAppDispatch();
+  //const dispatch = useAppDispatch();
   const contents = useSelector((state: RootState) => ({
     requestedFriends: state.user.requestedFriendIds.map(
       (id: string) => state.user.users[id]
@@ -189,9 +183,9 @@ export const useGetRequestedFriendList = () => {
     ),
     loaded: state.client.requestedFriendListLoaded,
   }));
-  useEffect(() => {
+  /* useEffect(() => {
     if (!contents.loaded) dispatch(getRequestedFriends());
-  }, [dispatch, contents.loaded]);
+  }, [dispatch, contents.loaded]); */
   return contents;
 };
 
@@ -203,9 +197,10 @@ export const useGetBlockedList = () => {
     ),
     loaded: state.client.blockedListLoaded,
   }));
-  useEffect(() => {
+  /*useEffect(() => {
     if (!contents.loaded) dispatch(getBlocked());
   }, [dispatch, contents.loaded]);
+  */
   return contents;
 };
 
@@ -234,16 +229,16 @@ export const useAddFriend = () => {
   return { callFunction, error, status };
 };
 
-export const useAddFriendById = () => {
+export const useDeleteAccount = () => {
   const dispatch = useAppDispatch();
   const [error, setError] = useState<ErrorBody | null>(null);
   const [status, setStatus] = useState<
     "idle" | "loading" | "finished" | "failed"
   >("idle");
 
-  const callFunction = async (data: string) => {
+  const callFunction = async (data : DeleteAccountForm) => {
     setStatus("loading");
-    const result = await dispatch(sendFriendRequestById(data));
+    const result = await dispatch(deleteAccount(data));
     if (result.meta.requestStatus === "fulfilled") {
       //less goooooo
       console.log("Success");
@@ -256,4 +251,4 @@ export const useAddFriendById = () => {
     }
   };
   return { callFunction, error, status };
-};
+}

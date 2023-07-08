@@ -3,7 +3,10 @@ import { MdExitToApp } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearToken } from "../../../app/slices/authSlice";
-import { setShowUserSettings } from "../../../app/slices/clientSlice";
+import {
+  resetClient,
+  setShowUserSettings,
+} from "../../../app/slices/clientSlice";
 import { RootState } from "../../../app/store";
 import Input from "../../inputComponent";
 import Modal from "../../modal/modalComponent";
@@ -23,6 +26,10 @@ import FriendUserSettings from "./friendUserSettings";
 import PanicUserSettings from "./panicUserSettings";
 import PrivacyUserSettings from "./privacyUserSettings";
 import TextUserSettings from "./textUserSettings";
+import { resetGuilds } from "../../../app/slices/guildSlice";
+import { resetMsgs } from "../../../app/slices/msgSlice";
+import { resetUsers } from "../../../app/slices/userSlice";
+import DeleteAccountModal from "./deleteAccountModal";
 
 const UserSettings: FC = () => {
   const dispatch = useDispatch();
@@ -47,9 +54,10 @@ const UserSettings: FC = () => {
     (state: RootState) => state.client.showEditProfilePictureModal
   );
 
-  const [showUsernameModal, setShowUsernameModal] =
-    React.useState<boolean>(false);
-  const [showEmailModal, setShowEmailModal] = React.useState<boolean>(false);
+  const showDeleteAccountModal = useSelector(
+    (state: RootState) => state.client.showDeleteAccountModal
+  );
+
   return (
     <SettingsPage>
       <SettingsSideBar>
@@ -93,6 +101,10 @@ const UserSettings: FC = () => {
             icon={<MdExitToApp className="ml-auto h-8 w-8 text-white" />}
             onClick={() => {
               dispatch(clearToken());
+              dispatch(resetClient());
+              dispatch(resetGuilds());
+              dispatch(resetMsgs());
+              dispatch(resetUsers());
               navigate("/");
             }}
           />
@@ -113,27 +125,11 @@ const UserSettings: FC = () => {
           <AccessibilityUserSettings />
         ) : null}
       </SettingsPanel>
-      {showUsernameModal && (
-        <Modal
-          title="Change Username"
-          exitFunc={() => setShowUsernameModal(false)}
-        >
-          <div>
-            <Input />
-          </div>
-        </Modal>
-      )}
-      {showEmailModal && (
-        <Modal title="Change Email" exitFunc={() => setShowEmailModal(false)}>
-          <div>
-            <Input />
-          </div>
-        </Modal>
-      )}
       {showEditPassModal && <EditPassModal />}
       {showEditEmailModal && <EditEmailModal />}
       {showEditUsernameModal && <EditUsernameModal />}
       {showEditProfilePictureModal && <EditProfilePictureModal />}
+      {showDeleteAccountModal && <DeleteAccountModal />}
     </SettingsPage>
   );
 };

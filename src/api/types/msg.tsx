@@ -13,6 +13,11 @@ export interface Attachment {
   type: string;
 }
 
+export interface AttachmentUpload {
+  filename: string;
+  base64: string; //base64 encoded string
+}
+
 export interface Msg {
   id: string;
   author: User;
@@ -21,9 +26,10 @@ export interface Msg {
   created: string;
   modified: string;
   msgSaved: boolean;
-  requestId: string; //we randomize up to 5 char
+  requestId: string; //{AUTHOR_ID}-{MSG_ID}
   attachments: Attachment[];
   mentions: User[];
   mentionsEveryone: boolean;
   failed?: boolean;
+  loading?: boolean;
 }

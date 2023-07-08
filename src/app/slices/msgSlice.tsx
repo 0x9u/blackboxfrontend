@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Msg } from "../../api/types/msg";
+import { AttachmentUpload, Msg } from "../../api/types/msg";
 import {
   createGuildMsg,
   getGuildMsgs,
@@ -10,6 +10,7 @@ import { Guild } from "../../api/types/guild";
 type MsgState = {
   msgs: Record<string, Msg>; //figure out how to dynamically update user pfp for msgs later - can't be bothered do it rn
   author: Record<string, string[]>;
+  loadingAttachments: Record<string, AttachmentUpload[]>; //temp id : attachments
   guildMsgIds: Record<string, string[]>; //order newest to oldest
 };
 
@@ -17,6 +18,7 @@ const initialState: MsgState = {
   // guildMsgIds also include dms because they are basically the same
   msgs: {},
   author: {},
+  loadingAttachments: {},
   guildMsgIds: {},
 };
 
@@ -34,10 +36,12 @@ const msgSlice = createSlice({
       if (state.guildMsgIds[guildId] === undefined) {
         state.guildMsgIds[guildId] = [];
       }
-      if (state.author[msg.author.id] === undefined) {
-        state.author[msg.author.id] = [];
+      if (!msg?.loading) {
+        if (state.author[msg.author.id] === undefined) {
+          state.author[msg.author.id] = [];
+        }
+        state.author[msg.author.id].unshift(msg.id);
       }
-      state.author[msg.author.id].unshift(msg.id);
       state.guildMsgIds[guildId].unshift(msg.id);
     },
     editMsg: (state, action: PayloadAction<Msg>) => {
@@ -60,13 +64,16 @@ const msgSlice = createSlice({
         (id) => id !== msg.id
       );
       delete state.msgs[msg.id];
-      if (state.author[msg.author.id] === undefined) {
-        console.log("not exists");
-        return;
+      console.log(msg?.failed);
+      if (!msg?.failed) {
+        if (state.author[msg.author.id] === undefined) {
+          console.log("not exists");
+          return;
+        }
+        state.author[msg.author.id] = state.author[msg.author.id].filter(
+          (id) => id !== msg.id
+        );
       }
-      state.author[msg.author.id] = state.author[msg.author.id].filter(
-        (id) => id !== msg.id
-      );
     },
     removeAllGuildMsg: (state, action: PayloadAction<Guild>) => {
       const { id } = action.payload;
@@ -114,15 +121,43 @@ const msgSlice = createSlice({
           state.guildMsgIds[msg.guildId].push(msg.id);
         }
       }
-    );
-    builder.addCase(createGuildMsg.rejected, (state, action) => {
-      console.log("failed to send msg");
-      const errorMsgId = `error-${Date.now().toLocaleString()}-${Math.floor(
-        Math.random() * 1000
-      )}`;
+    ); /*
+    builder.addCase(createGuildMsg.pending, (state, action) => {
+
+      const loadingMsgId = `loading-${action.meta.requestId}`;
       const guildId = action.meta.arg.id;
-      var failedMsg = action.meta.arg.msg;
+      var loadingMsg = {
+        id: loadingMsgId,
+        content: action.meta.arg.msg.content,
+        loading: true,
+        guildId: guildId,
+      } as Msg;
+      state.msgs[loadingMsgId] = loadingMsg;
+      state.guildMsgIds[guildId].unshift(loadingMsgId);
+    }); */
+    builder.addCase(createGuildMsg.fulfilled, (state, action) => {
+      const loadingMsgId = `loading-${action.meta.requestId}`;
+      const guildId = action.meta.arg.id;
+      state.guildMsgIds[guildId] = state.guildMsgIds[guildId].filter(
+        (id) => id !== loadingMsgId
+      );
+      delete state.msgs[loadingMsgId];
+    });
+    builder.addCase(createGuildMsg.rejected, (state, action) => {
+      const loadingMsgId = `loading-${action.meta.requestId}`;
+      const guildId = action.meta.arg.id;
+      state.guildMsgIds[guildId] = state.guildMsgIds[guildId].filter(
+        (id) => id !== loadingMsgId
+      );
+      delete state.msgs[loadingMsgId];
+
+      const errorMsgId = `error-${action.meta.requestId}`;
+      console.log(errorMsgId);
+      var failedMsg = Object.assign({}, action.meta.arg.msg);
+      console.log("before fuckery");
       failedMsg.id = errorMsgId;
+      console.log("after fuckery");
+      failedMsg.guildId = guildId;
       failedMsg.failed = true;
       state.msgs[errorMsgId] = failedMsg;
       state.guildMsgIds[guildId].unshift(errorMsgId);

@@ -104,13 +104,10 @@ const EditProfilePictureModal: FC = () => {
                   onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                     var img = new Image();
                     var file = e.target.files![0];
-                    console.log("rizzer", file);
                     if (file) {
-                      console.log("rizzed");
                       img = new Image();
                       var objectURL = URL.createObjectURL(file);
                       img.onload = function () {
-                        console.log("rizz", img.width, img.height);
                         if (img.width !== img.height) {
                           console.log("square");
                           setShowCrop(true);
@@ -122,11 +119,10 @@ const EditProfilePictureModal: FC = () => {
                   },
                 })}
               />
-              <p className=" text-center text-sm font-medium text-red">
-                {errors.picture?.message}
-              </p>
             </div>
-
+            <p className=" text-center text-sm font-medium text-red">
+              {errors.picture?.message}
+            </p>
             <Input
               label="Password"
               type="password"

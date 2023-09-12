@@ -13,6 +13,16 @@ export interface Attachment {
   type: string;
 }
 
+/*
+export interface Upload {
+  id: string;
+  filename: string;
+  dataURL: string;
+  type: string;
+  progress: number;
+}
+*/
+
 export interface AttachmentUpload {
   filename: string;
   base64: string; //base64 encoded string

@@ -104,6 +104,7 @@ const msgSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    //do get guilds fulfilled later to replace undefined later
     builder.addCase(
       getGuildMsgs.fulfilled,
       (state, action: PayloadAction<Msg[]>) => {
@@ -121,9 +122,8 @@ const msgSlice = createSlice({
           state.guildMsgIds[msg.guildId].push(msg.id);
         }
       }
-    ); /*
+    );
     builder.addCase(createGuildMsg.pending, (state, action) => {
-
       const loadingMsgId = `loading-${action.meta.requestId}`;
       const guildId = action.meta.arg.id;
       var loadingMsg = {
@@ -133,8 +133,11 @@ const msgSlice = createSlice({
         guildId: guildId,
       } as Msg;
       state.msgs[loadingMsgId] = loadingMsg;
+      if (state.guildMsgIds[guildId] === undefined) {
+        state.guildMsgIds[guildId] = [];
+      }
       state.guildMsgIds[guildId].unshift(loadingMsgId);
-    }); */
+    });
     builder.addCase(createGuildMsg.fulfilled, (state, action) => {
       const loadingMsgId = `loading-${action.meta.requestId}`;
       const guildId = action.meta.arg.id;

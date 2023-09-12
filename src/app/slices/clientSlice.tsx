@@ -7,6 +7,7 @@ import {
   getGuildMsgs,
 } from "../../api/guildApi";
 import { GuildList } from "../../api/types/guild";
+//import { Upload } from "../../api/types/msg";
 import { Permissions, User } from "../../api/types/user";
 import {
   getBlocked,
@@ -16,7 +17,7 @@ import {
   getSelf,
 } from "../../api/userApi";
 
-type guildLoaded = {
+export type guildLoaded = {
   initialMsgs: boolean;
   msgs: boolean;
   members: boolean;
@@ -60,6 +61,9 @@ type ClientState = {
   blockedListLoaded: boolean;
   requestedFriendListLoaded: boolean;
   guildLoaded: Record<string, guildLoaded>;
+
+  //uploadID: string;
+  //uploadData: Record<string, Upload>;
 };
 
 //ClientState stores local information not stored/sent by the backend
@@ -75,7 +79,7 @@ const initialState: ClientState = {
 
   wsStatus: "disconnected",
 
-  userDMtobeOpened : null, //temp
+  userDMtobeOpened: null, //temp
 
   showChatUserList: false,
 
@@ -100,6 +104,9 @@ const initialState: ClientState = {
   blockedListLoaded: false,
   requestedFriendListLoaded: false,
   guildLoaded: {},
+
+  //uploadID: "",
+  //uploadData: {},
 };
 
 const clientSlice = createSlice({
@@ -269,6 +276,11 @@ const clientSlice = createSlice({
       }
       state.guildLoaded[action.payload].banned = true;
     },
+   /* createUploadProgress: (state, action: PayloadAction<string>) => {},
+    setUploadProgress: (
+      state,
+      action: PayloadAction<{ id: string; progress: number }>
+    ) => {}, */
     resetClient: (state) => {
       state.blockedListLoaded = false;
       state.currentAdminMode = "guilds";
@@ -397,6 +409,8 @@ export const {
   setGuildMembersLoaded,
   setGuildInvitesLoaded,
   setGuildBannedLoaded,
+  //setUploadProgress,
+  //createUploadProgress,
   deleteGuildLoaded,
   resetClient,
 } = clientSlice.actions;

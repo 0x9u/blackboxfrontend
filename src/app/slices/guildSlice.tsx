@@ -10,7 +10,7 @@ type GuildState = {
   dms: Record<string, DmUser>;
   guilds: Record<string, Guild>;
   invites: Record<string, Invite[]>;
-  userIsTyping : Record<string, string[]>;
+  userIsTyping: Record<string, string[]>;
 };
 
 const initialState: GuildState = {
@@ -44,7 +44,12 @@ const guildSlice = createSlice({
       state.guilds[action.payload.id].unread = unread;
     },
     incUnreadMsg: (state, action: PayloadAction<string>) => {
-      console.log("incUnreadMsg", action.payload, state.guilds[action.payload] !== undefined, state.dms[action.payload] !== undefined)
+      console.log(
+        "incUnreadMsg",
+        action.payload,
+        state.guilds[action.payload] !== undefined,
+        state.dms[action.payload] !== undefined
+      );
       if (state.guilds[action.payload] !== undefined) {
         state.guilds[action.payload].unread.count++;
       } else if (state.dms[action.payload] !== undefined) {
@@ -77,7 +82,7 @@ const guildSlice = createSlice({
       }
     },
     addDm: (state, action: PayloadAction<Dm>) => {
-      console.log(action.payload)
+      console.log(action.payload);
       state.dmIds.push(action.payload.id);
       const body: DmUser = {
         id: action.payload.id,
@@ -120,20 +125,26 @@ const guildSlice = createSlice({
         (oinvite) => oinvite.invite !== invite.invite
       );
     },
-    addTyping: (state, action: PayloadAction<{id: string, userId: string}>) => {
+    addTyping: (
+      state,
+      action: PayloadAction<{ id: string; userId: string }>
+    ) => {
       if (!state.userIsTyping[action.payload.id]) {
         state.userIsTyping[action.payload.id] = [];
       }
       state.userIsTyping[action.payload.id].push(action.payload.userId);
     },
-    removeTyping: (state, action: PayloadAction<{id: string, userId: string}>) => {
+    removeTyping: (
+      state,
+      action: PayloadAction<{ id: string; userId: string }>
+    ) => {
       if (!state.userIsTyping[action.payload.id]) {
         console.log("not exists");
         return;
       }
-      state.userIsTyping[action.payload.id] = state.userIsTyping[action.payload.id].filter(
-        (userId) => userId !== action.payload.userId
-      );
+      state.userIsTyping[action.payload.id] = state.userIsTyping[
+        action.payload.id
+      ].filter((userId) => userId !== action.payload.userId);
     },
 
     resetGuilds: (state) => {
@@ -179,6 +190,15 @@ const guildSlice = createSlice({
           if (state.invites[invite.guildId] === undefined) {
             state.invites[invite.guildId] = [];
           }
+          //crappy fix because when owner creates server a invite is automatically sent
+          //and went this is activated it grabs the same one so becomes a duplicate
+          if (
+            state.invites[invite.guildId].some(
+              (oinvite) => oinvite.invite === invite.invite
+            )
+          ) {
+            continue;
+          } //inefficient
           state.invites[invite.guildId].push(invite);
         }
       }

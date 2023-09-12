@@ -14,6 +14,7 @@ import { RootState } from "../../../app/store";
 import GuildSettings from "../../../components/settings/guild/guildSettings";
 import InviteModal from "../../../components/chat/inviteModalComponent";
 import CooldownModal from "../../../components/chat/chatCooldownModalComponent";
+import { loadGuildInfo } from "../../../api/hooks/guildHooks";
 
 const Chat: FC = () => {
   const showAddChatModal = useSelector(
@@ -38,6 +39,8 @@ const Chat: FC = () => {
   const showCooldownModal = useSelector(
     (state: RootState) => state.client.showCooldownModal
   );
+
+  loadGuildInfo(); //load order for dm and guild
 
   return (
     <div className="flex min-h-full grow flex-row">

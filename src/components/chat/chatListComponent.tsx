@@ -10,7 +10,7 @@ import {
 } from "../../app/slices/clientSlice";
 import { SkeletonLoaderChatList } from "../skeletonLoaderComponent";
 import { useGetGuildDms } from "../../api/hooks/userHooks";
-import { loadGuildMembers } from "../../api/hooks/guildHooks";
+import { loadGuildInfo } from "../../api/hooks/guildHooks";
 
 const ChatList: FC = () => {
   const dispatch = useDispatch();
@@ -25,7 +25,6 @@ const ChatList: FC = () => {
     currentGuild,
   } = useGetGuildDms();
 
-  loadGuildMembers();
 
   const [firstRender, setFirstRender] = useState<boolean>(true);
 

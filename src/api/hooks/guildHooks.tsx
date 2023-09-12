@@ -8,6 +8,7 @@ import {
   joinGuildInvite,
   userIsTyping,
 } from "../guildApi";
+import { guildLoaded } from "../../app/slices/clientSlice";
 import { RootState, useAppDispatch } from "../../app/store";
 import { Invite } from "../types/guild";
 import { Member } from "../types/user";
@@ -17,9 +18,60 @@ import { Msg } from "../types/msg";
 import { setGuildIntialMsgsLoaded } from "../../app/slices/clientSlice";
 import { SuggestionDataItem } from "react-mentions";
 
-export const useGetGuildInvites = () => {
+export const loadGuildInfo = () => {
   const dispatch = useAppDispatch();
+  const { currentId, currentChatMode, lastMsgTime, loaded } = useSelector(
+    (state: RootState) => {
+      const currentChatMode = state.client.currentChatMode;
+      const currentId =
+        (currentChatMode === "guild"
+          ? state.client.currentGuild
+          : state.client.currentDM) ?? "";
+      const guildMsgIds = state.msg.guildMsgIds[currentId] ?? [];
+      const lastMsgTime = Math.floor(
+        new Date(
+          state.msg.msgs[guildMsgIds[guildMsgIds.length - 1] ?? ""]?.created ??
+            0
+        ).valueOf() / 1000
+      );
+      return {
+        currentId,
+        currentChatMode,
+        lastMsgTime,
+        loaded:
+          state.client.guildLoaded[currentId ?? ""] ?? ({} as guildLoaded),
+      };
+    }
+  );
+  const { invites, members, banned, initialMsgs } = loaded;
+  console.log("currentId", currentId, "loaded", loaded);
+  useEffect(() => {
+    if (currentChatMode === "guild" && currentId !== "" && !invites) {
+      dispatch(getGuildInvites(currentId));
+    }
+  }, [currentChatMode, currentId, invites, dispatch]);
+  useEffect(() => {
+    if (currentChatMode === "guild" && currentId !== "" && !members) {
+      dispatch(getGuildMembers(currentId));
+    }
+  }, [currentChatMode, currentId, members, dispatch]);
+  useEffect(() => {
+    if (currentChatMode === "guild" && currentId !== "" && !banned) {
+      dispatch(getGuildBans(currentId));
+    }
+  }, [currentChatMode, currentId, banned, dispatch]);
+  useEffect(() => {
+    if (!initialMsgs && currentId !== "")
+      dispatch(
+        getGuildMsgs({
+          id: currentId,
+          time: lastMsgTime,
+        })
+      ).then(() => dispatch(setGuildIntialMsgsLoaded(currentId)));
+  }, [currentChatMode, currentId, initialMsgs, dispatch]);
+};
 
+export const useGetGuildInvites = () => {
   const { currentGuild, guildInvites, loaded } = useSelector(
     (state: RootState) => ({
       currentGuild: state.client.currentGuild ?? "",
@@ -30,27 +82,7 @@ export const useGetGuildInvites = () => {
     })
   );
 
-  useEffect(() => {
-    if (!loaded) dispatch(getGuildInvites(currentGuild));
-  }, [dispatch, currentGuild]);
-
   return { currentGuild, guildInvites, loaded };
-};
-
-export const loadGuildMembers = () => {
-  const dispatch = useAppDispatch();
-
-  const { currentGuild, loaded } = useSelector((state: RootState) => ({
-    currentGuild: state.client.currentGuild ?? "",
-    loaded:
-      state.client.guildLoaded[state.client.currentGuild ?? ""]?.members ??
-      true,
-  }));
-
-  useEffect(() => {
-    console.log("useGetGuildMembers", currentGuild, loaded);
-    if (!loaded) dispatch(getGuildMembers(currentGuild));
-  }, [dispatch, currentGuild]);
 };
 
 export const useGetGuildMembers = () => {
@@ -85,7 +117,6 @@ export const useGetGuildMembers = () => {
 };
 
 export const useGetGuildBannedMembers = () => {
-  const dispatch = useAppDispatch();
   const { currentGuild, guildBannedMembers, loaded } = useSelector(
     (state: RootState) => {
       const members: Member[] = [];
@@ -113,9 +144,6 @@ export const useGetGuildBannedMembers = () => {
       };
     }
   );
-  useEffect(() => {
-    if (!loaded) dispatch(getGuildBans(currentGuild));
-  }, [dispatch, currentGuild]);
   return { currentGuild, guildBannedMembers, loaded };
 };
 
@@ -145,7 +173,6 @@ export const useJoinGuild = () => {
 };
 
 export const useGetGuildMsgInfo = () => {
-  const dispatch = useAppDispatch();
   const contents = useSelector((state: RootState) => {
     const currentChatMode = state.client.currentChatMode;
     const currentId =
@@ -169,8 +196,7 @@ export const useGetGuildMsgInfo = () => {
       ).valueOf() / 1000
     );
     return {
-      currentGuild: state.client.currentGuild ?? "",
-      currentDm: state.client.currentDM ?? "",
+      currentId,
       currentChatMode: state.client.currentChatMode,
       loaded: state.client.guildLoaded[currentId].msgs ?? true,
       isIntialMsgsLoaded:
@@ -187,27 +213,6 @@ export const useGetGuildMsgInfo = () => {
       msgsHistory,
     };
   });
-  useEffect(() => {
-    //temp fix cause skill issue
-    if (!contents.isIntialMsgsLoaded)
-      dispatch(
-        getGuildMsgs({
-          id:
-            contents.currentChatMode === "guild"
-              ? contents.currentGuild
-              : contents.currentDm,
-          time: contents.lastTime,
-        })
-      ).then(() =>
-        dispatch(
-          setGuildIntialMsgsLoaded(
-            contents.currentChatMode === "guild"
-              ? contents.currentGuild
-              : contents.currentDm
-          )
-        )
-      );
-  }, [contents.currentGuild, contents.currentDm, contents.currentChatMode]);
   return contents;
 };
 

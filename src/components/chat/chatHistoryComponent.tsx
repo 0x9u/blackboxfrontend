@@ -14,9 +14,8 @@ const ChatHistory: FC = () => {
   const dispatch = useAppDispatch();
 
   const {
-    currentGuild,
+    currentId,
     currentChatMode,
-    currentDm,
     msgsHistory,
     msgsLength,
     msgsUnread,
@@ -64,9 +63,7 @@ const ChatHistory: FC = () => {
           next={() => {
             dispatch(
               getGuildMsgs({
-                id:
-                  (currentChatMode === "guild" ? currentGuild : currentDm) ??
-                  "",
+                id: currentId,
                 time: lastTime,
               })
             );
@@ -80,8 +77,6 @@ const ChatHistory: FC = () => {
               msgs[index + 1]?.created ?? Infinity
             );
             const beforeAuthor = msgs[index + 1]?.author?.id ?? "";
-           // console.log("msg id", msg.id, "msg", msg);
-            //const beforeModifiedDate = new Date(msgs[index - 1]?.modified ?? 0);
 
             return (
               <MsgElement
@@ -132,20 +127,8 @@ const ChatHistory: FC = () => {
               <a
                 className="cursor-pointer select-none justify-self-end font-semibold text-gray hover:underline active:text-gray/75"
                 onClick={() => {
-                  dispatch(
-                    readGuildMsg(
-                      (currentChatMode === "guild"
-                        ? currentGuild
-                        : currentDm) ?? ""
-                    )
-                  );
-                  dispatch(
-                    clearUnreadMsg(
-                      (currentChatMode === "guild"
-                        ? currentGuild
-                        : currentDm) ?? ""
-                    )
-                  );
+                  dispatch(readGuildMsg(currentId));
+                  dispatch(clearUnreadMsg(currentId));
                 }}
               >
                 Mark as read

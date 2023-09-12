@@ -65,6 +65,11 @@ const Msg: FC<msgProps> = ({
         : state.client.currentDM) ?? ""
   );
 
+  const admins = useSelector((state: RootState) => [
+    ...(state.user.guildAdminIds[currentGuild ?? ""] ?? []),
+    state.guild.guilds[currentGuild ?? ""].ownerId,
+  ]);
+
   const { userListMention, userList } = useGetGuildMembersForMention();
 
   const selfUserId = useSelector((state: RootState) => state.user.selfUser);
@@ -299,27 +304,28 @@ const Msg: FC<msgProps> = ({
               }}
             />
           )}
-          {selfUserId === authorid && !loading && (
-            <MdDelete
-              className="h-6 w-6 cursor-pointer text-red hover:bg-white/25 active:bg-white/10"
-              onClick={() => {
-                console.log("deleting msg");
-                console.log(id, "fucking work");
-                if (failed) {
-                  dispatch(
-                    removeGuildMsg({
-                      id,
-                      guildId: currentGuild,
-                      failed: true,
-                    } as Msg)
-                  );
-                } else {
-                  dispatch(deleteGuildMsg({ id: currentGuild, msgId: id }));
-                }
-                dispatch(setCurrentEditMsgId(null));
-              }}
-            />
-          )}
+          {(selfUserId === authorid || admins.includes(selfUserId ?? "")) &&
+            !loading && (
+              <MdDelete
+                className="h-6 w-6 cursor-pointer text-red hover:bg-white/25 active:bg-white/10"
+                onClick={() => {
+                  console.log("deleting msg");
+                  console.log(id, "fucking work");
+                  if (failed) {
+                    dispatch(
+                      removeGuildMsg({
+                        id,
+                        guildId: currentGuild,
+                        failed: true,
+                      } as Msg)
+                    );
+                  } else {
+                    dispatch(deleteGuildMsg({ id: currentGuild, msgId: id }));
+                  }
+                  dispatch(setCurrentEditMsgId(null));
+                }}
+              />
+            )}
         </div>
       </div>
     </div>

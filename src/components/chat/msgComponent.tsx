@@ -53,7 +53,7 @@ const Msg: FC<msgProps> = ({
   const formatedContent = content.split(/(\<\@(?:\d+|everyone)\>)/g);
   const imageURL =
     userImageId !== "-1"
-      ? `http://localhost:8080/api/files/user/${userImageId}`
+      ? `${import.meta.env.VITE_API_ENDPOINT}/files/user/${userImageId}`
       : "./blackboxuser.jpg";
 
   //crappy replace later (temp)

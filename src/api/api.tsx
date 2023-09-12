@@ -17,13 +17,13 @@ export const requestAPI = async <T,>(
   thunkAPI: {
     getState: () => RootState;
     rejectWithValue: (arg: any) => any;
-//    dispatch: AppDispatch;
+    //    dispatch: AppDispatch;
   },
-  uploadID?: string[],
+//  uploadID?: string[]
 ) => {
   const { auth } = thunkAPI.getState();
   //const dispatch = thunkAPI.dispatch;
-  const uploadId = uploadID ?? [];
+  // const uploadId = uploadID ?? [];
   try {
     const { data } = await axios<T>({
       method: type,

@@ -22,7 +22,7 @@ const FriendsRequestList: FC = () => {
               className="m-auto h-14 w-14 rounded-full border border-black"
               src={
                 friend.imageId !== "-1"
-                  ? `http://localhost:8080/api/files/user/${friend.imageId}`
+                  ? `${import.meta.env.VITE_API_ENDPOINT}/files/user/${friend.imageId}`
                   : "./blackboxuser.jpg"
               }
             />
@@ -61,7 +61,7 @@ const FriendsRequestList: FC = () => {
               className="m-auto h-14 w-14 rounded-full border border-black"
               src={
                 friend.imageId !== "-1"
-                  ? `http://localhost:8080/api/files/user/${friend.imageId}`
+                  ? `${import.meta.env.VITE_API_ENDPOINT}/files/user/${friend.imageId}`
                   : "./blackboxuser.jpg"
               }
             />

@@ -49,7 +49,7 @@ const User: FC<userProps> = ({
 
   const imageURL =
     userImageId !== "-1"
-      ? `http://localhost:8080/api/files/user/${userImageId}`
+      ? `${import.meta.env.VITE_API_ENDPOINT}/files/user/${userImageId}`
       : "./blackboxuser.jpg";
   return (
     <div>

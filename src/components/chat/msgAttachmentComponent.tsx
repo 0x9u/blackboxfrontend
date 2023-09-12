@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { Attachment } from "../../api/types/msg";
 import { MdDownload } from "react-icons/md";
 
@@ -8,26 +8,56 @@ interface msgAttachmentProps {
 }
 
 const MsgAttachment: FC<msgAttachmentProps> = ({ attachments, loading }) => {
+  const [imageError, setImageError] = useState<boolean>(false);
   return (
     <div className="flex flex-wrap gap-4">
       {attachments?.map((attachment) => {
         const type = attachment.type.split("/")[0];
-        return type === "image" ? (
+        return imageError ? (
+          <div className="h-32 w-32 rounded-sm bg-shade-2 text-white flex items-center justify-center">
+            <p className="text-center">Failed to load attachment</p>
+          </div>
+        ) : type === "image" ? (
           <img
             key={attachment.id}
-            src={`http://localhost:8080/api/files/msg/${attachment.id}`}
+            src={`${import.meta.env.VITE_API_ENDPOINT}/files/msg/${
+              attachment.id
+            }`}
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              setImageError(true);
+            }}
           ></img>
         ) : type === "video" ? (
-          <video controls className="max-w-96 max-h-96" key={attachment.id}>
+          <video
+            controls
+            className="max-w-96 max-h-96"
+            key={attachment.id}
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              setImageError(true);
+            }}
+          >
             <source
-              src={`http://localhost:8080/api/files/msg/${attachment.id}`}
+              src={`${import.meta.env.VITE_API_ENDPOINT}/files/msg/${
+                attachment.id
+              }`}
               type={attachment.type}
             ></source>
           </video>
         ) : type === "audio" ? (
-          <audio controls key={attachment.id}>
+          <audio
+            controls
+            key={attachment.id}
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              setImageError(true);
+            }}
+          >
             <source
-              src={`http://localhost:8080/api/files/msg/${attachment.id}`}
+              src={`${import.meta.env.VITE_API_ENDPOINT}/files/msg/${
+                attachment.id
+              }`}
               type={attachment.type}
             ></source>
           </audio>
@@ -38,7 +68,9 @@ const MsgAttachment: FC<msgAttachmentProps> = ({ attachments, loading }) => {
           >
             <p className="text-white">{attachment.filename}</p>
             <a
-              href={`http://localhost:8080/api/files/msg/${attachment.id}`}
+              href={`${import.meta.env.VITE_API_ENDPOINT}/files/msg/${
+                attachment.id
+              }`}
               target="_blank"
               download
             >

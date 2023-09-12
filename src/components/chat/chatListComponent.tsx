@@ -10,7 +10,6 @@ import {
 } from "../../app/slices/clientSlice";
 import { SkeletonLoaderChatList } from "../skeletonLoaderComponent";
 import { useGetGuildDms } from "../../api/hooks/userHooks";
-import { loadGuildInfo } from "../../api/hooks/guildHooks";
 
 const ChatList: FC = () => {
   const dispatch = useDispatch();

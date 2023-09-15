@@ -53,6 +53,7 @@
 - delete account not working properly - fixed
 - loads in basic data even if not logged in - fixed i think
 - scrolling bug from API bot
+- token not deleted when invalid
 
 # FACTOR CODE
 - refactor load order (SUPER IMPORTANT) - fixed

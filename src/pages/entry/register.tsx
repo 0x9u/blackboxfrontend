@@ -32,7 +32,7 @@ const schema = yup
       .required("Username is required")
       .min(1, "too short")
       .max(32, "too long")
-      .matches(/^[A-Za-z][A-Za-z0-9_]+$/, "Not valid character"),
+      .matches(/^[A-Za-z0-9_]+$/, "Not valid character"),
     email: yup.string().email("Not a valid email"),
     password: yup
       .string()

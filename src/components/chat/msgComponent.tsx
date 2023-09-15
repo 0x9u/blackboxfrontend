@@ -65,10 +65,14 @@ const Msg: FC<msgProps> = ({
         : state.client.currentDM) ?? ""
   );
 
-  const admins = useSelector((state: RootState) => [
-    ...(state.user.guildAdminIds[currentGuild ?? ""] ?? []),
-    state.guild.guilds[currentGuild ?? ""].ownerId,
-  ]);
+  const admins = useSelector((state: RootState) =>
+    state.client.currentChatMode === "guild"
+      ? [
+          ...(state.user.guildAdminIds[currentGuild ?? ""] ?? []),
+          state.guild.guilds[currentGuild ?? ""].ownerId,
+        ]
+      : []
+  );
 
   const { userListMention, userList } = useGetGuildMembersForMention();
 

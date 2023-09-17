@@ -121,6 +121,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
               console.log(timeToPing);
               pingInterval = setInterval(() => {
                 //TODO: add a deadline check to see if server responded
+                console.log("pinging")
                 ws!.send(
                   JSON.stringify({
                     op: OpCodes.HEARTBEAT,
@@ -128,7 +129,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
                     event: "",
                   } as DataFrame)
                 );
-              }, timeToPing / 4);
+              }, timeToPing / 5);
               console.log("ready");
               dispatch(setWsStatus("connected"));
               break;
@@ -397,6 +398,8 @@ const gatewayAPI: Middleware = (storeAPI) => {
                 case Events.LOG_OUT: {
                   //no data received from log
                   dispatch(clearToken());
+
+
                   break;
                 }
               }

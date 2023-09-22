@@ -62,11 +62,10 @@ const ChatList: FC = () => {
         <SkeletonLoaderChatList />
       ) : currentChatMode === "dm" ? (
         dms.map((dm) => {
-          console.log(dm);
           const userImageId = users[dm.userId].imageId;
           const imageURL =
             userImageId !== "-1"
-              ? `http://localhost:8080/api/files/user/${userImageId}`
+              ? `${import.meta.env.VITE_API_ENDPOINT}/files/user/${userImageId}`
               : "./blackboxuser.jpg";
           return (
             <NavbarItem
@@ -118,7 +117,7 @@ const ChatList: FC = () => {
               }`}
               src={
                 guild.imageId !== "-1"
-                  ? `http://localhost:8080/api/files/guild/${guild.imageId}`
+                  ? `${import.meta.env.VITE_API_ENDPOINT}/files/guild/${guild.imageId}`
                   : `./blackboxuser.jpg`
               }
             />

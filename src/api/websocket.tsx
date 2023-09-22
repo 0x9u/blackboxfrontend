@@ -96,6 +96,9 @@ export const wsDisconnect = () => ({ type: WS_DISCONNECT });
 
 const gatewayAPI: Middleware = (storeAPI) => {
   let ws: WebSocket | null = null;
+  //do not declare pingInterval inside the return function
+  //it gets deleted somehow
+  let pingInterval: ReturnType<typeof setInterval>;
   const dispatch = storeAPI.dispatch;
   const getState = storeAPI.getState as () => RootState;
 
@@ -107,13 +110,18 @@ const gatewayAPI: Middleware = (storeAPI) => {
         ws = new WebSocket("ws://localhost:8080/api/ws/");
         ws.onopen = () => {
           console.log("ws connected");
-          console.log("ws a", OpCodes.HELLO);
         };
         ws.onerror = (e) => {
           console.log("ws error", e);
         };
-        var pingInterval: ReturnType<typeof setInterval>;
         var timeToPing: number;
+        var pingNo = 0;
+        ws.onclose = (e) => {
+          console.log("WS CLOSE", e);
+          clearInterval(pingInterval);
+          dispatch(setWsStatus("disconnected"));
+          pingNo = 0;
+        };
         ws.onmessage = (e) => {
           const data: DataFrame = JSON.parse(e.data);
           switch (data.op) {
@@ -121,7 +129,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
               console.log(timeToPing);
               pingInterval = setInterval(() => {
                 //TODO: add a deadline check to see if server responded
-                console.log("pinging")
+                console.log("ping", pingNo++);
                 ws!.send(
                   JSON.stringify({
                     op: OpCodes.HEARTBEAT,
@@ -398,21 +406,15 @@ const gatewayAPI: Middleware = (storeAPI) => {
                 case Events.LOG_OUT: {
                   //no data received from log
                   dispatch(clearToken());
-
-
                   break;
                 }
               }
               break;
           }
         };
-        ws.onclose = () => {
-          console.log("ws closed");
-          clearInterval(pingInterval);
-          dispatch(setWsStatus("disconnected"));
-        };
         break;
       case WS_DISCONNECT:
+        console.log("disconnecting WS_DISCONNECT CALLED")
         if (ws !== null) {
           ws.close();
         }

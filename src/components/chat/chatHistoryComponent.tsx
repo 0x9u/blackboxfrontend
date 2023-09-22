@@ -15,7 +15,6 @@ const ChatHistory: FC = () => {
 
   const {
     currentId,
-    currentChatMode,
     msgsHistory,
     msgsLength,
     msgsUnread,
@@ -120,20 +119,18 @@ const ChatHistory: FC = () => {
       </div>
       {msgsUnread.count > 0 && (
         <div className="absolute w-full px-4">
-          <div className="whitespace-nowrap rounded-b-md bg-shade-2 px-4 py-1 font-medium text-white">
-            <p>
-              <MdMessage className="inline-block h-6 w-6" /> Unread Msgs:{" "}
-              {msgsUnread.count} Last Read: {lastReadTime}{" "}
-              <a
-                className="cursor-pointer select-none justify-self-end font-semibold text-gray hover:underline active:text-gray/75"
-                onClick={() => {
-                  dispatch(readGuildMsg(currentId));
-                  dispatch(clearUnreadMsg(currentId));
-                }}
-              >
-                Mark as read
-              </a>
-            </p>
+          <div className="break-words rounded-b-md bg-shade-2 px-4 py-1 font-medium text-white">
+            <MdMessage className="inline-block h-6 w-6" /> Unread Msgs:{" "}
+            {msgsUnread.count} Last Read: {lastReadTime}{" "}
+            <a
+              className="cursor-pointer select-none justify-self-end font-semibold text-gray hover:underline active:text-gray/75"
+              onClick={() => {
+                dispatch(readGuildMsg(currentId));
+                dispatch(clearUnreadMsg(currentId));
+              }}
+            >
+              Mark as read
+            </a>
           </div>
         </div>
       )}

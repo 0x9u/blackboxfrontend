@@ -1,10 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  createGuildInvite,
   createGuildMsg,
   getGuildBans,
   getGuildInvites,
   getGuildMembers,
   getGuildMsgs,
+  joinGuildInvite,
 } from "../../api/guildApi";
 import { GuildList } from "../../api/types/guild";
 //import { Upload } from "../../api/types/msg";
@@ -276,7 +278,7 @@ const clientSlice = createSlice({
       }
       state.guildLoaded[action.payload].banned = true;
     },
-   /* createUploadProgress: (state, action: PayloadAction<string>) => {},
+    /* createUploadProgress: (state, action: PayloadAction<string>) => {},
     setUploadProgress: (
       state,
       action: PayloadAction<{ id: string; progress: number }>
@@ -373,6 +375,9 @@ const clientSlice = createSlice({
           state.showCooldownModal = true;
         }
       }
+    });
+    builder.addCase(joinGuildInvite.fulfilled, (state, action) => {
+      state.showAddChatModal = false;
     });
   },
 });

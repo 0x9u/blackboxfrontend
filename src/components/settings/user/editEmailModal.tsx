@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { EditUserEmailForm } from "../../../api/types/user";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
 import { useEditUserEmail } from "../../../api/hooks/userHooks";
 import { useAppDispatch } from "../../../app/store";
 

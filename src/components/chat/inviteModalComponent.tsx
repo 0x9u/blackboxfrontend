@@ -28,7 +28,7 @@ const InviteModal: FC = () => {
       <div className="flex flex-row space-x-4">
         <Input
           label="Invite Code"
-          value={guildInvites[guildInvites.length - 1]?.invite ?? "No Invite"}
+          value={!loaded ? "Loading..." : guildInvites[guildInvites.length - 1]?.invite ?? "No Invite"}
           dark
           copyButton
         />

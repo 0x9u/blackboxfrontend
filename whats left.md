@@ -29,7 +29,7 @@
 - text and images (will postpone to v2)
 - might hide friend requests and privacy and safety (will postpone to v2)
 
-- add upload image for create account
+- add upload image for create account - done
 
 # User Profiles
 
@@ -40,12 +40,12 @@
 
 - fix delete msg breaks infinite scroll - fixed
 - fix delete and edit msg for dont save chat history - fixed
-- fix contents not loading unless clicked when reconnected
+- fix contents not loading unless clicked when reconnected - fixed??? I think
 - isfulfilled not working - fixed
 - mentions not working in dms - fixed
 - dm not reopening when user sends msg - fixed
 - delete button not working on error msg (supposed to delete the unsent message) - fixed
-- cannot seek video or audio
+- cannot seek video or audio (IMPORTANT)
 - fix loading priority - done
 - retry button on failed for loading guilds and msgs - fixed? it works for some reason now
 - no error shown for create account or sign in - fixed
@@ -53,7 +53,7 @@
 - delete account not working properly - fixed
 - loads in basic data even if not logged in - fixed i think
 - scrolling bug from API bot
-- token not deleted when invalid
+- token not deleted when invalid - fixed
 
 # FACTOR CODE
 - refactor load order (SUPER IMPORTANT) - fixed

@@ -8,8 +8,6 @@ import {
   setShowUserSettings,
 } from "../../../app/slices/clientSlice";
 import { RootState } from "../../../app/store";
-import Input from "../../inputComponent";
-import Modal from "../../modal/modalComponent";
 
 import SettingsPage from "../settingsPage";
 import SettingsPanel from "../settingsPanel";

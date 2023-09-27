@@ -7,7 +7,6 @@ import { RootState, useAppDispatch } from "../../app/store";
 import Button from "../buttonComponent";
 import { createGuildMsg } from "../../api/guildApi";
 import {
-  useGetGuildMembers,
   useGetGuildMembersForMention,
   useUserIsTyping,
 } from "../../api/hooks/guildHooks";

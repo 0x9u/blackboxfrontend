@@ -28,7 +28,7 @@ export interface AttachmentUpload {
   base64: string; //base64 encoded string
 }
 
-export interface Msg {
+export interface Msg { //TODO: fix omitempty later on
   id: string;
   author: User;
   guildId: string;

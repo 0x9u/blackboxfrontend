@@ -15,6 +15,7 @@ import GuildSettings from "../../../components/settings/guild/guildSettings";
 import InviteModal from "../../../components/chat/inviteModalComponent";
 import CooldownModal from "../../../components/chat/chatCooldownModalComponent";
 import { loadGuildInfo } from "../../../api/hooks/guildHooks";
+import UserBlockedModal from "../../../components/chat/chatUserBlockedModalComponent";
 
 const Chat: FC = () => {
   const showAddChatModal = useSelector(
@@ -38,6 +39,9 @@ const Chat: FC = () => {
   const currentDM = useSelector((state: RootState) => state.client.currentDM);
   const showCooldownModal = useSelector(
     (state: RootState) => state.client.showCooldownModal
+  );
+  const showUserBlockedModal = useSelector(
+    (state: RootState) => state.client.showUserBlockedModal
   );
 
   loadGuildInfo(); //load order for dm and guild
@@ -68,6 +72,7 @@ const Chat: FC = () => {
       </Page>
       {showAddChatModal && <ChatModal />}
       {showCooldownModal && <CooldownModal />}
+      {showUserBlockedModal && <UserBlockedModal />}
       {showCreateInviteModal && <InviteModal />}
       {showGuildDMSettings && <GuildSettings />}
     </div>

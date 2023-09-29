@@ -39,7 +39,7 @@ const guildSlice = createSlice({
         console.log("not exists");
         return;
       }
-      const unread = state.guilds[action.payload.id].unread;
+      const unread = state.guilds[action.payload.id].unread; //unread is undefined in action.payload
       state.guilds[action.payload.id] = action.payload;
       state.guilds[action.payload.id].unread = unread;
     },

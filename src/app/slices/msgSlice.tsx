@@ -149,10 +149,19 @@ const msgSlice = createSlice({
     builder.addCase(createGuildMsg.rejected, (state, action) => {
       const loadingMsgId = `loading-${action.meta.requestId}`;
       const guildId = action.meta.arg.id;
+
       state.guildMsgIds[guildId] = state.guildMsgIds[guildId].filter(
         (id) => id !== loadingMsgId
       );
       delete state.msgs[loadingMsgId];
+
+      //TODO: revamp to status codes in backend to use status codes instead.
+      if (
+        action.payload?.error ===
+        "msg: recipient is blocked or has blocked user"
+      ) {
+        return;
+      }
 
       const errorMsgId = `error-${action.meta.requestId}`;
       console.log(errorMsgId);

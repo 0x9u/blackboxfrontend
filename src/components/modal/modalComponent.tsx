@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { MdClose } from "react-icons/md";
 
 interface modalProps {
@@ -9,6 +9,9 @@ interface modalProps {
 }
 
 const Modal: FC<modalProps> = ({ children, title, exitFunc, noExit }) => {
+  useEffect(() => {
+    (document.activeElement as HTMLElement)?.blur();
+  }, []);
   return (
     <div className="fixed inset-0 z-10 flex w-full items-center justify-center overflow-y-auto bg-black/50 p-16">
       <div className="m-auto flex flex-col rounded-md bg-white shadow-2xl min-[576px]:mx-auto min-[576px]:max-w-[500px] min-[992px]:max-w-[800px]">

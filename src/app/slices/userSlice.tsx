@@ -255,12 +255,14 @@ const userSlice = createSlice({
         }
       }
     );
-    builder.addCase(getSelf.fulfilled, (state, action: PayloadAction<User>) => {
-      state.users[action.payload.id] = action.payload;
-      state.selfUser = action.payload.id;
+    builder.addCase(getSelf.fulfilled, (state, action) => {
+      const userId = action.payload.id;
+      state.users[userId] = action.payload;
+      state.selfUser = userId;
     });
-    builder.addCase(getUser.fulfilled, (state, action: PayloadAction<User>) => {
-      state.users[action.payload.id] = action.payload;
+    builder.addCase(getUser.fulfilled, (state, action) => {
+      const userId = action.payload.id;
+      state.users[userId] = action.payload;
     });
     builder.addCase(
       getFriends.fulfilled,
@@ -273,17 +275,19 @@ const userSlice = createSlice({
     );
     builder.addCase(
       getGuildMembers.fulfilled,
-      (state, action: PayloadAction<Member[]>) => {
+      (state, action) => {
         for (const member of action.payload) {
-          if (state.guildMembersIds[member.guildId] === undefined) {
-            state.guildMembersIds[member.guildId] = [];
+          const guildId = action.meta.arg;
+          if (state.guildMembersIds[guildId] === undefined) {
+            state.guildMembersIds[guildId] = [];
           }
-          state.guildMembersIds[member.guildId].push(member.userInfo.id);
-          if (state.guildAdminIds[member.guildId] === undefined) {
-            state.guildAdminIds[member.guildId] = [];
+          console.log(guildId);
+          state.guildMembersIds[guildId].push(member.userInfo.id);
+          if (state.guildAdminIds[guildId] === undefined) {
+            state.guildAdminIds[guildId] = [];
           }
           if (member.admin || member.owner) {
-            state.guildAdminIds[member.guildId].push(member.userInfo.id);
+            state.guildAdminIds[guildId].push(member.userInfo.id);
           }
           state.users[member.userInfo.id] = member.userInfo;
           if (state.userMemberCount[member.userInfo.id] === undefined) {
@@ -295,7 +299,7 @@ const userSlice = createSlice({
     );
     builder.addCase(
       getGuildBans.fulfilled,
-      (state, action: PayloadAction<Member[]>) => {
+      (state, action) => {
         for (const ban of action.payload) {
           if (state.guildBannedIds[ban.guildId] === undefined) {
             state.guildBannedIds[ban.guildId] = [];
@@ -311,7 +315,7 @@ const userSlice = createSlice({
     );
     builder.addCase(
       getBlocked.fulfilled,
-      (state, action: PayloadAction<User[]>) => {
+      (state, action) => {
         for (const user of action.payload) {
           state.blockedIds.push(user.id);
           state.users[user.id] = user;
@@ -320,7 +324,7 @@ const userSlice = createSlice({
     );
     builder.addCase(
       getRequestedFriends.fulfilled,
-      (state, action: PayloadAction<FriendRequest>) => {
+      (state, action) => {
         for (const user of action.payload.requested) {
           state.requestedFriendIds.push(user.id);
           state.users[user.id] = user;

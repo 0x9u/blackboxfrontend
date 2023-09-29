@@ -51,6 +51,7 @@ type ClientState = {
   showDeleteAccountModal: boolean;
 
   showCooldownModal: boolean;
+  showUserBlockedModal : boolean;
 
   showGuildDMSettings: boolean;
   showUserSettings: boolean;
@@ -94,6 +95,7 @@ const initialState: ClientState = {
   showDeleteAccountModal: false,
 
   showCooldownModal: false,
+  showUserBlockedModal : false,
 
   showGuildDMSettings: false,
   showUserSettings: false,
@@ -190,6 +192,9 @@ const clientSlice = createSlice({
     },
     setShowCooldownModal: (state, action: PayloadAction<boolean>) => {
       state.showCooldownModal = action.payload;
+    },
+    setShowUserBlockedModal: (state, action: PayloadAction<boolean>) => {
+      state.showUserBlockedModal = action.payload;
     },
     setShowGuildDMSettings: (state, action: PayloadAction<boolean>) => {
       state.showGuildDMSettings = action.payload;
@@ -373,6 +378,10 @@ const clientSlice = createSlice({
         const { error } = action.payload;
         if (error === "cooldown: cooldown is active") {
           state.showCooldownModal = true;
+        } else if   (error ===
+          "msg: recipient is blocked or has blocked user"
+        ) {
+          state.showUserBlockedModal = true;
         }
       }
     });
@@ -405,6 +414,7 @@ export const {
   setShowEditProfilePictureModal,
   setShowDeleteAccountModal,
   setShowCooldownModal,
+  setShowUserBlockedModal,
   setShowGuildDMSettings,
   setShowUserSettings,
   initGuildLoaded,

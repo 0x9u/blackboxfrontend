@@ -8,13 +8,14 @@ import {
   setCurrentDM,
   setCurrentMode,
   setShowChatUserList,
+  setShowGuildDMSettings,
   setUserDMtobeOpened,
   setWsStatus,
 } from "../app/slices/clientSlice";
-import { AnyAction, Middleware } from "@reduxjs/toolkit";
+import { Middleware } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
 import { Msg, UnreadMsg } from "./types/msg";
-import { Guild } from "./types/guild";
+import { Guild, Typing } from "./types/guild";
 import { User, Member } from "./types/user";
 import Events from "./types/events";
 import {
@@ -161,8 +162,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
               console.log("dispatch");
 
               switch (data.event) {
-                case Events.CREATE_GUILD_MESSAGE:
-                case Events.CREATE_DM_MESSAGE: {
+                case Events.MESSAGE_CREATE: {
                   const eventData: Msg = data.data;
                   console.log(eventData);
                   //shitty change later - placeholder code
@@ -187,7 +187,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
                   );
                   break;
                 }
-                case Events.DELETE_GUILD_MESSAGE: {
+                case Events.MESSAGE_DELETE: {
                   const eventData: Msg = data.data;
                   const currentId =
                     (getState().client.currentChatMode === "guild"
@@ -197,6 +197,8 @@ const gatewayAPI: Middleware = (storeAPI) => {
                     getState().msg.guildMsgIds[currentId]?.length ?? 0;
                   const msgsLoaded =
                     getState().client.guildLoaded[currentId].msgs ?? false;
+                  //if there are still more messages to load
+                  //might not be needed check later because of infinite scroll element
                   if (msgLength < 50 && !msgsLoaded && currentId !== "") {
                     const lastMsgId =
                       getState().msg.guildMsgIds[currentId][
@@ -204,10 +206,11 @@ const gatewayAPI: Middleware = (storeAPI) => {
                       ];
                     const lastTime = Math.floor(
                       new Date(
-                        getState().msg.msgs[lastMsgId].created
+                        getState().msg.msgs[lastMsgId].created ?? ""
                       ).valueOf() / 1000
                     );
-                    dispatch( //shitty change later - placeholder code (cant use useAppDispatch because its before intiailization since this is middleware)
+                    dispatch(
+                      //shitty change later - placeholder code (cant use useAppDispatch because its before intiailization since this is middleware)
                       getGuildMsgs({
                         id: currentId,
                         time: lastTime,
@@ -217,41 +220,41 @@ const gatewayAPI: Middleware = (storeAPI) => {
                   dispatch(removeGuildMsg(eventData));
                   break;
                 }
-                case Events.UPDATE_GUILD_MESSAGE:
-                case Events.UPDATE_DM_MESSAGE: {
+                case Events.MESSAGE_UPDATE: {
                   const eventData: Msg = data.data;
                   dispatch(editMsg(eventData));
                   break;
                 }
-                case Events.CLEAR_USER_DM_MESSAGES:
-                case Events.CLEAR_USER_MESSAGES: {
+                case Events.MESSAGES_USER_CLEAR: {
                   const eventData: Msg = data.data;
                   dispatch(removeAuthorMsg(eventData));
                   break;
                 }
-                case Events.DELETE_DM_MESSAGE: {
+                case Events.MESSAGES_GUILD_CLEAR: {
                   const eventData: Msg = data.data;
-                  dispatch(removeGuildMsg(eventData));
+                  dispatch(
+                    removeAllGuildMsg({ id: eventData.guildId } as Guild)
+                  );
                   break;
                 }
-                case Events.CREATE_INVITE: {
+                case Events.INVITE_CREATE: {
                   const eventData: Invite = data.data;
                   dispatch(addInvite(eventData));
                   break;
                 }
-                case Events.DELETE_INVITE: {
+                case Events.INVITE_DELETE: {
                   const eventData: Invite = data.data;
                   dispatch(removeInvite(eventData));
                   break;
                 }
-                case Events.CREATE_GUILD: {
+                case Events.GUILD_CREATE: {
                   const eventData: Guild = data.data;
                   eventData.unread = {} as UnreadMsg;
                   dispatch(addGuild(eventData));
                   dispatch(initGuildLoaded(eventData.id));
                   break;
                 }
-                case Events.DELETE_GUILD: {
+                case Events.GUILD_DELETE: {
                   const eventData: Guild = data.data;
                   dispatch(removeCurrentGuild(eventData.id));
                   dispatch(removeGuildMembers(eventData));
@@ -260,32 +263,35 @@ const gatewayAPI: Middleware = (storeAPI) => {
                   dispatch(deleteGuildLoaded(eventData.id));
                   break;
                 }
-                case Events.UPDATE_GUILD: {
+                case Events.GUILD_UPDATE: {
                   const eventData: Guild = data.data;
                   dispatch(updateGuild(eventData));
+                  if (getState().client.showGuildDMSettings) {
+                    dispatch(setShowGuildDMSettings(false));
+                  }
                   break;
                 }
-                case Events.ADD_USER_GUILDLIST: {
+                case Events.MEMBER_ADD: {
                   const eventData: Member = data.data;
                   dispatch(addGuildMembersID(eventData));
                   break;
                 }
-                case Events.REMOVE_USER_GUILDLIST: {
+                case Events.MEMBER_REMOVE: {
                   const eventData: Member = data.data;
                   dispatch(removeGuildMembersID(eventData));
                   break;
                 }
-                case Events.ADD_USER_BANLIST: {
+                case Events.MEMBER_BAN_ADD: {
                   const eventData: Member = data.data;
                   dispatch(addGuildBannedID(eventData));
                   break;
                 }
-                case Events.REMOVE_USER_BANLIST: {
+                case Events.MEMBER_BAN_REMOVE: {
                   const eventData: Member = data.data;
                   dispatch(removeGuildBannedID(eventData));
                   break;
                 }
-                case Events.CREATE_DM: {
+                case Events.DM_CREATE: {
                   const eventData: Dm = data.data;
                   console.log(eventData);
                   dispatch(addDm(eventData));
@@ -311,7 +317,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
                   }
                   break;
                 }
-                case Events.DELETE_DM: {
+                case Events.DM_DELETE: {
                   const eventData: Dm = data.data;
 
                   console.log("deleting", eventData);
@@ -322,39 +328,39 @@ const gatewayAPI: Middleware = (storeAPI) => {
                   dispatch(deleteGuildLoaded(eventData.id));
                   break;
                 }
-                case Events.ADD_FRIEND_REQUEST: {
+                case Events.USER_FRIEND_REQUEST_ADD: {
                   const eventData: User = data.data;
                   dispatch(addRequestedFriendID(eventData));
                   break;
                 }
-                case Events.REMOVE_FRIEND_REQUEST: {
+                case Events.USER_FRIEND_REQUEST_REMOVE: {
                   const eventData: User = data.data;
                   dispatch(removeRequestedFriendID(eventData));
                   break;
                 }
-                case Events.ADD_USER_FRIENDLIST: {
+                case Events.USER_FRIEND_ADD: {
                   const eventData: User = data.data;
                   dispatch(addFriendID(eventData));
-                  dispatch(removeRequestedFriendID(eventData));
-                  dispatch(removePendingFriendID(eventData));
+                  //dispatch(removeRequestedFriendID(eventData));
+                  //dispatch(removePendingFriendID(eventData));
                   break;
                 }
-                case Events.REMOVE_USER_FRIENDLIST: {
+                case Events.USER_FRIEND_REMOVE: {
                   const eventData: User = data.data;
                   dispatch(removeFriendID(eventData));
                   break;
                 }
-                case Events.ADD_FRIEND_INCOMING_REQUEST: {
+                case Events.USER_FRIEND_INCOMING_REQUEST_ADD: {
                   const eventData: User = data.data;
                   dispatch(addPendingFriendID(eventData));
                   break;
                 }
-                case Events.REMOVE_FRIEND_INCOMING_REQUEST: {
+                case Events.USER_FRIEND_INCOMING_REQUEST_REMOVE: {
                   const eventData: User = data.data;
                   dispatch(removePendingFriendID(eventData));
                   break;
                 }
-                case Events.ADD_USER_BLOCKEDLIST: {
+                case Events.USER_BLOCKED_ADD: {
                   const eventData: User = data.data;
 
                   dispatch(removePendingFriendID(eventData));
@@ -364,30 +370,28 @@ const gatewayAPI: Middleware = (storeAPI) => {
                   dispatch(addBlockedID(eventData));
                   break;
                 }
-                case Events.REMOVE_USER_BLOCKEDLIST: {
+                case Events.USER_BLOCKED_REMOVE: {
                   const eventData: User = data.data;
                   dispatch(removeBlockedID(eventData));
                   break;
                 }
-                case Events.ADD_USER_GUILDADMIN: {
+                case Events.MEMBER_ADMIN_ADD: {
                   const eventData: Member = data.data;
                   dispatch(addGuildAdminID(eventData));
                   break;
                 }
-                case Events.REMOVE_USER_GUILDADMIN: {
+                case Events.MEMBER_ADMIN_REMOVE: {
                   const eventData: Member = data.data;
                   dispatch(removeGuildAdminID(eventData));
                   break;
                 }
-                case Events.UPDATE_SELF_USER_INFO:
-                case Events.UPDATE_USER_INFO: {
+                case Events.USER_INFO_UPDATE: {
                   const eventData: User = data.data;
                   dispatch(updateUser(eventData));
                   break;
                 }
-                case Events.USER_DM_TYPING:
-                case Events.USER_TYPING: {
-                  const eventData: Member = data.data;
+                case Events.TYPING_START: {
+                  const eventData: Typing = data.data;
                   const guildId = eventData.guildId;
                   const userId = eventData.userInfo.id;
                   if (userId === getState().user.selfUser) return;
@@ -397,6 +401,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
                   } else {
                     dispatch(addTyping({ id: guildId, userId }));
                   }
+                  //TODO: use timestamp to check if 5 seconds have passed
                   timeoutTyping[userId] = setTimeout(() => {
                     dispatch(removeTyping({ id: guildId, userId }));
                     delete timeoutTyping[userId];
@@ -414,7 +419,7 @@ const gatewayAPI: Middleware = (storeAPI) => {
         };
         break;
       case WS_DISCONNECT:
-        console.log("disconnecting WS_DISCONNECT CALLED")
+        console.log("disconnecting WS_DISCONNECT CALLED");
         if (ws !== null) {
           ws.close();
         }

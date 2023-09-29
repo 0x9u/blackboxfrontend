@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState, useEffect, Fragment } from "react";
 import Button from "../buttonComponent";
 import CheckBox from "../checkBoxComponent";
 import Input from "../inputComponent";
@@ -14,6 +14,7 @@ import { Guild, GuildList, GuildUpload, Invite } from "../../api/types/guild";
 import { useJoinGuild } from "../../api/hooks/guildHooks";
 import { createGuild } from "../../api/guildApi";
 import { useAppDispatch } from "../../app/store";
+import CropPic from "../cropPicComponent";
 
 const ChatModal: FC = () => {
   const [chatModalMode, setChatModalMode] = useState<"Create" | "Join" | null>(
@@ -22,7 +23,7 @@ const ChatModal: FC = () => {
 
   const dispatch = useAppDispatch();
 
-  const { callFunction: joinGuild, error, status } = useJoinGuild();
+  const { callFunction: joinGuild } = useJoinGuild();
 
   interface createChatForm {
     name: string;
@@ -30,8 +31,12 @@ const ChatModal: FC = () => {
     picture: FileList;
   }
 
+  const [showCrop, setShowCrop] = useState<boolean>(false);
+
   const {
     register: registerCreate,
+    setValue: setValueCreate,
+    getValues: getValuesCreate,
     handleSubmit: handleCreateSubmit,
     formState: { errors: errorsCreate },
   } = useForm<createChatForm>({
@@ -71,7 +76,6 @@ const ChatModal: FC = () => {
   const {
     register: registerInvite,
     handleSubmit: handleInviteSubmit,
-    setError: setInviteError,
     formState: { errors: errorsInvite },
   } = useForm<{ invite: string }>({
     resolver: yupResolver(
@@ -135,39 +139,69 @@ const ChatModal: FC = () => {
               setChatModalMode(null);
             })}
           >
-            <div className="space-y-2">
-              <div className="h-32 w-32 px-16">
-                <UploadPic
-                  width="32"
-                  height="32"
-                  register={registerCreate("picture")}
-                />
-              </div>
-              <p className=" text-center text-sm font-medium text-red">
-                {errorsCreate.picture?.message}
-              </p>
-              <Input
-                label="Chat Name"
-                dark
-                register={registerCreate("name")}
-                error={errorsCreate.name}
+            {showCrop ? (
+              <CropPic
+                setValue={setValueCreate}
+                getValues={getValuesCreate}
+                onFinish={() => {
+                  setShowCrop(false);
+                }}
               />
-              <div className="flex flex-row justify-between">
-                <p className="my-auto text-sm font-semibold uppercase">
-                  Save Chat
-                </p>
-                <CheckBox register={registerCreate("save")} />
-              </div>
-            </div>
-            <div className="-mx-4 -mb-4 mt-4 flex flex-row justify-end space-x-2 border-t-2 border-gray py-2 px-2">
-              <Button
-                value="Cancel"
-                type="button"
-                gray
-                onClick={() => setChatModalMode(null)}
-              />
-              <Button value="Create" type="submit" />
-            </div>
+            ) : (
+              <Fragment>
+                <div className="space-y-2">
+                  <div className="h-32 w-32 px-16">
+                    <UploadPic
+                      width="32"
+                      height="32"
+                      image={getValuesCreate("picture")?.[0]}
+                      register={registerCreate("picture", {
+                        onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                          var img = new Image();
+                          var file = e.target.files![0];
+                          if (file) {
+                            img = new Image();
+                            var objectURL = URL.createObjectURL(file);
+                            img.onload = function () {
+                              if (img.width !== img.height) {
+                                console.log("square");
+                                setShowCrop(true);
+                              }
+                              URL.revokeObjectURL(objectURL);
+                            };
+                            img.src = objectURL;
+                          }
+                        },
+                      })}
+                    />
+                  </div>
+                  <p className=" text-center text-sm font-medium text-red">
+                    {errorsCreate.picture?.message}
+                  </p>
+                  <Input
+                    label="Chat Name"
+                    dark
+                    register={registerCreate("name")}
+                    error={errorsCreate.name}
+                  />
+                  <div className="flex flex-row justify-between">
+                    <p className="my-auto text-sm font-semibold uppercase">
+                      Save Chat
+                    </p>
+                    <CheckBox register={registerCreate("save")} />
+                  </div>
+                </div>
+                <div className="-mx-4 -mb-4 mt-4 flex flex-row justify-end space-x-2 border-t-2 border-gray py-2 px-2">
+                  <Button
+                    value="Cancel"
+                    type="button"
+                    gray
+                    onClick={() => setChatModalMode(null)}
+                  />
+                  <Button value="Create" type="submit" />
+                </div>
+              </Fragment>
+            )}
           </form>
         ) : (
           <form

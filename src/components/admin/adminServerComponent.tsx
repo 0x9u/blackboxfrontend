@@ -1,8 +1,6 @@
 import React, { FC } from "react";
 import Button from "../buttonComponent";
-import CheckBox from "../checkBoxComponent";
 import Input from "../inputComponent";
-import UploadPic from "../uploadPicComponent";
 const AdminServer: FC = () => {
     return (
         <div className="flex h-full w-full justify-center">

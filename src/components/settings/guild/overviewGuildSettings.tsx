@@ -41,6 +41,7 @@ const OverviewGuildSettings: FC = () => {
     handleSubmit,
     setValue,
     getValues,
+    trigger,
     formState: { errors },
   } = useForm<editChatForm>({
     resolver: yupResolver(
@@ -168,7 +169,10 @@ const OverviewGuildSettings: FC = () => {
         <CropImageModal
           getValues={getValues}
           setValue={setValue}
-          exitFunc={() => setShowCrop(false)}
+          exitFunc={() => {
+            setShowCrop(false);
+            trigger("picture");
+          }}
         />
       )}
     </form>

@@ -27,6 +27,7 @@ const EditProfilePictureModal: FC = () => {
     setError,
     getValues,
     setValue,
+    trigger,
     formState: { errors },
   } = useForm<editPictureForm>({
     resolver: yupResolver(
@@ -91,6 +92,7 @@ const EditProfilePictureModal: FC = () => {
             getValues={getValues}
             onFinish={() => {
               setShowCrop(false);
+              trigger("picture");
             }}
           />
         ) : (

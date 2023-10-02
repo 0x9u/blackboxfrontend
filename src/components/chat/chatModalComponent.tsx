@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { setShowAddChatModal } from "../../app/slices/clientSlice";
-import { Guild, GuildList, GuildUpload, Invite } from "../../api/types/guild";
+import { Guild, GuildUpload, Invite } from "../../api/types/guild";
 import { useJoinGuild } from "../../api/hooks/guildHooks";
 import { createGuild } from "../../api/guildApi";
 import { useAppDispatch } from "../../app/store";
@@ -37,6 +37,7 @@ const ChatModal: FC = () => {
     register: registerCreate,
     setValue: setValueCreate,
     getValues: getValuesCreate,
+    trigger : triggerCreate,
     handleSubmit: handleCreateSubmit,
     formState: { errors: errorsCreate },
   } = useForm<createChatForm>({
@@ -145,6 +146,7 @@ const ChatModal: FC = () => {
                 getValues={getValuesCreate}
                 onFinish={() => {
                   setShowCrop(false);
+                  triggerCreate("picture");
                 }}
               />
             ) : (

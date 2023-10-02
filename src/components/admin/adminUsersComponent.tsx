@@ -1,6 +1,5 @@
 import React, { FC } from "react";
 import Button from "../buttonComponent";
-import CheckBox from "../checkBoxComponent";
 import Input from "../inputComponent";
 import UploadPic from "../uploadPicComponent";
 const AdminUsers: FC = () => {

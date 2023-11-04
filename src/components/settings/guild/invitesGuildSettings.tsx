@@ -1,7 +1,6 @@
 import React, { FC } from "react";
 import { MdDelete } from "react-icons/md";
-import { useSelector } from "react-redux";
-import { RootState, useAppDispatch } from "../../../app/store";
+import { useAppDispatch } from "../../../app/store";
 import { deleteGuildInvite } from "../../../api/guildApi";
 import { useGetGuildInvites } from "../../../api/hooks/guildHooks";
 

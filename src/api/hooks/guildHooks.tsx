@@ -196,13 +196,13 @@ export const useGetGuildMsgInfo = () => {
       ).valueOf() / 1000
     );
     return {
-      currentId,
+      currentId, //temp fix ?.
       currentChatMode: state.client.currentChatMode,
-      loaded: state.client.guildLoaded[currentId].msgs ?? true,
+      loaded: state.client.guildLoaded?.[currentId]?.msgs ?? true,
       isIntialMsgsLoaded:
-        state.client.guildLoaded[currentId].initialMsgs ?? true,
-      isMsgsLoaded: state.client.guildLoaded[currentId].msgs ?? true,
-      msgsLength: state.msg.guildMsgIds[currentId]?.length ?? 0,
+        state.client.guildLoaded?.[currentId]?.initialMsgs ?? true,
+      isMsgsLoaded: state.client.guildLoaded?.[currentId]?.msgs ?? true,
+      msgsLength: state.msg.guildMsgIds?.[currentId]?.length ?? 0,
       lastTime,
       msgsUnread:
         (currentChatMode === "guild"

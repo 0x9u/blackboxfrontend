@@ -13,7 +13,6 @@ export interface Attachment {
   type: string;
 }
 
-/*
 export interface Upload {
   id: string;
   filename: string;
@@ -21,7 +20,6 @@ export interface Upload {
   type: string;
   progress: number;
 }
-*/
 
 export interface AttachmentUpload {
   filename: string;
@@ -42,4 +40,5 @@ export interface Msg { //TODO: fix omitempty later on
   mentionsEveryone: boolean;
   failed?: boolean;
   loading?: boolean;
+  uploadId? : string[];
 }

@@ -15,6 +15,7 @@ import { Mention, MentionsInput } from "react-mentions";
 import { Attachment, Msg } from "../../api/types/msg";
 import MsgAttachment from "./msgAttachmentComponent";
 import { removeGuildMsg } from "../../app/slices/msgSlice";
+import MsgLoadingAttachment from "./msgLoadingAttachmentComponent";
 
 interface msgProps {
   id: string;
@@ -31,6 +32,7 @@ interface msgProps {
   editing: boolean;
   requestId: string;
   attachments?: Attachment[];
+  uploadId?: string[];
 }
 
 const Msg: FC<msgProps> = ({
@@ -48,6 +50,7 @@ const Msg: FC<msgProps> = ({
   editing,
   requestId,
   attachments,
+  uploadId,
 }) => {
   const dispatch = useAppDispatch();
   const formatedContent = content.split(/(\<\@(?:\d+|everyone)\>)/g);
@@ -99,8 +102,12 @@ const Msg: FC<msgProps> = ({
         !combined ? "mt-4 pt-1" : ""
       } hover:bg-black/25 ${
         mentionedSelfUser
-          ? " border-l-2 border-green bg-green/25 hover:bg-green/10"
+          ? "border-l-2 border-green bg-green/25 pr-4 pl-[calc(1rem-2px)] hover:bg-green/10"
           : ""
+        //TODO: to be or not to be? - that is the question
+        //whether 'tis nobler in the mind to leave this temporary fix in,
+        //or to suffer the tediousness of researching a solution
+        //and, by opposing, remove this.
       }`}
     >
       {!combined && (
@@ -162,6 +169,7 @@ const Msg: FC<msgProps> = ({
               })}
             </Linkify>
             <MsgAttachment attachments={attachments} />
+            <MsgLoadingAttachment uploadIds={uploadId} />
           </div>
         ) : (
           <div

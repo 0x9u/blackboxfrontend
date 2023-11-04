@@ -18,6 +18,7 @@ import {
   getRequestedFriends,
   getSelf,
 } from "../../api/userApi";
+import { Upload } from "../../api/types/msg";
 
 export type guildLoaded = {
   initialMsgs: boolean;
@@ -51,7 +52,7 @@ type ClientState = {
   showDeleteAccountModal: boolean;
 
   showCooldownModal: boolean;
-  showUserBlockedModal : boolean;
+  showUserBlockedModal: boolean;
 
   showGuildDMSettings: boolean;
   showUserSettings: boolean;
@@ -65,8 +66,7 @@ type ClientState = {
   requestedFriendListLoaded: boolean;
   guildLoaded: Record<string, guildLoaded>;
 
-  //uploadID: string;
-  //uploadData: Record<string, Upload>;
+  uploadData: Record<string, Upload>;
 };
 
 //ClientState stores local information not stored/sent by the backend
@@ -95,7 +95,7 @@ const initialState: ClientState = {
   showDeleteAccountModal: false,
 
   showCooldownModal: false,
-  showUserBlockedModal : false,
+  showUserBlockedModal: false,
 
   showGuildDMSettings: false,
   showUserSettings: false,
@@ -109,8 +109,7 @@ const initialState: ClientState = {
   requestedFriendListLoaded: false,
   guildLoaded: {},
 
-  //uploadID: "",
-  //uploadData: {},
+  uploadData: {},
 };
 
 const clientSlice = createSlice({
@@ -283,11 +282,32 @@ const clientSlice = createSlice({
       }
       state.guildLoaded[action.payload].banned = true;
     },
-    /* createUploadProgress: (state, action: PayloadAction<string>) => {},
+    createUploadProgress: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        type: string;
+        filename: string;
+        dataURL: string;
+      }>
+    ) => {
+      state.uploadData[action.payload.id] = {
+        id: action.payload.id,
+        progress: 0,
+        filename: action.payload.filename,
+        dataURL: action.payload.dataURL,
+        type: action.payload.type,
+      } as Upload;
+    },
     setUploadProgress: (
       state,
       action: PayloadAction<{ id: string; progress: number }>
-    ) => {}, */
+    ) => {
+      state.uploadData[action.payload.id].progress = action.payload.progress;
+    },
+    deleteUploadProgress: (state, action: PayloadAction<{ id: string }>) => {
+      delete state.uploadData[action.payload.id];
+    },
     resetClient: (state) => {
       state.blockedListLoaded = false;
       state.currentAdminMode = "guilds";
@@ -378,9 +398,7 @@ const clientSlice = createSlice({
         const { error } = action.payload;
         if (error === "cooldown: cooldown is active") {
           state.showCooldownModal = true;
-        } else if   (error ===
-          "msg: recipient is blocked or has blocked user"
-        ) {
+        } else if (error === "msg: recipient is blocked or has blocked user") {
           state.showUserBlockedModal = true;
         }
       }
@@ -424,8 +442,9 @@ export const {
   setGuildMembersLoaded,
   setGuildInvitesLoaded,
   setGuildBannedLoaded,
-  //setUploadProgress,
-  //createUploadProgress,
+  setUploadProgress,
+  createUploadProgress,
+  deleteUploadProgress,
   deleteGuildLoaded,
   resetClient,
 } = clientSlice.actions;

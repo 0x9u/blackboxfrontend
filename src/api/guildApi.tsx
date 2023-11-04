@@ -1,9 +1,12 @@
-import { asyncThunkAPI, requestAPI } from "./api";
+import { asyncThunkAPI } from "../app/asyncThunk";
+import { requestAPI } from "./api";
 import { Msg } from "./types/msg";
 import { GuildUpload, Invite } from "./types/guild";
 import { Member } from "./types/user";
 import axios, { AxiosError } from "axios";
 import {
+  createUploadProgress,
+  deleteUploadProgress,
   setGuildBannedLoaded,
   setGuildInvitesLoaded,
   setGuildMembersLoaded,
@@ -115,34 +118,45 @@ export const createGuildMsg = asyncThunkAPI<
     const { id, msg, files } = args;
     const formData = new FormData();
     var successful = false;
+    const uploadId: string[] = [];
     formData.append("body", JSON.stringify(msg));
     files.forEach((file) => {
       formData.append("file", file, file.name);
-    });
-    setTimeout(() => { // delayed because sometimes too fast
-      if (!successful) {
-      const loadingMsgId = `loading-${thunkAPI.requestId}`;
-      console.log("sending loading msg")
+      const id = Math.floor(Math.random() * 1000000000).toString();
+      uploadId.push(id);
+      console.log("attachment type:", file.type);
       thunkAPI.dispatch(
-        addGuildMsg({
-          guildId: id,
-          msg: {
-            id: loadingMsgId,
-            content: msg.content,
-            loading: true,
-            guildId: id,
-          } as Msg,
+        createUploadProgress({
+          id: id,
+          type: file.type,
+          filename: file.name,
+          dataURL: URL.createObjectURL(file),
         })
-      ); }
-    }, 1250);
+      );
+    });
+    const loadingMsgId = `loading-${thunkAPI.requestId}`;
+    thunkAPI.dispatch(
+      addGuildMsg({
+        guildId: id,
+        msg: {
+          id: loadingMsgId,
+          content: msg.content,
+          loading: true,
+          guildId: id,
+          uploadId: uploadId,
+        } as Msg,
+      })
+    );
     return await requestAPI<void>(
       "POST",
       `/guilds/${id}/msgs`,
       formData,
-      thunkAPI
+      thunkAPI,
+      uploadId
     ).then((res) => {
-      successful = true;
-      console.log("worked msg sent");
+      for (const id of uploadId) {
+        thunkAPI.dispatch(deleteUploadProgress({ id: id }));
+      }
       return res;
     });
   }
@@ -151,11 +165,8 @@ export const createGuildMsg = asyncThunkAPI<
 export const retryGuildMsg = asyncThunkAPI<void, { id: string; msgId: string }>(
   "guild/retryMsg",
   async (args: { id: string; msgId: string }, thunkAPI) => {
-    console.log("test aaaaaaaaa");
     const { id, msgId } = args;
     const msg = (thunkAPI.getState() as RootState).msg.msgs[msgId];
-    console.log("bruh sas", msgId);
-    // msg.failed = undefined;
     console.log(msg);
     console.log("work u fucking piece of shit");
     return await requestAPI<void>(

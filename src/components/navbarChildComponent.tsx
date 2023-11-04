@@ -15,7 +15,7 @@ const navbarChild: FC<navbarChildProps> = ({ children }) => {
 
   const imageURL =
     userInfo.imageId !== "-1"
-      ? `http://localhost:8080/api/files/user/${userInfo.imageId}`
+      ? `${import.meta.env.VITE_API_ENDPOINT}/api/files/user/${userInfo.imageId}`
       : "./blackboxuser.jpg";
 
   return (

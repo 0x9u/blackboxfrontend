@@ -4,17 +4,16 @@ import { MdDownload } from "react-icons/md";
 
 interface msgAttachmentProps {
   attachments?: Attachment[];
-  loading?: boolean;
 }
 
-const MsgAttachment: FC<msgAttachmentProps> = ({ attachments, loading }) => {
+const MsgAttachment: FC<msgAttachmentProps> = ({ attachments }) => {
   const [imageError, setImageError] = useState<boolean>(false);
   return (
     <div className="flex flex-wrap gap-4">
       {attachments?.map((attachment) => {
         const type = attachment.type.split("/")[0];
         return imageError ? (
-          <div className="h-32 w-32 rounded-sm bg-shade-2 text-white flex items-center justify-center">
+          <div className="flex h-32 w-32 items-center justify-center rounded-sm bg-shade-2 text-white">
             <p className="text-center">Failed to load attachment</p>
           </div>
         ) : type === "image" ? (

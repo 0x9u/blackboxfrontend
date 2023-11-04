@@ -1,4 +1,8 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import {
+  combineReducers,
+  configureStore,
+  createAsyncThunk,
+} from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import storage from "redux-persist/lib/storage";
 import {
@@ -19,6 +23,7 @@ import user from "./slices/userSlice";
 import guild from "./slices/guildSlice";
 import msg from "./slices/msgSlice";
 import gatewayAPI from "../api/websocket";
+import { ErrorBody } from "../api/types/error";
 
 const persistConfig = {
   key: "root",
@@ -52,5 +57,10 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const persistor = persistStore(store); // dont remove this
+export type thunkAPIConfig = {
+  dispatch: AppDispatch;
+  state: RootState;
+  rejectValue: ErrorBody;
+};
 
 export default store;

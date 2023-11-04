@@ -1,4 +1,5 @@
-import { asyncThunkAPI, requestAPI } from "./api";
+import { asyncThunkAPI } from "../app/asyncThunk";
+import { requestAPI } from "./api";
 
 export interface AuthRes {
   token: string;

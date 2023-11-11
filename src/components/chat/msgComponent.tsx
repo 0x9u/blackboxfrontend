@@ -96,6 +96,8 @@ const Msg: FC<msgProps> = ({
     }
   }, [editing]);
 
+  console.log(uploadId);
+
   return (
     <div
       className={`group relative box-border flex flex-row space-x-4 px-4 ${
@@ -169,7 +171,7 @@ const Msg: FC<msgProps> = ({
               })}
             </Linkify>
             <MsgAttachment attachments={attachments} />
-            <MsgLoadingAttachment uploadIds={uploadId} />
+            <MsgLoadingAttachment uploadIds={uploadId} failed={failed} />
           </div>
         ) : (
           <div

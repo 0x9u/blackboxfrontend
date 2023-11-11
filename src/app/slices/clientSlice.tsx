@@ -403,6 +403,11 @@ const clientSlice = createSlice({
         }
       }
     });
+    builder.addCase(createGuildMsg.fulfilled, (state, action) => {
+      action.meta.arg.msg.uploadIds?.forEach((id) => {
+        delete state.uploadData[id];
+      });
+    });
     builder.addCase(joinGuildInvite.fulfilled, (state, action) => {
       state.showAddChatModal = false;
     });

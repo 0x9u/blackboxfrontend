@@ -10,6 +10,7 @@ import {
   useGetGuildMembersForMention,
   useUserIsTyping,
 } from "../../api/hooks/guildHooks";
+import { createUploadProgress } from "../../app/slices/clientSlice";
 
 const chatInputArea: FC = () => {
   const [value, setValue] = useState<string>("");
@@ -38,9 +39,29 @@ const chatInputArea: FC = () => {
   useUserIsTyping(value);
 
   function send() {
+    console.log("SENDING MSG")
     if (currentId) {
+      var uploadIds: string[] = [];
+      files.forEach((file) => {
+        const id = Math.floor(Math.random() * 1000000000).toString();
+        uploadIds.push(id);
+        console.log("attachment type:", file.type);
+        dispatch(
+          createUploadProgress({
+            id: id,
+            type: file.type,
+            filename: file.name,
+            dataURL: URL.createObjectURL(file),
+          })
+        );
+      });
+      console.log("upload Ids", uploadIds);
       dispatch(
-        createGuildMsg({ id: currentId, msg: { content: value } as Msg, files })
+        createGuildMsg({
+          id: currentId,
+          msg: { content: value, uploadIds: uploadIds } as Msg,
+          files,
+        })
       );
       setValue("");
       setFiles([]);
@@ -57,8 +78,6 @@ const chatInputArea: FC = () => {
     setValue("");
     setFiles([]);
   }, [currentId]);
-
-
 
   return (
     <div className="min-h-16 flex w-full grow-0 flex-col space-y-2 px-4">

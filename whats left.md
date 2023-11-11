@@ -54,6 +54,10 @@
 - loads in basic data even if not logged in - fixed i think
 - scrolling bug from API bot
 - token not deleted when invalid - fixed
+- fix unnecessary bans request sent when not admin or owner
+- fix upload attachment not resending on error
+- fix file size max modal
+- fix attachment not being able to be deselected after selected.
 
 # FACTOR CODE
 - refactor load order (SUPER IMPORTANT) - fixed

@@ -40,5 +40,5 @@ export interface Msg { //TODO: fix omitempty later on
   mentionsEveryone: boolean;
   failed?: boolean;
   loading?: boolean;
-  uploadId? : string[];
+  uploadIds? : string[];
 }

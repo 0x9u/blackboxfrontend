@@ -112,7 +112,7 @@ const ChatHistory: FC = () => {
                 loading={msg.loading}
                 attachments={msg.attachments}
                 requestId={msg.requestId}
-                uploadId={msg.uploadId}
+                uploadId={msg.uploadIds}
               />
             );
           })}

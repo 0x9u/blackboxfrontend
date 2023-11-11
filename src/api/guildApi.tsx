@@ -117,48 +117,18 @@ export const createGuildMsg = asyncThunkAPI<
   async (args: { id: string; msg: Msg; files: File[] }, thunkAPI) => {
     const { id, msg, files } = args;
     const formData = new FormData();
-    var successful = false;
-    const uploadId: string[] = [];
+
     formData.append("body", JSON.stringify(msg));
     files.forEach((file) => {
       formData.append("file", file, file.name);
-      const id = Math.floor(Math.random() * 1000000000).toString();
-      uploadId.push(id);
-      console.log("attachment type:", file.type);
-      thunkAPI.dispatch(
-        createUploadProgress({
-          id: id,
-          type: file.type,
-          filename: file.name,
-          dataURL: URL.createObjectURL(file),
-        })
-      );
     });
-    const loadingMsgId = `loading-${thunkAPI.requestId}`;
-    thunkAPI.dispatch(
-      addGuildMsg({
-        guildId: id,
-        msg: {
-          id: loadingMsgId,
-          content: msg.content,
-          loading: true,
-          guildId: id,
-          uploadId: uploadId,
-        } as Msg,
-      })
-    );
     return await requestAPI<void>(
       "POST",
       `/guilds/${id}/msgs`,
       formData,
       thunkAPI,
-      uploadId
-    ).then((res) => {
-      for (const id of uploadId) {
-        thunkAPI.dispatch(deleteUploadProgress({ id: id }));
-      }
-      return res;
-    });
+      msg.uploadIds
+    );
   }
 );
 

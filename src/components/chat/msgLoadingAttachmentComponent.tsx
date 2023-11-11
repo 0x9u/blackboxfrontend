@@ -5,9 +5,13 @@ import { RootState } from "../../app/store";
 
 interface msgLoadingAttachmentProps {
   uploadIds?: string[];
+  failed?: boolean;
 }
 
-const MsgLoadingAttachment: FC<msgLoadingAttachmentProps> = ({ uploadIds }) => {
+const MsgLoadingAttachment: FC<msgLoadingAttachmentProps> = ({
+  uploadIds,
+  failed,
+}) => {
   const uploads = useSelector((state: RootState) => {
     const uploadsList: Upload[] = [];
     for (const uploadId of uploadIds ?? []) {
@@ -16,13 +20,21 @@ const MsgLoadingAttachment: FC<msgLoadingAttachmentProps> = ({ uploadIds }) => {
     }
     return uploadsList;
   });
+  console.log(uploads);
   return (
     <div className="flex flex-wrap gap-4">
-      {uploads?.map((upload) => {
+      {uploads?.map((upload, idx) => {
+        if (upload === undefined) {
+          return (
+            <div className="text-white" key={idx}>
+              ERROR TYPE UNDEFINED
+            </div>
+          );
+        }
         const type = upload.type.split("/")[0];
         return (
-          <div className="text-white">
-            Upload Progress: {upload.progress}
+          <div className={failed ? "text-red" : "text-white"} key={idx}>
+            {!failed && `Upload Progress: ${upload.progress}%`}
             {type === "image" ? (
               <img key={upload.id} src={upload.dataURL}></img>
             ) : type === "video" ? (
@@ -38,7 +50,7 @@ const MsgLoadingAttachment: FC<msgLoadingAttachmentProps> = ({ uploadIds }) => {
                 key={upload.id}
                 className="flex flex-row items-center space-x-2 rounded-sm bg-shade-2 p-4 py-1"
               >
-                <p className="text-white">{upload.filename}</p>
+                <p>{upload.filename}</p>
               </div>
             )}
           </div>

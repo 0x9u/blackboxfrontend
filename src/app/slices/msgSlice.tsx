@@ -131,6 +131,7 @@ const msgSlice = createSlice({
         content: action.meta.arg.msg.content,
         loading: true,
         guildId: guildId,
+        uploadIds: action.meta.arg.msg.uploadIds,
       } as Msg;
       state.msgs[loadingMsgId] = loadingMsg;
       if (state.guildMsgIds[guildId] === undefined) {
@@ -166,9 +167,7 @@ const msgSlice = createSlice({
       const errorMsgId = `error-${action.meta.requestId}`;
       console.log(errorMsgId);
       var failedMsg = Object.assign({}, action.meta.arg.msg);
-      console.log("before fuckery");
       failedMsg.id = errorMsgId;
-      console.log("after fuckery");
       failedMsg.guildId = guildId;
       failedMsg.failed = true;
       state.msgs[errorMsgId] = failedMsg;

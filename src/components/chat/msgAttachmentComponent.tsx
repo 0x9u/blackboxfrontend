@@ -13,7 +13,10 @@ const MsgAttachment: FC<msgAttachmentProps> = ({ attachments }) => {
       {attachments?.map((attachment) => {
         const type = attachment.type.split("/")[0];
         return imageError ? (
-          <div className="flex h-32 w-32 items-center justify-center rounded-sm bg-shade-2 text-white">
+          <div
+            className="flex h-32 w-32 items-center justify-center rounded-sm bg-shade-2 text-white"
+            key={attachment.id}
+          >
             <p className="text-center">Failed to load attachment</p>
           </div>
         ) : type === "image" ? (

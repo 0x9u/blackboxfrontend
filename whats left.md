@@ -37,6 +37,7 @@
 - add support for cropping images - done
 
 # bugs
+**Currently: 6 bugs**
 
 - fix delete msg breaks infinite scroll - fixed
 - fix delete and edit msg for dont save chat history - fixed
@@ -45,23 +46,28 @@
 - mentions not working in dms - fixed
 - dm not reopening when user sends msg - fixed
 - delete button not working on error msg (supposed to delete the unsent message) - fixed
-- cannot seek video or audio (IMPORTANT)
 - fix loading priority - done
 - retry button on failed for loading guilds and msgs - fixed? it works for some reason now
 - no error shown for create account or sign in - fixed
 - stuff not reset on log out - fixed
 - delete account not working properly - fixed
 - loads in basic data even if not logged in - fixed i think
-- scrolling bug from API bot
 - token not deleted when invalid - fixed
+- fix file size max modal - fixed
+- fix attachment not being able to be deselected after selected. - fixed
+
+- fix infinite scroll occuring again after switching back to original guild
+- cannot seek video or audio (IMPORTANT)
+- scrolling bug from API bot
+- doesnt scroll fully to bottom (possibly due to attachments loading in late - perhaps defer useeffect until fully loaded)
 - fix unnecessary bans request sent when not admin or owner
-- fix upload attachment not resending on error
-- fix file size max modal
-- fix attachment not being able to be deselected after selected.
+- fix upload attachment not resending on error 
 
 # FACTOR CODE
 - refactor load order (SUPER IMPORTANT) - fixed
 - fix any current bugs before adding new features
+- remove console logs or change the format of it
+- refactor code to be more readable and compartmentalise it (aka move to own functions if repetitive or long af)
 
 # attachments
 

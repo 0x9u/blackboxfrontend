@@ -16,6 +16,8 @@ import InviteModal from "../../../components/chat/inviteModalComponent";
 import CooldownModal from "../../../components/chat/chatCooldownModalComponent";
 import { loadGuildInfo } from "../../../api/hooks/guildHooks";
 import UserBlockedModal from "../../../components/chat/chatUserBlockedModalComponent";
+import { setShowFileExceedsSizeModal } from "../../../app/slices/clientSlice";
+import FileExceedsSizeModal from "../../../components/chat/chatFileExceedsSizeModal";
 
 const Chat: FC = () => {
   const showAddChatModal = useSelector(
@@ -42,6 +44,9 @@ const Chat: FC = () => {
   );
   const showUserBlockedModal = useSelector(
     (state: RootState) => state.client.showUserBlockedModal
+  );
+  const showFileExceedsSizeModal = useSelector(
+    (state: RootState) => state.client.showFileExceedsSizeModal
   );
 
   loadGuildInfo(); //load order for dm and guild
@@ -72,6 +77,7 @@ const Chat: FC = () => {
       </Page>
       {showAddChatModal && <ChatModal />}
       {showCooldownModal && <CooldownModal />}
+      {showFileExceedsSizeModal && <FileExceedsSizeModal />}
       {showUserBlockedModal && <UserBlockedModal />}
       {showCreateInviteModal && <InviteModal />}
       {showGuildDMSettings && <GuildSettings />}

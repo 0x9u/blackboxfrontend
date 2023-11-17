@@ -10,6 +10,7 @@ import {
   setGuildBannedLoaded,
   setGuildInvitesLoaded,
   setGuildMembersLoaded,
+  setUploadProgress,
 } from "../app/slices/clientSlice";
 import { ErrorBody } from "./types/error";
 import { RootState } from "../app/store";
@@ -22,7 +23,6 @@ export const createGuild = asyncThunkAPI<void, GuildUpload>(
     formData.append("body", JSON.stringify(guild.body));
     if (guild.image) {
       const data = new Blob([guild.image], { type: guild.image.type });
-      console.log(guild.image.name);
       formData.append("image", data, guild.image.name);
     }
     return await requestAPI<void>("POST", "/guilds", formData, thunkAPI);
@@ -38,7 +38,6 @@ export const editGuild = asyncThunkAPI<
   formData.append("body", JSON.stringify(guild.body));
   if (guild.image) {
     const data = new Blob([guild.image], { type: guild.image.type });
-    console.log(guild.image.name);
     formData.append("image", data, guild.image.name);
   }
   return await requestAPI<void>("PATCH", `/guilds/${id}`, formData, thunkAPI);
@@ -137,14 +136,37 @@ export const retryGuildMsg = asyncThunkAPI<void, { id: string; msgId: string }>(
   async (args: { id: string; msgId: string }, thunkAPI) => {
     const { id, msgId } = args;
     const msg = (thunkAPI.getState() as RootState).msg.msgs[msgId];
-    console.log(msg);
-    console.log("work u fucking piece of shit");
+    const formData = new FormData();
+    formData.append("body", JSON.stringify({ content: msg.content } as Msg));
+    console.log("test 123");
+    console.log("msg retrying attempt: ", msg);
+    await msg.uploadIds?.forEach(async (uploadId) => {
+      const uploadData = (thunkAPI.getState() as RootState).client.uploadData[
+        uploadId
+      ];
+      const response = await fetch(uploadData.dataURL);
+      const blob = await response.blob();
+      const file = new File([blob], uploadData.filename, { type: blob.type });
+      formData.append("file", file, uploadData.filename);
+      //TODO: bug here fix 
+      thunkAPI.dispatch(setUploadProgress({ id: uploadId, progress: 0 }));
+    });
+    console.log("retrying msg 2!!!!!!!!!!!!");
     return await requestAPI<void>(
       "POST",
       `/guilds/${id}/msgs`,
-      { content: msg.content } as Msg,
+      formData,
       thunkAPI
-    );
+    ).then(() => {
+      //because I cannot find a way to access msg state in client state
+      msg.uploadIds?.forEach((uploadId) => {
+        const uploadData = (thunkAPI.getState() as RootState).client.uploadData[
+          uploadId
+        ];
+        URL.revokeObjectURL(uploadData.dataURL);
+        thunkAPI.dispatch(deleteUploadProgress({ id: uploadId }));
+      });
+    });
   }
 );
 

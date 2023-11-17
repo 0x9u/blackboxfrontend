@@ -96,7 +96,20 @@ const Msg: FC<msgProps> = ({
     }
   }, [editing]);
 
-  console.log(uploadId);
+  function send() {
+    if (value !== "") {
+      dispatch(
+        editGuildMsg({
+          id: currentGuild,
+          msgId: requestId !== "" ? requestId : id,
+          msg: { content: value } as Msg,
+        })
+      );
+      dispatch(setCurrentEditMsgId(null));
+    } else {
+      setPlayAnimation(true);
+    }
+  }
 
   return (
     <div
@@ -191,37 +204,13 @@ const Msg: FC<msgProps> = ({
                 placeholder="Type your message here!"
                 value={value}
                 onChange={(v) => {
-                  console.log(v.target.value);
                   setValue(v.target.value);
                 }}
                 inputRef={editInput}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-                    if (value !== "") {
-                      console.log(requestId, "fucking work 2");
-                      if (requestId !== "") {
-                        dispatch(
-                          editGuildMsg({
-                            id: currentGuild,
-                            msgId: requestId,
-                            msg: { content: value } as Msg,
-                          })
-                        );
-                      } else {
-                        dispatch(
-                          editGuildMsg({
-                            id: currentGuild,
-                            msgId: id,
-                            msg: { content: value } as Msg,
-                          })
-                        );
-                      }
-                      dispatch(setCurrentEditMsgId(null));
-                      dispatch(setCurrentEditMsgId(null));
-                    } else {
-                      setPlayAnimation(true);
-                    }
+                    send();
                   }
                 }}
                 forceSuggestionsAboveCursor={true}
@@ -261,31 +250,7 @@ const Msg: FC<msgProps> = ({
               Press Enter to{" "}
               <a
                 className=" cursor-pointer text-shade-5 hover:underline"
-                onClick={() => {
-                  if (value !== "") {
-                    console.log(requestId, "fucking work 2");
-                    if (requestId !== "") {
-                      dispatch(
-                        editGuildMsg({
-                          id: currentGuild,
-                          msgId: requestId,
-                          msg: { content: value } as Msg,
-                        })
-                      );
-                    } else {
-                      dispatch(
-                        editGuildMsg({
-                          id: currentGuild,
-                          msgId: id,
-                          msg: { content: value } as Msg,
-                        })
-                      );
-                    }
-                    dispatch(setCurrentEditMsgId(null));
-                  } else {
-                    setPlayAnimation(true);
-                  }
-                }}
+                onClick={send}
               >
                 Save
               </a>
@@ -313,7 +278,6 @@ const Msg: FC<msgProps> = ({
             <MdEdit
               className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10"
               onClick={() => {
-                console.log("editing msg");
                 dispatch(setCurrentEditMsgId(id));
               }}
             />
@@ -323,8 +287,6 @@ const Msg: FC<msgProps> = ({
               <MdDelete
                 className="h-6 w-6 cursor-pointer text-red hover:bg-white/25 active:bg-white/10"
                 onClick={() => {
-                  console.log("deleting msg");
-                  console.log(id, "fucking work");
                   if (failed) {
                     dispatch(
                       removeGuildMsg({

@@ -17,7 +17,6 @@ const NavBar: FC = () => {
 
   const hasPermissions = useSelector((state: RootState) => {
     const perms = state.client.permissions;
-    console.log("permissions" ,perms)
     if (Object.keys(perms).length === 0) return false;
     return (
       perms.admin ||

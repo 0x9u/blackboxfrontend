@@ -47,7 +47,6 @@ const msgSlice = createSlice({
     editMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
       if (state.msgs[msg.id] === undefined) {
-        console.log("not exists");
         return;
       }
       state.msgs[msg.id].content = msg.content;
@@ -57,17 +56,14 @@ const msgSlice = createSlice({
     removeGuildMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
       if (state.guildMsgIds[msg.guildId] === undefined) {
-        console.log("not exists");
         return;
       }
       state.guildMsgIds[msg.guildId] = state.guildMsgIds[msg.guildId].filter(
         (id) => id !== msg.id
       );
       delete state.msgs[msg.id];
-      console.log(msg?.failed);
       if (!msg?.failed) {
         if (state.author[msg.author.id] === undefined) {
-          console.log("not exists");
           return;
         }
         state.author[msg.author.id] = state.author[msg.author.id].filter(
@@ -78,7 +74,6 @@ const msgSlice = createSlice({
     removeAllGuildMsg: (state, action: PayloadAction<Guild>) => {
       const { id } = action.payload;
       if (state.guildMsgIds[id] === undefined) {
-        console.log("not exists");
         return;
       }
       for (const msgId of state.guildMsgIds[id]) {
@@ -89,7 +84,6 @@ const msgSlice = createSlice({
     removeAuthorMsg: (state, action: PayloadAction<Msg>) => {
       const msg = action.payload;
       if (state.author[msg.author.id] === undefined) {
-        console.log("not exists");
         return;
       }
       for (const msgId of state.author[msg.author.id]) {
@@ -108,7 +102,6 @@ const msgSlice = createSlice({
     builder.addCase(
       getGuildMsgs.fulfilled,
       (state, action: PayloadAction<Msg[]>) => {
-        console.log(action.payload);
         for (const msg of action.payload) {
           state.msgs[msg.id] = msg;
           if (state.author[msg.author.id] === undefined) {
@@ -165,7 +158,6 @@ const msgSlice = createSlice({
       }
 
       const errorMsgId = `error-${action.meta.requestId}`;
-      console.log(errorMsgId);
       var failedMsg = Object.assign({}, action.meta.arg.msg);
       failedMsg.id = errorMsgId;
       failedMsg.guildId = guildId;
@@ -174,7 +166,6 @@ const msgSlice = createSlice({
       state.guildMsgIds[guildId].unshift(errorMsgId);
     });
     builder.addCase(retryGuildMsg.fulfilled, (state, action) => {
-      console.log("retry success");
       const failedMsgId = action.meta.arg.msgId;
       delete state.msgs[failedMsgId];
       const guildId = action.meta.arg.id;

@@ -7,6 +7,7 @@ import {
   getGuildMembers,
   getGuildMsgs,
   joinGuildInvite,
+  retryGuildMsg,
 } from "../../api/guildApi";
 import { GuildList } from "../../api/types/guild";
 //import { Upload } from "../../api/types/msg";
@@ -53,6 +54,7 @@ type ClientState = {
 
   showCooldownModal: boolean;
   showUserBlockedModal: boolean;
+  showFileExceedsSizeModal: boolean;
 
   showGuildDMSettings: boolean;
   showUserSettings: boolean;
@@ -96,6 +98,7 @@ const initialState: ClientState = {
 
   showCooldownModal: false,
   showUserBlockedModal: false,
+  showFileExceedsSizeModal: false,
 
   showGuildDMSettings: false,
   showUserSettings: false,
@@ -194,6 +197,9 @@ const clientSlice = createSlice({
     },
     setShowUserBlockedModal: (state, action: PayloadAction<boolean>) => {
       state.showUserBlockedModal = action.payload;
+    },
+    setShowFileExceedsSizeModal: (state, action: PayloadAction<boolean>) => {
+      state.showFileExceedsSizeModal = action.payload;
     },
     setShowGuildDMSettings: (state, action: PayloadAction<boolean>) => {
       state.showGuildDMSettings = action.payload;
@@ -405,6 +411,8 @@ const clientSlice = createSlice({
     });
     builder.addCase(createGuildMsg.fulfilled, (state, action) => {
       action.meta.arg.msg.uploadIds?.forEach((id) => {
+        const dataURL = state.uploadData[id].dataURL;
+        URL.revokeObjectURL(dataURL);
         delete state.uploadData[id];
       });
     });
@@ -438,6 +446,7 @@ export const {
   setShowDeleteAccountModal,
   setShowCooldownModal,
   setShowUserBlockedModal,
+  setShowFileExceedsSizeModal,
   setShowGuildDMSettings,
   setShowUserSettings,
   initGuildLoaded,

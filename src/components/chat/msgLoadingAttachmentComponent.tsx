@@ -20,7 +20,6 @@ const MsgLoadingAttachment: FC<msgLoadingAttachmentProps> = ({
     }
     return uploadsList;
   });
-  console.log(uploads);
   return (
     <div className="flex flex-wrap gap-4">
       {uploads?.map((upload, idx) => {

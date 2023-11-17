@@ -10,7 +10,13 @@ import {
   useGetGuildMembersForMention,
   useUserIsTyping,
 } from "../../api/hooks/guildHooks";
-import { createUploadProgress } from "../../app/slices/clientSlice";
+import {
+  createUploadProgress,
+  deleteUploadProgress,
+  setShowFileExceedsSizeModal,
+} from "../../app/slices/clientSlice";
+
+const MAX_FILE_SIZE: number = 1024 * 1024 * 15;
 
 const chatInputArea: FC = () => {
   const [value, setValue] = useState<string>("");
@@ -39,13 +45,12 @@ const chatInputArea: FC = () => {
   useUserIsTyping(value);
 
   function send() {
-    console.log("SENDING MSG")
+    console.log("SENDING MSG");
     if (currentId) {
       var uploadIds: string[] = [];
       files.forEach((file) => {
         const id = Math.floor(Math.random() * 1000000000).toString();
         uploadIds.push(id);
-        console.log("attachment type:", file.type);
         dispatch(
           createUploadProgress({
             id: id,
@@ -69,8 +74,15 @@ const chatInputArea: FC = () => {
   }
 
   function selectFiles(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files) {
-      setFiles((prevFiles) => [...prevFiles, ...(e.target.files ?? [])]);
+    const files = e.target.files;
+    if (files) {
+      for (const file of files) {
+        if (file.size > MAX_FILE_SIZE) {
+          dispatch(setShowFileExceedsSizeModal(true));
+          return;
+        }
+      }
+      setFiles((prevFiles) => [...prevFiles, ...files]);
     }
   }
 
@@ -88,9 +100,16 @@ const chatInputArea: FC = () => {
             //file debug
             <div
               key={index}
-              className="mb-2 flex h-48 w-48 shrink-0 flex-col rounded-md bg-shade-2 p-2"
+              className="mb-2 mt-4 flex h-48 w-48 shrink-0 flex-col rounded-md bg-shade-2 p-2"
             >
-              <MdOutlineCancel className="ml-auto h-6 w-6 cursor-pointer text-white/90 hover:text-white/75" />
+              <MdOutlineCancel
+                className="ml-auto h-6 w-6 cursor-pointer text-white/90 hover:text-white/75"
+                onClick={() => {
+                  setFiles(
+                    files.filter((value, fileIndex) => fileIndex !== index)
+                  );
+                }}
+              />
               {file.type === "image/png" ||
               file.type === "image/jpeg" ||
               file.type === "image/gif" ? (

@@ -35,9 +35,22 @@ const ChatHistory: FC = () => {
   );
 
   useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "childList") {
+          if (scrollIntoView.current) {
+            scrollIntoView.current.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      });
+    });
+
+    const config = { childList: true };
+
     if (scrollIntoView.current) {
-      scrollIntoView.current.scrollIntoView({ behavior: "smooth" });
+      observer.observe(scrollIntoView.current, config);
     }
+    return () => observer.disconnect();
   }, [msgsHistory]);
 
   return (

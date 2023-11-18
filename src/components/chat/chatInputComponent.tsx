@@ -76,12 +76,12 @@ const chatInputArea: FC = () => {
   function selectFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (files) {
-      for (const file of files) {
+      /*for (const file of files) {
         if (file.size > MAX_FILE_SIZE) {
           dispatch(setShowFileExceedsSizeModal(true));
           return;
         }
-      }
+      }*/
       setFiles((prevFiles) => [...prevFiles, ...files]);
     }
   }

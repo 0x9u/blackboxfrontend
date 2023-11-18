@@ -5,7 +5,6 @@ import { GuildUpload, Invite } from "./types/guild";
 import { Member } from "./types/user";
 import axios, { AxiosError } from "axios";
 import {
-  createUploadProgress,
   deleteUploadProgress,
   setGuildBannedLoaded,
   setGuildInvitesLoaded,
@@ -14,7 +13,7 @@ import {
 } from "../app/slices/clientSlice";
 import { ErrorBody } from "./types/error";
 import { RootState } from "../app/store";
-import { addGuildMsg } from "../app/slices/msgSlice";
+import { isRejectedWithValue } from "@reduxjs/toolkit";
 
 export const createGuild = asyncThunkAPI<void, GuildUpload>(
   "guild/create",
@@ -117,10 +116,14 @@ export const createGuildMsg = asyncThunkAPI<
     const { id, msg, files } = args;
     const formData = new FormData();
 
-    formData.append("body", JSON.stringify(msg));
+    formData.append(
+      "body",
+      JSON.stringify({ ...msg, uploadIds: undefined } as Msg)
+    );
     files.forEach((file) => {
       formData.append("file", file, file.name);
     });
+    console.log(...formData.values());
     return await requestAPI<void>(
       "POST",
       `/guilds/${id}/msgs`,
@@ -137,35 +140,46 @@ export const retryGuildMsg = asyncThunkAPI<void, { id: string; msgId: string }>(
     const { id, msgId } = args;
     const msg = (thunkAPI.getState() as RootState).msg.msgs[msgId];
     const formData = new FormData();
-    formData.append("body", JSON.stringify({ content: msg.content } as Msg));
-    console.log("test 123");
-    console.log("msg retrying attempt: ", msg);
-    await msg.uploadIds?.forEach(async (uploadId) => {
-      const uploadData = (thunkAPI.getState() as RootState).client.uploadData[
-        uploadId
-      ];
-      const response = await fetch(uploadData.dataURL);
-      const blob = await response.blob();
-      const file = new File([blob], uploadData.filename, { type: blob.type });
-      formData.append("file", file, uploadData.filename);
-      //TODO: bug here fix 
-      thunkAPI.dispatch(setUploadProgress({ id: uploadId, progress: 0 }));
-    });
-    console.log("retrying msg 2!!!!!!!!!!!!");
+    // not casted as msg because id needs to be undefined (error id persists)
+    formData.append(
+      "body",
+      JSON.stringify({ ...msg, uploadIds: undefined, id: undefined })
+    );
+
+    //do not use foreach as its asynchronous
+    if (msg.uploadIds) {
+      for (const uploadId of msg.uploadIds) {
+        const uploadData = (thunkAPI.getState() as RootState).client.uploadData[
+          uploadId
+        ];
+        console.log("file name", uploadData.filename);
+        const response = await fetch(uploadData.dataURL);
+        const blob = await response.blob();
+        const file = new File([blob], uploadData.filename, { type: blob.type });
+        console.log("blob", blob, "file", file);
+        formData.append("file", file, uploadData.filename);
+        thunkAPI.dispatch(setUploadProgress({ id: uploadId, progress: 0 }));
+      }
+    }
+
+    console.log("formdata retry", ...formData.values());
     return await requestAPI<void>(
       "POST",
       `/guilds/${id}/msgs`,
       formData,
       thunkAPI
-    ).then(() => {
+    ).then((action) => {
       //because I cannot find a way to access msg state in client state
-      msg.uploadIds?.forEach((uploadId) => {
-        const uploadData = (thunkAPI.getState() as RootState).client.uploadData[
-          uploadId
-        ];
-        URL.revokeObjectURL(uploadData.dataURL);
-        thunkAPI.dispatch(deleteUploadProgress({ id: uploadId }));
-      });
+      if (isRejectedWithValue(action)) {
+        //do not remove this if statement
+        msg.uploadIds?.forEach((uploadId) => {
+          const uploadData = (thunkAPI.getState() as RootState).client
+            .uploadData[uploadId];
+          URL.revokeObjectURL(uploadData.dataURL);
+          thunkAPI.dispatch(deleteUploadProgress({ id: uploadId }));
+        });
+      }
+      return action;
     });
   }
 );

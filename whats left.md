@@ -55,13 +55,14 @@
 - token not deleted when invalid - fixed
 - fix file size max modal - fixed
 - fix attachment not being able to be deselected after selected. - fixed
+- fix upload attachment not resending on error - fixed
 
 - fix infinite scroll occuring again after switching back to original guild
 - cannot seek video or audio (IMPORTANT)
 - scrolling bug from API bot
 - doesnt scroll fully to bottom (possibly due to attachments loading in late - perhaps defer useeffect until fully loaded)
 - fix unnecessary bans request sent when not admin or owner
-- fix upload attachment not resending on error 
+- websocket keeps disconnecting (IMPORTANT)
 
 # FACTOR CODE
 - refactor load order (SUPER IMPORTANT) - fixed

@@ -35,7 +35,6 @@ export const requestAPI = async <T,>(
             })
           );
         }
-        console.log("progressEvent aaaaa", progressEvent.loaded);
       },
     });
     return data;

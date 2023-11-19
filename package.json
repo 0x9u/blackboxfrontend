@@ -19,7 +19,7 @@
     "@pqina/react-pintura": "^9.0.1",
     "@reduxjs/toolkit": "^1.9.2",
     "@types/react-mentions": "^4.1.8",
-    "axios": "^1.4.0",
+    "axios": "^1.6.0",
     "linkify-react": "^4.1.1",
     "linkifyjs": "^4.1.1",
     "localforage": "^1.10.0",

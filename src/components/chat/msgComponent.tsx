@@ -145,11 +145,21 @@ const Msg: FC<msgProps> = ({
             <p className="text-lg font-semibold leading-relaxed text-white">
               {username}
             </p>
-            {!failed && !loading && (
-              <p className="text-xs font-medium leading-relaxed text-white brightness-75">
-                Created on {created} {modified && `and Edited at ${modified}`}
-              </p>
-            )}
+            <p
+              className={`text-xs font-medium leading-relaxed brightness-75 ${
+                !failed
+                  ? !loading
+                    ? "text-white"
+                    : "text-white/50"
+                  : "text-red"
+              }`}
+            >
+              {!failed && !loading
+                ? `Created on ${created}${
+                    modified ? ` and Edited at ${modified}` : ""
+                  }`
+                : `${failed ? "Failed" : "Sending"}`}
+            </p>
           </div>
         )}
         {!editing ? (
@@ -225,7 +235,7 @@ const Msg: FC<msgProps> = ({
                   },
                 }}
               >
-                <Mention /* TODO: somehow make suggestions menu rounded*/
+                <Mention
                   trigger="@"
                   markup="<@__id__>"
                   data={userListMention}
@@ -264,12 +274,11 @@ const Msg: FC<msgProps> = ({
             </p>
           </div>
         )}
-        <div className="group invisible absolute right-1 -top-4 z-50 !ml-auto mb-auto flex select-none flex-row space-x-2 rounded-sm bg-shade-2 p-1 group-hover:visible">
+        <div className="[.group:not(:empty)]:p-1 group invisible absolute right-1 -top-4 z-50 !ml-auto mb-auto flex select-none flex-row space-x-2 rounded-sm bg-shade-2 group-hover:visible">
           {failed && (
             <MdRepeat
               className="h-6 w-6 cursor-pointer text-white hover:bg-white/25 active:bg-white/10"
               onClick={() => {
-                console.log("retrying msg");
                 dispatch(retryGuildMsg({ id: currentGuild, msgId: id }));
               }}
             />

@@ -36,8 +36,9 @@
 - Add badges
 - add support for cropping images - done
 
-# bugs
-**Currently: 6 bugs**
+# Bugs
+
+**Currently: 4 bugs**
 
 - fix delete msg breaks infinite scroll - fixed
 - fix delete and edit msg for dont save chat history - fixed
@@ -57,14 +58,17 @@
 - fix attachment not being able to be deselected after selected. - fixed
 - fix upload attachment not resending on error - fixed
 - doesnt scroll fully to bottom (possibly due to attachments loading in late - perhaps defer useeffect until fully loaded) - fixed i think
+- scrolling bug from API bot - fixed
+- fix unnecessary bans request sent when not admin or owner - fixed
+- small box appearing when hovering over message and user has no authority over message - fixed
 
-- fix infinite scroll occuring again after switching back to original guild
+- fix infinite scroll occuring again after switching back to original guild (HARDEST - it just happens randomly)
 - cannot seek video or audio (IMPORTANT)
-- scrolling bug from API bot
-- fix unnecessary bans request sent when not admin or owner
 - websocket keeps disconnecting (IMPORTANT)
 
+
 # FACTOR CODE
+
 - refactor load order (SUPER IMPORTANT) - fixed
 - fix any current bugs before adding new features
 - remove console logs or change the format of it
@@ -78,6 +82,9 @@
 # etc
 
 - redirect user back if token fails
+- limit max total size for attachments to 15mb
+- add key binds for cancel on editing message
+- remove all debug console.log
 
 # admin
 
@@ -88,8 +95,9 @@
 
 # maybe
 
-- have option to prevent non friends from dming
+- have option to prevent non friends from dming (hardest probs)
 - add emojis
+- redesign icons
 
 # games
 

@@ -20,7 +20,7 @@ const ChatHistory: FC = () => {
     msgsUnread,
     isMsgsLoaded,
     lastTime,
-    isIntialMsgsLoaded,
+    isInitialMsgsLoaded,
     currentEditMsgId,
   } = useGetGuildMsgInfo();
 
@@ -59,7 +59,7 @@ const ChatHistory: FC = () => {
         id="chatHistory"
         className="flex h-0 shrink-0 grow flex-col-reverse space-y-reverse overflow-y-auto py-5"
       >
-        {!isIntialMsgsLoaded && <SkeletonLoaderChatMsg />}
+        {!isInitialMsgsLoaded && <SkeletonLoaderChatMsg />}
         <InfiniteScroll
           style={{ display: "flex", flexDirection: "column-reverse" }}
           scrollableTarget="chatHistory"
@@ -93,6 +93,7 @@ const ChatHistory: FC = () => {
             return (
               <MsgElement
                 key={msg.id}
+                
                 id={msg.id}
                 content={msg.content}
                 authorid={

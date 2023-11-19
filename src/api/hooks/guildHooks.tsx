@@ -20,8 +20,8 @@ import { SuggestionDataItem } from "react-mentions";
 
 export const loadGuildInfo = () => {
   const dispatch = useAppDispatch();
-  const { currentId, currentChatMode, lastMsgTime, loaded } = useSelector(
-    (state: RootState) => {
+  const { currentId, currentChatMode, lastMsgTime, hasAuth, loaded } =
+    useSelector((state: RootState) => {
       const currentChatMode = state.client.currentChatMode;
       const currentId =
         (currentChatMode === "guild"
@@ -34,15 +34,19 @@ export const loadGuildInfo = () => {
             0
         ).valueOf() / 1000
       );
+      const selfUser = state.user.selfUser ?? "";
+      const hasAuth =
+        (state.user.guildAdminIds[currentId] ?? []).includes(selfUser) ||
+        (state.guild.guilds[currentId]?.ownerId ?? "") === selfUser;
       return {
         currentId,
         currentChatMode,
         lastMsgTime,
+        hasAuth,
         loaded:
           state.client.guildLoaded[currentId ?? ""] ?? ({} as guildLoaded),
       };
-    }
-  );
+    });
   const { invites, members, banned, initialMsgs } = loaded;
   console.log("currentId", currentId, "loaded", loaded);
   useEffect(() => {
@@ -56,7 +60,7 @@ export const loadGuildInfo = () => {
     }
   }, [currentChatMode, currentId, members, dispatch]);
   useEffect(() => {
-    if (currentChatMode === "guild" && currentId !== "" && !banned) {
+    if (currentChatMode === "guild" && hasAuth && currentId !== "" && !banned) {
       dispatch(getGuildBans(currentId));
     }
   }, [currentChatMode, currentId, banned, dispatch]);
@@ -198,10 +202,10 @@ export const useGetGuildMsgInfo = () => {
     return {
       currentId, //temp fix ?.
       currentChatMode: state.client.currentChatMode,
-      loaded: state.client.guildLoaded?.[currentId]?.msgs ?? true,
-      isIntialMsgsLoaded:
-        state.client.guildLoaded?.[currentId]?.initialMsgs ?? true,
-      isMsgsLoaded: state.client.guildLoaded?.[currentId]?.msgs ?? true,
+      loaded: state.client.guildLoaded?.[currentId].msgs ?? true,
+      isInitialMsgsLoaded:
+        state.client.guildLoaded?.[currentId].initialMsgs ?? true,
+      isMsgsLoaded: state.client.guildLoaded?.[currentId].msgs ?? true,
       msgsLength: state.msg.guildMsgIds?.[currentId]?.length ?? 0,
       lastTime,
       msgsUnread:
